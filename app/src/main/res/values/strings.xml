@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">T-Travelling</string>
+    <string name="logo">логотип</string>
+    <string name="phone">Номер телефона</string>
+    <string name="password">Пароль</string>
+    <string name="enter">Войти</string>
+    <string name="registration">Регистрация</string>
+    <string name="to_register">Зарегистрироваться</string>
+    <string name="back">Назад</string>
+    <string name="password_repeat">Повторите пароль</string>
+    <string name="error_phone_empty">Телефон не может быть пустым</string>
+    <string name="error_password_empty">Пароль не может быть пустым</string>
+    <string name="incorrect_email_or_password">Неверная почта или пароль</string>
+    <string name="my_trips">Мои путушествия</string>
+    <string name="add">Добавить</string>
+    <string name="account_page">Профиль</string>
+    <string name="error_invalid_phone">Неверный номер телефона</string>
+    <string name="error_invalid_password">Пароль должен содержать не менее 6 символов, заглавную букву и цифру</string>
+    <string name="error_password_mismatch">Пароли не совпадают</string>
+    <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>
+    <string name="error_unknown">Произошла неизвестная ошибка. Пожалуйста, повторите попытку позже.</string>
 </resources>

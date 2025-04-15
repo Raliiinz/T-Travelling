@@ -1,0 +1,30 @@
+package ru.itis.t_travelling.domain.usecase
+
+import ru.itis.t_travelling.domain.repository.UserPreferencesRepository
+import ru.itis.t_travelling.domain.repository.UserRepository
+import ru.itis.t_travelling.util.ValidationUtils
+import javax.inject.Inject
+
+class RegisterUseCase @Inject constructor(
+    private val userRepository: UserRepository
+) {
+    suspend operator fun invoke(phone: String, password: String): Boolean {
+//        if (!ValidationUtils.isValidPhone(phone)) {
+//            throw IllegalArgumentException("Invalid phone number")
+//        }
+//        if (!ValidationUtils.isValidPassword(password)) {
+//            throw IllegalArgumentException("Invalid password")
+//        }
+
+
+
+//        if (userRepository.isUserExists(phone)) {
+//            throw IllegalArgumentException("User with this phone number already exists")
+//        }
+
+        userRepository.registerUser(phone, password)
+//        userPreferencesRepository.saveLoginState(true, phone)
+
+        return true
+    }
+}

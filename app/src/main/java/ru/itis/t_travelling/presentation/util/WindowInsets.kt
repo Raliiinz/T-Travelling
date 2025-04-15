@@ -1,4 +1,4 @@
-package ru.itis.wishlist.util
+package ru.itis.t_travelling.presentation.util
 
 import android.view.View
 import android.view.WindowInsets
