@@ -6,6 +6,9 @@ import android.text.method.PasswordTransformationMethod
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,6 +21,8 @@ import ru.itis.t_travelling.MainActivity
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.presentation.base.NavigationAction
 import ru.itis.t_travelling.databinding.FragmentRegistrationBinding
+import ru.itis.t_travelling.presentation.util.hideKeyboard
+import ru.itis.t_travelling.presentation.util.setupValidation
 import ru.itis.t_travelling.presentation.viewmodels.RegistrationViewModel
 import ru.itis.t_travelling.util.ValidationUtils
 
@@ -31,10 +36,24 @@ class RegistrationFragment : Fragment(R.layout.fragment_registration) {
         super.onViewCreated(view, savedInstanceState)
         viewBinding = FragmentRegistrationBinding.bind(view)
 
+        setupWindowInsets()
+        setupPasswordToggle()
+        setupRealTimeValidation()
         setupListeners()
         setupObservers()
-        setupRealTimeValidation()
-        setupPasswordToggle()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(requireView()) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            view.updatePadding(
+                bottom = systemBars.bottom + if (ime.bottom > 0) ime.bottom else 0
+            )
+
+            insets
+        }
     }
 
     private fun setupPasswordToggle() {
@@ -61,7 +80,38 @@ class RegistrationFragment : Fragment(R.layout.fragment_registration) {
         setupToggleForField(viewBinding?.etPasswordRepeat, viewBinding?.textInputLayoutPasswordRepeat)
     }
 
+    private fun setupRealTimeValidation() {
+        viewBinding?.etPhone?.setupValidation(
+            ValidationUtils::isValidPhone,
+            viewBinding?.textInputLayoutPhone,
+            R.string.error_invalid_phone
+        )
+
+        viewBinding?.etPassword?.setupValidation(
+            ValidationUtils::isValidPassword,
+            viewBinding?.textInputLayoutPassword,
+            R.string.error_invalid_password
+        )
+
+        viewBinding?.etPasswordRepeat?.doOnTextChanged { text, _, _, _ ->
+            val password = viewBinding?.etPassword?.text.toString()
+            if (text.toString() != password) {
+                viewBinding?.textInputLayoutPasswordRepeat?.error = getString(R.string.error_password_mismatch)
+            } else {
+                viewBinding?.textInputLayoutPasswordRepeat?.error = null
+            }
+        }
+    }
+
     private fun setupListeners() {
+        viewBinding?.etPassword?.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                attemptRegister()
+                return@setOnEditorActionListener true
+            }
+            false
+        }
+
         listOf(
             viewBinding?.ivBackIcon,
             viewBinding?.tvBackText
@@ -70,35 +120,39 @@ class RegistrationFragment : Fragment(R.layout.fragment_registration) {
         }
 
         viewBinding?.btnLogin?.setOnClickListener {
-            val phone = viewBinding?.etPhone?.text.toString().trim()
-            val password = viewBinding?.etPassword?.text.toString().trim()
-            val confirmPassword = viewBinding?.etPasswordRepeat?.text.toString().trim()
+            attemptRegister()
+        }
+    }
 
-            val isPhoneValid = validateField(
-                phone,
-                ValidationUtils::isValidPhone,
-                viewBinding?.textInputLayoutPhone,
-                R.string.error_invalid_phone
-            )
+    private fun attemptRegister() {
+        val phone = viewBinding?.etPhone?.text.toString().trim()
+        val password = viewBinding?.etPassword?.text.toString().trim()
+        val confirmPassword = viewBinding?.etPasswordRepeat?.text.toString().trim()
 
-            val isPasswordValid = validateField(
-                password,
-                ValidationUtils::isValidPassword,
-                viewBinding?.textInputLayoutPassword,
-                R.string.error_invalid_password
-            )
+        val isPhoneValid = validateField(
+            phone,
+            ValidationUtils::isValidPhone,
+            viewBinding?.textInputLayoutPhone,
+            R.string.error_invalid_phone
+        )
 
-            val isPasswordMatch = if (password != confirmPassword) {
-                viewBinding?.textInputLayoutPasswordRepeat?.error = getString(R.string.error_password_mismatch)
-                false
-            } else {
-                viewBinding?.textInputLayoutPasswordRepeat?.error = null
-                true
-            }
+        val isPasswordValid = validateField(
+            password,
+            ValidationUtils::isValidPassword,
+            viewBinding?.textInputLayoutPassword,
+            R.string.error_invalid_password
+        )
 
-            if (isPhoneValid && isPasswordValid && isPasswordMatch) {
-                viewModel.register(phone, password, confirmPassword)
-            }
+        val isPasswordMatch = if (password != confirmPassword) {
+            viewBinding?.textInputLayoutPasswordRepeat?.error = getString(R.string.error_password_mismatch)
+            false
+        } else {
+            viewBinding?.textInputLayoutPasswordRepeat?.error = null
+            true
+        }
+
+        if (isPhoneValid && isPasswordValid && isPasswordMatch) {
+            viewModel.register(phone, password, confirmPassword)
         }
     }
 
@@ -135,44 +189,6 @@ class RegistrationFragment : Fragment(R.layout.fragment_registration) {
         }
     }
 
-
-    private fun setupRealTimeValidation() {
-        viewBinding?.etPhone?.setupValidation(
-            ValidationUtils::isValidPhone,
-            viewBinding?.textInputLayoutPhone,
-            R.string.error_invalid_phone
-        )
-
-        viewBinding?.etPassword?.setupValidation(
-            ValidationUtils::isValidPassword,
-            viewBinding?.textInputLayoutPassword,
-            R.string.error_invalid_password
-        )
-
-        viewBinding?.etPasswordRepeat?.doOnTextChanged { text, _, _, _ ->
-            val password = viewBinding?.etPassword?.text.toString()
-            if (text.toString() != password) {
-                viewBinding?.textInputLayoutPasswordRepeat?.error = getString(R.string.error_password_mismatch)
-            } else {
-                viewBinding?.textInputLayoutPasswordRepeat?.error = null
-            }
-        }
-    }
-
-    private fun TextInputEditText.setupValidation(
-        validator: (String) -> Boolean,
-        textInputLayout: TextInputLayout?,
-        errorResId: Int
-    ) {
-        doOnTextChanged { text, _, _, _ ->
-            if (!validator(text.toString())) {
-                textInputLayout?.error = getString(errorResId)
-            } else {
-                textInputLayout?.error = null
-            }
-        }
-    }
-
     private fun handleErrors(error: RegistrationViewModel.RegistrationError) {
         val message = when (error) {
             RegistrationViewModel.RegistrationError.UserAlreadyExists -> R.string.error_user_already_exists
@@ -183,6 +199,7 @@ class RegistrationFragment : Fragment(R.layout.fragment_registration) {
 
 
     private fun navigateBackToAuthorization() {
+        hideKeyboard()
         (requireActivity() as? MainActivity)?.navigate(
             destination = AuthorizationFragment(),
             destinationTag = AuthorizationFragment.AUTHORIZATION_TAG,

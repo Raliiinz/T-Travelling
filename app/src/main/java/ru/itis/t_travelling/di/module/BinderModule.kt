@@ -21,5 +21,4 @@ interface BinderModule {
     @Binds
     @Singleton
     fun bindUserRepositoryToImpl(impl: UserRepositoryImpl): UserRepository
-
 }

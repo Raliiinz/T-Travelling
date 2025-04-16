@@ -8,7 +8,6 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     override suspend fun registerUser(phone: String, password: String) {
-        // Логика сохранения пользователя в базу данных
 //        userDao.insertUser(User(phone = phone, password = password))
     }
 

@@ -21,19 +21,12 @@ class RegistrationViewModel @Inject constructor(
     fun register(phone: String, password: String, confirmPassword: String) {
         viewModelScope.launch {
             try {
-//                if (password != confirmPassword) {
-//                    _registrationState.value = RegistrationState.Error(RegistrationError.PasswordMismatch)
-//                    return@launch
-//                }
-
                 val isSuccess = registerUseCase(phone, password)
                 if (isSuccess) {
                     _registrationState.value = RegistrationState.Success
                 }
             } catch (e: Exception) {
                 when (e.message) {
-//                    "Invalid phone number" -> _registrationState.value = RegistrationState.Error(RegistrationError.InvalidPhone)
-//                    "Invalid password" -> _registrationState.value = RegistrationState.Error(RegistrationError.InvalidPassword)
                     "User with this phone number already exists" -> _registrationState.value = RegistrationState.Error(RegistrationError.UserAlreadyExists)
                     else -> _registrationState.value = RegistrationState.Error(RegistrationError.Unknown)
                 }
@@ -48,9 +41,6 @@ class RegistrationViewModel @Inject constructor(
     }
 
     enum class RegistrationError {
-//        InvalidPhone,
-//        InvalidPassword,
-//        PasswordMismatch,
         UserAlreadyExists,
         Unknown
     }

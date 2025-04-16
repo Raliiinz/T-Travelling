@@ -1,19 +1,17 @@
 package ru.itis.t_travelling.presentation.fragments
 
-import android.os.Build
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.view.View
-import android.view.WindowInsets
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -21,7 +19,8 @@ import ru.itis.t_travelling.MainActivity
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.databinding.FragmentAuthorizationBinding
 import ru.itis.t_travelling.presentation.base.NavigationAction
-import ru.itis.t_travelling.presentation.util.doOnApplyWindowInsets
+import ru.itis.t_travelling.presentation.util.hideKeyboard
+import ru.itis.t_travelling.presentation.util.setupValidationOfNull
 import ru.itis.t_travelling.presentation.viewmodels.AuthorizationViewModel
 
 @AndroidEntryPoint
@@ -40,15 +39,16 @@ class AuthorizationFragment : Fragment(R.layout.fragment_authorization) {
         setupPasswordToggle()
     }
 
-
     private fun setupWindowInsets() {
-        view?.doOnApplyWindowInsets { v, insets, padding ->
-            val bottomInset = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                insets.getInsets(WindowInsets.Type.ime()).bottom
-            } else {
-                0
-            }
-            v.updatePadding(bottom = padding.bottom + bottomInset)
+        ViewCompat.setOnApplyWindowInsetsListener(requireView()) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            view.updatePadding(
+                bottom = systemBars.bottom + if (ime.bottom > 0) ime.bottom else 0
+            )
+
+            insets
         }
     }
 
@@ -125,24 +125,15 @@ class AuthorizationFragment : Fragment(R.layout.fragment_authorization) {
 
     private fun setupRealTimeValidation() {
         viewBinding?.apply {
-            etPhone.setupValidation(
+            etPhone.setupValidationOfNull(
                 errorMessage = getString(R.string.error_phone_empty),
                 errorTarget = textInputLayoutPhone
             )
 
-            etPassword.setupValidation(
+            etPassword.setupValidationOfNull(
                 errorMessage = getString(R.string.error_password_empty),
                 errorTarget = textInputLayoutPassword
             )
-        }
-    }
-
-    private fun TextInputEditText.setupValidation(
-        errorMessage: String,
-        errorTarget: TextInputLayout?
-    ) {
-        doOnTextChanged { text, _, _, _ ->
-            errorTarget?.error = if (text.isNullOrEmpty()) errorMessage else null
         }
     }
 
@@ -166,6 +157,7 @@ class AuthorizationFragment : Fragment(R.layout.fragment_authorization) {
     }
 
     private fun navigateToTravelling(phone: String) {
+        hideKeyboard()
         (requireActivity() as? MainActivity)?.apply {
             setupBottomNavigation()
             showBottomNavigation()
@@ -179,6 +171,7 @@ class AuthorizationFragment : Fragment(R.layout.fragment_authorization) {
     }
 
     private fun navigateToRegistration() {
+        hideKeyboard()
         (requireActivity() as? MainActivity)?.navigate(
             destination = RegistrationFragment(),
             destinationTag = RegistrationFragment.REGISTRATION_TAG,

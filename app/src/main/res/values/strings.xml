@@ -11,7 +11,7 @@
     <string name="error_phone_empty">Телефон не может быть пустым</string>
     <string name="error_password_empty">Пароль не может быть пустым</string>
     <string name="incorrect_email_or_password">Неверная почта или пароль</string>
-    <string name="my_trips">Мои путушествия</string>
+    <string name="my_trips">Мои путeшествия</string>
     <string name="add">Добавить</string>
     <string name="account_page">Профиль</string>
     <string name="error_invalid_phone">Неверный номер телефона</string>
