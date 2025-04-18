@@ -1,4 +1,4 @@
-package ru.itis.t_travelling.util
+package ru.itis.t_travelling.presentation.authregister.util
 
 object ValidationUtils {
 

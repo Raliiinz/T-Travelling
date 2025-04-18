@@ -12,8 +12,8 @@ constraintlayout = "2.2.1"
 ksp = "2.0.21-1.0.27"
 secretsGradlePlugin = "2.0.1"
 fragment-version = "1.8.6"
-hilt = "2.48"
-
+hilt = "2.56.1"
+vbpd-version = "2.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,6 +27,8 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment-version" }
+#vbpd = { group = "dev.androidbroadcast.vbpd", name = "vbpd", version.ref = "vbpd-version" }
+#vbpd-reflection = { group = "dev.androidbroadcast.vbpd", name = "vbpd-reflection", version.ref = "vbpd-version" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

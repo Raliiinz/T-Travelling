@@ -1,23 +1,18 @@
-package ru.itis.t_travelling.presentation.fragments
+package ru.itis.t_travelling.presentation.authregister.fragments
 
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
+import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.databinding.FragmentTravellingBinding
+import ru.itis.t_travelling.presentation.base.BaseFragment
 
-class TravellingFragment: Fragment(R.layout.fragment_travelling) {
-    private var viewBinding: FragmentTravellingBinding? = null
+class TravellingFragment: BaseFragment(R.layout.fragment_travelling) {
+    private val viewBinding: FragmentTravellingBinding by viewBinding(FragmentTravellingBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewBinding = FragmentTravellingBinding.bind(view)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewBinding = null
     }
 
     companion object {

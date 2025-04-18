@@ -1,6 +1,6 @@
-package ru.itis.t_travelling.domain.usecase
+package ru.itis.t_travelling.domain.authregister.usecase
 
-import ru.itis.t_travelling.domain.repository.UserRepository
+import ru.itis.t_travelling.domain.authregister.repository.UserRepository
 import javax.inject.Inject
 
 class LoginUseCase @Inject constructor(

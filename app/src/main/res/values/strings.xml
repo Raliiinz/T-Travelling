@@ -19,4 +19,5 @@
     <string name="error_password_mismatch">Пароли не совпадают</string>
     <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>
     <string name="error_unknown">Произошла неизвестная ошибка. Пожалуйста, повторите попытку позже.</string>
+    <string name="authorization">Авторизация</string>
 </resources>

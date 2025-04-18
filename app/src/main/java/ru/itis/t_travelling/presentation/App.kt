@@ -1,4 +1,4 @@
-package ru.itis.t_travelling
+package ru.itis.t_travelling.presentation
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

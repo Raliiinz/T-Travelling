@@ -4,10 +4,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import ru.itis.t_travelling.domain.repository.UserPreferencesRepository
-import ru.itis.t_travelling.data.repository.UserPreferencesRepositoryImpl
-import ru.itis.t_travelling.data.repository.UserRepositoryImpl
-import ru.itis.t_travelling.domain.repository.UserRepository
+import ru.itis.t_travelling.domain.authregister.repository.UserPreferencesRepository
+import ru.itis.t_travelling.data.authregister.local.repository.UserPreferencesRepositoryImpl
+import ru.itis.t_travelling.data.authregister.local.repository.UserRepositoryImpl
+import ru.itis.t_travelling.domain.authregister.repository.UserRepository
 import javax.inject.Singleton
 
 @Module
