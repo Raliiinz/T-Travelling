@@ -6,8 +6,8 @@ import ru.itis.t_travelling.presentation.authregister.fragments.AuthorizationFra
 import ru.itis.t_travelling.presentation.authregister.fragments.AuthorizationFragment.Companion.AUTHORIZATION_TAG
 import ru.itis.t_travelling.presentation.authregister.fragments.RegistrationFragment
 import ru.itis.t_travelling.presentation.authregister.fragments.RegistrationFragment.Companion.REGISTRATION_TAG
-import ru.itis.t_travelling.presentation.authregister.fragments.TravellingFragment
-import ru.itis.t_travelling.presentation.authregister.fragments.TravellingFragment.Companion.TRAVELLING_TAG
+import ru.itis.t_travelling.presentation.trips.fragments.TripsFragment
+import ru.itis.t_travelling.presentation.trips.fragments.TripsFragment.Companion.TRIPS_TAG
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -89,8 +89,8 @@ class Navigator @Inject constructor() {
         if (phone?.isNotBlank() == true) {
             updateNavigationState(NavigationState.BottomNavigationVisible)
             navigate(
-                destination = TravellingFragment.getInstance(param = phone),
-                destinationTag = TRAVELLING_TAG,
+                destination = TripsFragment.getInstance(param = phone),
+                destinationTag = TRIPS_TAG,
                 action = NavigationAction.REPLACE,
                 isAddToBackStack = false
             )

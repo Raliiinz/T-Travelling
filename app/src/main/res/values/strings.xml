@@ -20,4 +20,6 @@
     <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>
     <string name="error_unknown">Произошла неизвестная ошибка. Пожалуйста, повторите попытку позже.</string>
     <string name="authorization">Авторизация</string>
+    <string name="archive_trips">Архив поездок</string>
+    <string name="price_0">0 ₽</string>
 </resources>

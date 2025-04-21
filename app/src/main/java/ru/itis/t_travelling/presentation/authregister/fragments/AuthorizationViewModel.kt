@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.itis.t_travelling.domain.authregister.repository.UserPreferencesRepository
@@ -37,6 +38,7 @@ class AuthorizationViewModel @Inject constructor(
             _uiState.update { AuthorizationUiState.Loading }
 
             try {
+                delay(2000)
                 val isSuccess = loginUseCase(phone, password)
                 if (isSuccess) {
                     userPreferencesRepository.saveLoginState(true, phone)

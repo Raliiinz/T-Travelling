@@ -52,4 +52,9 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
+    <style name="BottomNavigationStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@drawable/bottom_nav_icon_color</item>
+        <item name="itemTextColor">@drawable/bottom_nav_icon_color</item>
+    </style>
+
 </resources>

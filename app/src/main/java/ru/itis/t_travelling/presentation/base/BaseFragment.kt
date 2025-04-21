@@ -1,17 +1,21 @@
 package ru.itis.t_travelling.presentation.base
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import ru.itis.t_travelling.R
 
 abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
+    private var progressDialog: Dialog? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupWindowInsets()
+        initProgressDialog()
     }
 
     protected fun setupWindowInsets() {
@@ -27,11 +31,33 @@ abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
         }
     }
 
+    private fun initProgressDialog() {
+        progressDialog = Dialog(requireContext()).apply {
+            setContentView(R.layout.progress_dialog)
+            setCancelable(false)
+            window?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
+    }
+
     protected fun showProgress() {
-        // TODO: Реализовать Progress
+        progressDialog?.let {
+            if (!it.isShowing) {
+                it.show()
+            }
+        }
     }
 
     protected fun hideProgress() {
-        // TODO: Реализовать Progress
+        progressDialog?.let {
+            if (it.isShowing) {
+                it.dismiss()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        progressDialog?.dismiss()
+        progressDialog = null
     }
 }

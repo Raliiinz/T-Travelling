@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_trips_tab"
-        android:icon="@drawable/ic_event"
+        android:icon="@drawable/ic_suitcase"
         android:title="@string/my_trips"
         app:showAsAction="ifRoom" />
 
@@ -14,9 +14,9 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/menu_profile_tab"
-        android:icon="@drawable/ic_person"
-        android:title="@string/account_page"
+        android:id="@+id/menu_archive_tab"
+        android:icon="@drawable/ic_archive"
+        android:title="@string/archive_trips"
         app:showAsAction="ifRoom" />
 
 </menu>

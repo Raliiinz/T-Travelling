@@ -47,14 +47,17 @@ class MainActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.menu_trips_tab -> {
                         viewModel.onTripsTabSelected()
+                        menu.findItem(R.id.menu_trips_tab).isChecked = true
                         true
                     }
                     R.id.menu_add_tab -> {
                         viewModel.onAddTabSelected()
+                        menu.findItem(R.id.menu_add_tab).isChecked = true
                         true
                     }
-                    R.id.menu_profile_tab -> {
+                    R.id.menu_archive_tab -> {
                         viewModel.onProfileTabSelected()
+                        menu.findItem(R.id.menu_archive_tab).isChecked = true
                         true
                     }
                     else -> false
