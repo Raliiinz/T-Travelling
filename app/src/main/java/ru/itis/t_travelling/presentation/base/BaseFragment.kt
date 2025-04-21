@@ -26,4 +26,12 @@ abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
             insets
         }
     }
+
+    protected fun showProgress() {
+        // TODO: Реализовать Progress
+    }
+
+    protected fun hideProgress() {
+        // TODO: Реализовать Progress
+    }
 }

@@ -8,15 +8,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-val Context.authDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_prefs")
-
 class UserPreferencesDataSource @Inject constructor(
     private val context: Context
 ) {
-    companion object {
-        val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
-        val USER_PHONE = stringPreferencesKey("user_phone")
-    }
+
+    private val Context.authDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_prefs")
+    private val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+    private val USER_PHONE = stringPreferencesKey("user_phone")
 
     suspend fun saveLoginState(isLoggedIn: Boolean, phone: String?) {
         context.authDataStore.edit { prefs ->

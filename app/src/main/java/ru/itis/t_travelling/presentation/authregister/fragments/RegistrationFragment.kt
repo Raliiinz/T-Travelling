@@ -15,17 +15,14 @@ import kotlinx.coroutines.flow.onEach
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.databinding.FragmentRegistrationBinding
 import ru.itis.t_travelling.presentation.base.BaseFragment
-import ru.itis.t_travelling.presentation.base.navigation.Navigator
 import ru.itis.t_travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.t_travelling.presentation.authregister.util.setupPasswordToggle
 import ru.itis.t_travelling.presentation.authregister.util.setupValidation
 import ru.itis.t_travelling.presentation.authregister.util.ValidationUtils
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
-    @Inject lateinit var navigator: Navigator
     private val viewBinding: FragmentRegistrationBinding by viewBinding(FragmentRegistrationBinding::bind)
     private val viewModel: RegistrationViewModel by viewModels()
 
@@ -75,8 +72,10 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
             false
         }
 
-
-        viewBinding.ivBackIcon.setOnClickListener { navigateBackToAuthorization() }
+        viewBinding.ivBackIcon.setOnClickListener {
+            hideKeyboard()
+            viewModel.navigateToAuthorization()
+        }
 
         viewBinding.btnLogin.setOnClickListener {
             attemptRegister()
@@ -84,6 +83,7 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
     }
 
     private fun attemptRegister() {
+        print("here")
         val phone = viewBinding.etPhone.text.toString().trim()
         val password = viewBinding.etPassword.text.toString().trim()
         val confirmPassword = viewBinding.etPasswordRepeat.text.toString().trim()
@@ -143,9 +143,6 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
         viewModel.events
             .onEach { event ->
                 when (event) {
-                    RegistrationViewModel.RegistrationEvent.NavigateToAuthorization -> {
-                        navigateBackToAuthorization()
-                    }
                     is RegistrationViewModel.RegistrationEvent.ShowError -> {
                         handleErrors(event.error)
                     }
@@ -160,20 +157,6 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
             RegistrationViewModel.RegistrationError.Unknown -> R.string.error_unknown
         }
         showToast(getString(message))
-    }
-
-    private fun showProgress() {
-        // TODO: Реализовать Progress
-    }
-
-    private fun hideProgress() {
-        // TODO: Реализовать Progress
-    }
-
-
-    private fun navigateBackToAuthorization() {
-        hideKeyboard()
-        navigator.navigateToAuthorizationFragment()
     }
 
     private fun showToast(message: String) {

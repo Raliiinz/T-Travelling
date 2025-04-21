@@ -6,6 +6,4 @@ interface UserPreferencesRepository {
     suspend fun saveLoginState(isLoggedIn: Boolean, phone: String?)
     suspend fun clearAuthData()
     val authState: Flow<Pair<Boolean, String?>>
-    suspend fun isUserLoggedIn(): Boolean
-    suspend fun getLoggedInUserPhone(): String?
 }

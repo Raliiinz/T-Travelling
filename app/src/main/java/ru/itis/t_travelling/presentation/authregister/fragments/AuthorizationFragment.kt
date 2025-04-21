@@ -14,15 +14,12 @@ import kotlinx.coroutines.flow.onEach
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.databinding.FragmentAuthorizationBinding
 import ru.itis.t_travelling.presentation.base.BaseFragment
-import ru.itis.t_travelling.presentation.base.navigation.Navigator
 import ru.itis.t_travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.t_travelling.presentation.authregister.util.setupPasswordToggle
 import ru.itis.t_travelling.presentation.authregister.util.setupValidationOfNull
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
-    @Inject lateinit var navigator: Navigator
     private val viewBinding: FragmentAuthorizationBinding by viewBinding(FragmentAuthorizationBinding::bind)
     private val viewModel: AuthorizationViewModel by viewModels()
 
@@ -48,23 +45,12 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewModel.events
             .onEach { event ->
                 when (event) {
-                    is AuthorizationViewModel.AuthorizationEvent.NavigateToTravelling -> {
-                        navigateToTravelling(event.phone)
-                    }
                     is AuthorizationViewModel.AuthorizationEvent.ShowError -> {
                         showToast(event.message)
                     }
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    private fun showProgress() {
-        // TODO: Реализовать Progress
-    }
-
-    private fun hideProgress() {
-        // TODO: Реализовать Progress
     }
 
     private fun setupListeners() {
@@ -77,7 +63,8 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
                 false
             }
             tvRegisterLink.setOnClickListener {
-                navigateToRegistration()
+                hideKeyboard()
+                viewModel.navigateToRegistration()
             }
             btnLogin.setOnClickListener {
                 attemptLogin()
@@ -136,16 +123,6 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
 
     private fun setupPasswordToggle() {
         viewBinding.textInputLayoutPassword.setupPasswordToggle()
-    }
-
-    private fun navigateToTravelling(phone: String) {
-        hideKeyboard()
-        navigator.navigateToTravellingFragment(phone)
-    }
-
-    private fun navigateToRegistration() {
-        hideKeyboard()
-        navigator.navigateToRegistrationFragment()
     }
 
     private fun showToast(message: String) {

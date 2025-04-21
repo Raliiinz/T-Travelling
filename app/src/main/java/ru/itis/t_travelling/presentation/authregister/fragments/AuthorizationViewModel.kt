@@ -7,26 +7,28 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.itis.t_travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.t_travelling.domain.authregister.usecase.LoginUseCase
+import ru.itis.t_travelling.presentation.base.navigation.Navigator
 import javax.inject.Inject
 
 @HiltViewModel
 class AuthorizationViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    val navigator: Navigator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AuthorizationUiState>(AuthorizationUiState.Idle)
-    val uiState: StateFlow<AuthorizationUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<AuthorizationUiState> = _uiState
 
     private val _events = MutableSharedFlow<AuthorizationEvent>()
-    val events: SharedFlow<AuthorizationEvent> = _events.asSharedFlow()
+    val events: SharedFlow<AuthorizationEvent> = _events
 
-    val authState: StateFlow<AuthState> = userPreferencesRepository.authState
+    val authState: StateFlow<AuthState?> = userPreferencesRepository.authState
         .map { (isLoggedIn, phone) -> AuthState(isLoggedIn, phone) }
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AuthState()
+            started = SharingStarted.Eagerly,
+            initialValue = null
         )
 
     fun login(phone: String, password: String) {
@@ -37,7 +39,7 @@ class AuthorizationViewModel @Inject constructor(
                 val isSuccess = loginUseCase(phone, password)
                 if (isSuccess) {
                     userPreferencesRepository.saveLoginState(true, phone)
-                    _events.emit(AuthorizationEvent.NavigateToTravelling(phone))
+                    navigator.navigateToTravellingFragment(phone)
                 } else {
                     _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
                 }
@@ -49,13 +51,35 @@ class AuthorizationViewModel @Inject constructor(
         }
     }
 
+    fun navigateToRegistration() {
+        viewModelScope.launch {
+            navigator.navigateToRegistrationFragment()
+        }
+    }
+
+
+    fun navigateBasedOnAuthState() {
+        viewModelScope.launch {
+            authState
+                .filterNotNull()
+                .first()
+                .let { state ->
+                    if (!state.isLoggedIn) {
+                        navigator.navigateToAuthorizationFragment()
+                    } else {
+                        requireNotNull(state.userPhone)
+                        navigator.navigateToTravellingFragment(state.userPhone)
+                    }
+                }
+        }
+    }
+
     sealed class AuthorizationUiState {
         object Idle : AuthorizationUiState()
         object Loading : AuthorizationUiState()
     }
 
     sealed class AuthorizationEvent {
-        data class NavigateToTravelling(val phone: String) : AuthorizationEvent()
         data class ShowError(val message: String) : AuthorizationEvent()
     }
 

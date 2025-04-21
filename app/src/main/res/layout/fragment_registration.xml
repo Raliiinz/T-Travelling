@@ -27,7 +27,7 @@
             android:id="@+id/iv_back_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="@dimen/_16dp"
+            android:layout_marginStart="@dimen/margin_16dp"
             android:layout_marginTop="64dp"
             android:src="@drawable/ic_back"
             app:layout_constraintEnd_toEndOf="parent"

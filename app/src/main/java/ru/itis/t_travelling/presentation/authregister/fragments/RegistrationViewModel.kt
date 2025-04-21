@@ -7,23 +7,23 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.t_travelling.domain.authregister.usecase.RegisterUseCase
+import ru.itis.t_travelling.presentation.base.navigation.Navigator
 import javax.inject.Inject
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
-    private val registerUseCase: RegisterUseCase
+    private val registerUseCase: RegisterUseCase,
+    val navigator: Navigator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<RegistrationUiState>(RegistrationUiState.Idle)
-    val uiState: StateFlow<RegistrationUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<RegistrationUiState> = _uiState
 
     private val _events = MutableSharedFlow<RegistrationEvent>()
-    val events: SharedFlow<RegistrationEvent> = _events.asSharedFlow()
+    val events: SharedFlow<RegistrationEvent> = _events
 
     fun register(phone: String, password: String) {
         viewModelScope.launch {
@@ -32,7 +32,7 @@ class RegistrationViewModel @Inject constructor(
             try {
                 val isSuccess = registerUseCase(phone, password)
                 if (isSuccess) {
-                    _events.emit(RegistrationEvent.NavigateToAuthorization)
+                    navigator.navigateToAuthorizationFragment()
                 }
             } catch (e: Exception) {
                 val error = when (e.message) {
@@ -47,13 +47,18 @@ class RegistrationViewModel @Inject constructor(
         }
     }
 
+    fun navigateToAuthorization() {
+        viewModelScope.launch {
+            navigator.navigateToAuthorizationFragment()
+        }
+    }
+
     sealed class RegistrationUiState {
         object Idle : RegistrationUiState()
         object Loading : RegistrationUiState()
     }
 
     sealed class RegistrationEvent {
-        object NavigateToAuthorization : RegistrationEvent()
         data class ShowError(val error: RegistrationError) : RegistrationEvent()
     }
 
