@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_trips_tab"
+        android:icon="@drawable/ic_event"
+        android:title="@string/my_trips"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_add_tab"
+        android:icon="@drawable/ic_add"
+        android:title="@string/add"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_profile_tab"
+        android:icon="@drawable/ic_person"
+        android:title="@string/account_page"
+        app:showAsAction="ifRoom" />
+
+</menu>
