@@ -29,10 +29,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initNavigation() {
-        viewModel.navigator.setUpNavigation(
+        viewModel.setUpNavigation(
             mainContainerId = mainContainerId,
             rootFragmentManager = supportFragmentManager,
-            stateListener = { state ->
+            onStateChanged = { state ->
                 when (state) {
                     Navigator.NavigationState.BottomNavigationHidden -> hideBottomNavigation()
                     Navigator.NavigationState.BottomNavigationVisible -> showBottomNavigation()
@@ -46,21 +46,17 @@ class MainActivity : AppCompatActivity() {
             setOnItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.menu_trips_tab -> {
-                        viewModel.authState.value?.userPhone?.let { phone ->
-                            viewModel.navigator.navigateToTravellingFragment(phone)
-                        }
+                        viewModel.onTripsTabSelected()
                         true
                     }
                     R.id.menu_add_tab -> {
-                        // TODO: Добавить обработку для menu_other_tab
+                        viewModel.onAddTabSelected()
                         true
                     }
-
                     R.id.menu_profile_tab -> {
-                        // TODO: Добавить обработку для menu_settings_tab
+                        viewModel.onProfileTabSelected()
                         true
                     }
-
                     else -> false
                 }
             }

@@ -1,5 +1,6 @@
 package ru.itis.t_travelling.presentation.authregister.fragments
 
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +15,7 @@ import javax.inject.Inject
 class AuthorizationViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val loginUseCase: LoginUseCase,
-    val navigator: Navigator
+    private val navigator: Navigator
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<AuthorizationUiState>(AuthorizationUiState.Idle)
@@ -71,6 +72,40 @@ class AuthorizationViewModel @Inject constructor(
                         navigator.navigateToTravellingFragment(state.userPhone)
                     }
                 }
+        }
+    }
+
+    fun setUpNavigation(
+        mainContainerId: Int,
+        rootFragmentManager: FragmentManager,
+        onStateChanged: (Navigator.NavigationState) -> Unit
+    ) {
+        navigator.setUpNavigation(
+            mainContainerId = mainContainerId,
+            rootFragmentManager = rootFragmentManager,
+            stateListener = onStateChanged
+        )
+    }
+
+    fun onTripsTabSelected() {
+        viewModelScope.launch {
+            authState.first { it != null }?.userPhone?.let { phone ->
+                navigator.navigateToTravellingFragment(phone)
+            }
+        }
+    }
+
+    fun onAddTabSelected() {
+        viewModelScope.launch {
+            //TODO
+            // Handle add tab navigation
+        }
+    }
+
+    fun onProfileTabSelected() {
+        viewModelScope.launch {
+            //TODO
+            // Handle profile tab navigation
         }
     }
 
