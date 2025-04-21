@@ -1,22 +1,23 @@
 package ru.itis.t_travelling.di.module
 
 import android.content.Context
-import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import ru.itis.t_travelling.util.Constants
+import ru.itis.t_travelling.data.authregister.local.datasource.UserPreferencesDataSource
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppModule {
+object DataStoreModule {
 
     @Provides
     @Singleton
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
+    fun provideUserPreferencesDataSource(
+        @ApplicationContext context: Context
+    ): UserPreferencesDataSource {
+        return UserPreferencesDataSource(context)
     }
 }
