@@ -5,6 +5,6 @@ data class Trip(
     val destination: String,
     val startDate: String,
     val endDate: String,
-    val price: String,
+    val price: Int,
     val userId: String
 )

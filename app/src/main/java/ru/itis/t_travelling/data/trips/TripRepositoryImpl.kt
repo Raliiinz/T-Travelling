@@ -6,21 +6,14 @@ import javax.inject.Inject
 
 class TripRepositoryImpl @Inject constructor(
 //    private val tripApi: TripApi,
-//    private val tripDao: TripDao
 ) : TripRepository {
 
-    override suspend fun getTripsByUserId(userId: String): List<Trip> {
-        // Сначала проверяем локальную БД
-//        val localTrips = tripDao.getTripsByUserId(userId)
-//        return if (localTrips.isNotEmpty()) {
-//            localTrips
-//        } else {
-//            // Если локально нет данных, запрашиваем с API
-//            val remoteTrips = tripApi.getTripsByUserId(userId)
-//            // Сохраняем в БД для кэширования
-//            tripDao.insertAll(remoteTrips)
-//            remoteTrips
-//        }
+
+    override suspend fun getTripsByPhone(phoneNumber: String): List<Trip> {
+//        TODO("Not yet implemented")
+//        val remoteTrips = tripApi.getTripsByUserId(userId)
+//        return remoteTrips
         return emptyList()
     }
+
 }

@@ -5,6 +5,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/white">
 
+    <ImageView
+        android:id="@+id/bg_image"
+        android:layout_width="match_parent"
+        android:layout_height="256dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/image_trips"
+        android:layout_gravity="bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <TextView
         android:id="@+id/tv_trips_title"
         android:layout_width="wrap_content"
@@ -26,8 +37,10 @@
         android:id="@+id/rv_trips"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="8dp"
-        app:layout_constraintStart_toEndOf="parent"
+        android:paddingBottom="72dp"
+        android:paddingHorizontal="@dimen/margin_8dp"
+        android:paddingTop="@dimen/margin_8dp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_trips_title"

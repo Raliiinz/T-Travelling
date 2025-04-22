@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_margin="8dp"
     app:cardCornerRadius="20dp"
     app:cardElevation="8dp">
@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_8dp"
-            android:text="Сочи"
+            tools:text="Сочи"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textSize="20sp"
@@ -30,7 +30,7 @@
             android:id="@+id/tvDates"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="23.04.25 - 12.05.25"
+            tools:text="23.04.25 - 12.05.25"
             android:textSize="14sp"
             android:textColor="@color/hint_color"
             android:layout_marginBottom="@dimen/margin_8dp"
@@ -42,7 +42,7 @@
             android:id="@+id/tvPrice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/price_0"
+            tools:text="@string/price_0"
             android:textSize="16sp"
             android:textColor="@color/blue"
             app:layout_constraintHorizontal_bias="1.0"

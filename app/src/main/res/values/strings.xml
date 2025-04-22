@@ -15,11 +15,13 @@
     <string name="add">Добавить</string>
     <string name="account_page">Профиль</string>
     <string name="error_invalid_phone">Неверный номер телефона</string>
-    <string name="error_invalid_password">Пароль должен содержать не менее 6 символов, заглавную букву и цифру</string>
+    <string name="error_invalid_password">Пароль должен содержать не менее 6 и не более 15 символов, заглавную букву и цифру</string>
     <string name="error_password_mismatch">Пароли не совпадают</string>
     <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>
     <string name="error_unknown">Произошла неизвестная ошибка. Пожалуйста, повторите попытку позже.</string>
     <string name="authorization">Авторизация</string>
     <string name="archive_trips">Архив поездок</string>
     <string name="price_0">0 ₽</string>
+    <string name="price">%s ₽</string>
+    <string name="trip_dates">"%1$s - %2$s"</string>
 </resources>
