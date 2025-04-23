@@ -37,7 +37,7 @@
         android:id="@+id/rv_trips"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingBottom="72dp"
+        android:layout_marginBottom="76dp"
         android:paddingHorizontal="@dimen/margin_8dp"
         android:paddingTop="@dimen/margin_8dp"
         app:layout_constraintStart_toStartOf="parent"

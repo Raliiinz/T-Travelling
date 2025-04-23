@@ -5,15 +5,18 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.t_travelling.domain.trips.model.Trip
-import ru.itis.t_travelling.domain.trips.repository.TripRepository
+import ru.itis.t_travelling.domain.trips.usecase.GetTripsByPhoneUseCase
+import ru.itis.t_travelling.presentation.base.navigation.Navigator
 import javax.inject.Inject
 
 
 @HiltViewModel
 class TripsViewModel @Inject constructor(
-    private val tripRepository: TripRepository
+    private val getTripsByPhoneUseCase: GetTripsByPhoneUseCase,
+    private val navigator: Navigator
 ) : ViewModel() {
 
     private val _tripsState = MutableStateFlow<TripsState>(TripsState.Loading)
@@ -21,13 +24,18 @@ class TripsViewModel @Inject constructor(
 
     fun loadTrips(phoneNumber: String) {
         viewModelScope.launch {
+            _tripsState.update { TripsState.Loading }
             try {
-                val trips = tripRepository.getTripsByPhone(phoneNumber)
-                _tripsState.value = TripsState.Success(trips)
+                val trips = getTripsByPhoneUseCase.invoke(phoneNumber)
+                _tripsState.update { TripsState.Success(trips) }
             } catch (e: Exception) {
-                _tripsState.value = TripsState.Error(e.message ?: "Unknown error")
+                _tripsState.update { TripsState.Error(e.message ?: "Unknown error") }
             }
         }
+    }
+
+    fun onTripClicked(tripId: String, phoneNumber: String) {
+        navigator.navigateToTripDetailsFragment(tripId, phoneNumber)
     }
 
     sealed class TripsState {

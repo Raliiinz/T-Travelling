@@ -42,7 +42,7 @@ class AuthorizationViewModel @Inject constructor(
                 val isSuccess = loginUseCase(phone, password)
                 if (isSuccess) {
                     userPreferencesRepository.saveLoginState(true, phone)
-                    navigator.navigateToTravellingFragment(phone)
+                    navigator.navigateToTripsFragment(phone)
                 } else {
                     _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
                 }
@@ -71,7 +71,7 @@ class AuthorizationViewModel @Inject constructor(
                         navigator.navigateToAuthorizationFragment()
                     } else {
                         requireNotNull(state.userPhone)
-                        navigator.navigateToTravellingFragment(state.userPhone)
+                        navigator.navigateToTripsFragment(state.userPhone)
                     }
                 }
         }
@@ -92,7 +92,7 @@ class AuthorizationViewModel @Inject constructor(
     fun onTripsTabSelected() {
         viewModelScope.launch {
             authState.first { it != null }?.userPhone?.let { phone ->
-                navigator.navigateToTravellingFragment(phone)
+                navigator.navigateToTripsFragment(phone)
             }
         }
     }

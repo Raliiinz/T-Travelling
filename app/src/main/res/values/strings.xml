@@ -24,4 +24,6 @@
     <string name="price_0">0 ₽</string>
     <string name="price">%s ₽</string>
     <string name="trip_dates">"%1$s - %2$s"</string>
+    <string name="transactions">Транзакции</string>
+    <string name="participants">Участники</string>
 </resources>

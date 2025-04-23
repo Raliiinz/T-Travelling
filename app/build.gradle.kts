@@ -56,6 +56,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+    implementation("com.google.android.material:material:1.10.0")
+
 //    implementation("dev.androidbroadcast.vbpd:vbpd:2.0.4")
     implementation("com.github.kirich1409:viewbindingpropertydelegate:1.5.9") // для vbpd
 

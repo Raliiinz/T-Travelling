@@ -6,6 +6,8 @@ import ru.itis.t_travelling.presentation.authregister.fragments.AuthorizationFra
 import ru.itis.t_travelling.presentation.authregister.fragments.AuthorizationFragment.Companion.AUTHORIZATION_TAG
 import ru.itis.t_travelling.presentation.authregister.fragments.RegistrationFragment
 import ru.itis.t_travelling.presentation.authregister.fragments.RegistrationFragment.Companion.REGISTRATION_TAG
+import ru.itis.t_travelling.presentation.trips.fragments.TripDetailsFragment
+import ru.itis.t_travelling.presentation.trips.fragments.TripDetailsFragment.Companion.TRIP_TAG
 import ru.itis.t_travelling.presentation.trips.fragments.TripsFragment
 import ru.itis.t_travelling.presentation.trips.fragments.TripsFragment.Companion.TRIPS_TAG
 import java.lang.ref.WeakReference
@@ -85,7 +87,7 @@ class Navigator @Inject constructor() {
         )
     }
 
-    fun navigateToTravellingFragment(phone: String?) {
+    fun navigateToTripsFragment(phone: String?) {
         if (phone?.isNotBlank() == true) {
             updateNavigationState(NavigationState.BottomNavigationVisible)
             navigate(
@@ -97,6 +99,16 @@ class Navigator @Inject constructor() {
         } else {
             navigateToAuthorizationFragment()
         }
+    }
+
+    fun navigateToTripDetailsFragment(tripId: String, phoneNumber: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = TripDetailsFragment.getInstance(tripId, phoneNumber),
+            destinationTag = TRIP_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
+        )
     }
 
     private fun updateNavigationState(state: NavigationState) {

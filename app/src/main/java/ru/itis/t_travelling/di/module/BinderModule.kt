@@ -7,7 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import ru.itis.t_travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.t_travelling.data.authregister.local.repository.UserPreferencesRepositoryImpl
 import ru.itis.t_travelling.data.authregister.local.repository.UserRepositoryImpl
-import ru.itis.t_travelling.data.trips.TripRepositoryImpl
+import ru.itis.t_travelling.data.trips.repository.TripRepositoryImpl
 import ru.itis.t_travelling.domain.authregister.repository.UserRepository
 import ru.itis.t_travelling.domain.trips.repository.TripRepository
 import javax.inject.Singleton

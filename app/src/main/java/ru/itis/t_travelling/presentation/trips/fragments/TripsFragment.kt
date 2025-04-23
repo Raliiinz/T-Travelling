@@ -12,7 +12,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.databinding.FragmentTripsBinding
-import ru.itis.t_travelling.domain.trips.model.Trip
 import ru.itis.t_travelling.presentation.base.BaseFragment
 import ru.itis.t_travelling.presentation.trips.list.TripAdapter
 
@@ -34,7 +33,10 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
     }
 
     private fun setupRecyclerView() {
-        rvAdapter = TripAdapter()
+        rvAdapter = TripAdapter { trip ->
+            trip.id?.let { viewModel.onTripClicked(it, phoneNumber) }
+        }
+
         viewBinding.rvTrips.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rvAdapter
@@ -48,20 +50,21 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
                     is TripsViewModel.TripsState.Loading -> showProgress()
                     is TripsViewModel.TripsState.Success -> {
                         hideProgress()
-                        rvAdapter?.submitList(
-                            listOf(
-                                Trip(
-                                    id = "1",
-                                    destination = "Sochi",
-                                    startDate = "12.12.2025",
-                                    endDate = "24.12.2025",
-                                    price = 150000,
-                                    userId = "1"
-                                )
-                            )
-                        )
+//                        rvAdapter?.submitList(
+//                            listOf(
+//                                Trip(
+//                                    id = "1",
+//                                    destination = "Sochi",
+//                                    startDate = "12.12.2025",
+//                                    endDate = "24.12.2025",
+//                                    price = 150000,
+//                                    admin = Participant("1", "+792766545656"),
+//                                    participants = emptyList()
+//                                )
+//                            )
+//                        )
 //                        TODO
-//                        rvAdapter?.submitList(state.trips)
+                        rvAdapter?.submitList(state.trips)
 
                     }
                     is TripsViewModel.TripsState.Error -> {

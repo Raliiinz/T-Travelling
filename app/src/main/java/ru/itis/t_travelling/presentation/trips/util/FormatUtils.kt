@@ -5,7 +5,7 @@ import java.util.Locale
 
 object FormatUtils {
 
-    fun formatPriceWithThousands(price: Int): String {
+    fun formatPriceWithThousands(price: Int?): String {
         val formatter = NumberFormat.getNumberInstance(Locale.GERMANY)
         return formatter.format(price)
     }
