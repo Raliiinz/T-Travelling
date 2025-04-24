@@ -3,6 +3,7 @@ package ru.itis.t_travelling.presentation.trips.fragments
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -25,9 +26,12 @@ class TripDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _tripState.update { TripDetailsState.Loading }
             try {
+
                 val trip = getTripDetailsUseCase(tripId)
                 _tripState.update {
                     if (trip != null) {
+                        delay(2000)
+
                         TripDetailsState.Success(trip)
                     } else {
                         TripDetailsState.Error("Trip not found")

@@ -88,10 +88,26 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         }
     }
 
+    override fun showProgress() {
+        with(viewBinding) {
+            shimmerLayout.startShimmer()
+            shimmerLayout.visibility = View.VISIBLE
+            mainContentGroup.visibility = View.GONE
+        }
+    }
+
+    override fun hideProgress() {
+        with(viewBinding) {
+            shimmerLayout.stopShimmer()
+            shimmerLayout.visibility = View.GONE
+            mainContentGroup.visibility = View.VISIBLE
+        }
+    }
+
+
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
-
 
     companion object {
         const val TRIP_TAG = "TRIP_TAG"

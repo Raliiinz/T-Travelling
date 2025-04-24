@@ -39,7 +39,7 @@ abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
         }
     }
 
-    protected fun showProgress() {
+    protected open fun showProgress() {
         progressDialog?.let {
             if (!it.isShowing) {
                 it.show()
@@ -47,7 +47,7 @@ abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
         }
     }
 
-    protected fun hideProgress() {
+    protected open fun hideProgress() {
         progressDialog?.let {
             if (it.isShowing) {
                 it.dismiss()
