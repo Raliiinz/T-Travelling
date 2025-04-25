@@ -9,6 +9,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.itis.t_travelling.R
 import ru.itis.t_travelling.databinding.FragmentTripsBinding
@@ -34,7 +36,7 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
 
     private fun setupRecyclerView() {
         rvAdapter = TripAdapter { trip ->
-            trip.id?.let { viewModel.onTripClicked(it, phoneNumber) }
+            viewModel.onTripClicked(trip.id, phoneNumber)
         }
 
         viewBinding.rvTrips.apply {
@@ -48,31 +50,22 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
             viewModel.tripsState.collect { state ->
                 when (state) {
                     is TripsViewModel.TripsState.Loading -> showProgress()
+                    is TripsViewModel.TripsState.Idle -> hideProgress()
                     is TripsViewModel.TripsState.Success -> {
                         hideProgress()
-//                        rvAdapter?.submitList(
-//                            listOf(
-//                                Trip(
-//                                    id = "1",
-//                                    destination = "Sochi",
-//                                    startDate = "12.12.2025",
-//                                    endDate = "24.12.2025",
-//                                    price = 150000,
-//                                    admin = Participant("1", "+792766545656"),
-//                                    participants = emptyList()
-//                                )
-//                            )
-//                        )
-//                        TODO
                         rvAdapter?.submitList(state.trips)
-
-                    }
-                    is TripsViewModel.TripsState.Error -> {
-                        hideProgress()
-                        showError(state.message)
                     }
                 }
             }
+            viewModel.events
+                .onEach { event ->
+                    when (event) {
+                        is TripsViewModel.TripsEvent.Error -> {
+                            showError(event.message)
+                        }
+                    }
+                }
+                .launchIn(viewLifecycleOwner.lifecycleScope)
         }
     }
 

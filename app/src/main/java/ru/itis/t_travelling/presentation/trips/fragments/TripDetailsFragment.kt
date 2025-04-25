@@ -1,5 +1,6 @@
 package ru.itis.t_travelling.presentation.trips.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -30,6 +31,7 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         arguments?.getString(TRIP_ID) ?: ""
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupAdapter()
@@ -55,9 +57,31 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
                         hideProgress()
                         updateUi(state.trip)
                     }
-                    is TripDetailsViewModel.TripDetailsState.Error -> {
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is TripDetailsViewModel.TripDetailsEvent.Error -> {
                         hideProgress()
-                        showError(state.message)
+                        showError(event.message)
+                    }
+                    is TripDetailsViewModel.TripDetailsEvent.ShowAdminAlert -> {
+                        hideProgress()
+                        showAdminAlert()
+                    }
+                    is TripDetailsViewModel.TripDetailsEvent.ShowLeaveConfirmation -> {
+                        hideProgress()
+                        showLeaveConfirmationDialog()
+                    }
+                    is TripDetailsViewModel.TripDetailsEvent.ShowDeleteConfirmation -> {
+                        hideProgress()
+                        showDeleteConfirmationDialog()
+                    }
+                    is TripDetailsViewModel.TripDetailsEvent.NavigateToTrips -> {
+                        viewModel.navigateToTrips(phoneNumber)
                     }
                 }
             }
@@ -68,24 +92,77 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         viewBinding.ivBackIcon.setOnClickListener {
             viewModel.navigateToTrips(phoneNumber)
         }
+
+        viewBinding.ivEditIcon.setOnClickListener {
+            (viewModel.tripState.value as? TripDetailsViewModel.TripDetailsState.Success)?.trip?.let { trip ->
+                viewModel.onEditClicked(phoneNumber, trip)
+            }
+        }
+
+        viewBinding.ivLeaveIcon.setOnClickListener {
+            (viewModel.tripState.value as? TripDetailsViewModel.TripDetailsState.Success)?.trip?.let { trip ->
+                viewModel.onLeaveOrDeleteClicked(phoneNumber, trip)
+            }
+        }
     }
 
     private fun updateUi(trip: Trip) {
         with(viewBinding) {
             tvDestination.text = trip.destination
-            tvDates.text = "${trip.startDate} - ${trip.endDate}"
+            tvDates.text = requireContext().getString(R.string.trip_dates, trip.startDate, trip.endDate)
             tvPrice.text = getString(R.string.price, FormatUtils.formatPriceWithThousands(trip.price))
 
-            val allParticipants = mutableListOf<Participant?>()
-            trip.admin?.let { admin ->
-                allParticipants.add(admin)
-                allParticipants.addAll(trip.participants.filter { p -> p?.id != admin.id })
-            } ?: run {
-                allParticipants.addAll(trip.participants)
-            }
+            val allParticipants = mutableListOf<Participant>()
+            allParticipants.add(trip.admin)
+            allParticipants.addAll(trip.participants.filter { p -> p.id != trip.admin.id })
 
             participantAdapter.submitList(allParticipants)
         }
+    }
+
+    private fun showAdminAlert() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.admin_required))
+            .setMessage(getString(R.string.only_admin_can_edit))
+            .setPositiveButton(getString(R.string.close)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun showLeaveConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.leave_trip_title))
+            .setMessage(getString(R.string.leave_trip_message))
+            .setPositiveButton(getString(R.string.leave)) { dialog, _ ->
+                (viewModel.tripState.value as? TripDetailsViewModel.TripDetailsState.Success)?.trip?.let { trip ->
+                    viewModel.confirmLeaveTrip(trip.id, phoneNumber)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.delete_trip_title))
+            .setMessage(getString(R.string.delete_trip_message))
+            .setPositiveButton(getString(R.string.delete)) { dialog, _ ->
+                (viewModel.tripState.value as? TripDetailsViewModel.TripDetailsState.Success)?.trip?.let { trip ->
+                    viewModel.confirmDeleteTrip(trip.id)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     override fun showProgress() {

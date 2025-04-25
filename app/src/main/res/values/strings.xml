@@ -26,4 +26,14 @@
     <string name="trip_dates">"%1$s - %2$s"</string>
     <string name="transactions">Транзакции</string>
     <string name="participants">Участники</string>
+    <string name="admin_required">Требуется администратор</string>
+    <string name="only_admin_can_edit">Редактирование доступно только администратору поездки</string>
+    <string name="close">Закрыть</string>
+    <string name="leave_trip_title">Покинуть поездку</string>
+    <string name="leave_trip_message">Вы уверены, что хотите покинуть поездку?</string>
+    <string name="delete_trip_title">Удалить поездку</string>
+    <string name="delete_trip_message">Вы уверены, что хотите удалить поездку у всех участников?</string>
+    <string name="leave">Покинуть</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
 </resources>

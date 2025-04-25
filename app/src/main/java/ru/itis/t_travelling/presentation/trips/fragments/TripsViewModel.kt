@@ -3,7 +3,9 @@ package ru.itis.t_travelling.presentation.trips.fragments
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,8 +21,11 @@ class TripsViewModel @Inject constructor(
     private val navigator: Navigator
 ) : ViewModel() {
 
-    private val _tripsState = MutableStateFlow<TripsState>(TripsState.Loading)
+    private val _tripsState = MutableStateFlow<TripsState>(TripsState.Idle)
     val tripsState: StateFlow<TripsState> = _tripsState
+
+    private val _events = MutableSharedFlow<TripsEvent>()
+    val events: SharedFlow<TripsEvent> = _events
 
     fun loadTrips(phoneNumber: String) {
         viewModelScope.launch {
@@ -29,7 +34,7 @@ class TripsViewModel @Inject constructor(
                 val trips = getTripsByPhoneUseCase.invoke(phoneNumber)
                 _tripsState.update { TripsState.Success(trips) }
             } catch (e: Exception) {
-                _tripsState.update { TripsState.Error(e.message ?: "Unknown error") }
+                _events.emit(TripsEvent.Error(e.message ?: "Unknown error"))
             }
         }
     }
@@ -39,8 +44,12 @@ class TripsViewModel @Inject constructor(
     }
 
     sealed class TripsState {
+        object Idle : TripsState()
         object Loading : TripsState()
         data class Success(val trips: List<Trip>) : TripsState()
-        data class Error(val message: String) : TripsState()
+    }
+
+    sealed class TripsEvent {
+        data class Error(val message: String) : TripsEvent()
     }
 }

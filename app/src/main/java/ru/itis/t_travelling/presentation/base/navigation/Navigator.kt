@@ -111,6 +111,10 @@ class Navigator @Inject constructor() {
         )
     }
 
+    fun navigateToEditTrip(tripId: String) {
+        //TODO
+    }
+
     private fun updateNavigationState(state: NavigationState) {
         navigationStateListener?.invoke(state)
     }
