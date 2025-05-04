@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         style="@style/BottomNavigationStyle"
-        app:itemActiveIndicatorStyle="@style/ShapeAppearance.Material3.Corner.None"
         app:itemIconSize="32dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

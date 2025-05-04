@@ -28,7 +28,6 @@
         android:layout_marginStart="24dp"
         android:layout_marginBottom="@dimen/margin_8dp"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintBottom_toTopOf="@id/rv_trips"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -37,7 +36,7 @@
         android:id="@+id/rv_trips"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="76dp"
+        android:layout_marginBottom="68dp"
         android:paddingHorizontal="@dimen/margin_8dp"
         android:paddingTop="@dimen/margin_8dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,5 +44,33 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_trips_title"
         tools:listitem="@layout/item_trip"/>
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmer_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        android:layout_marginBottom="68dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_trips_title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="8dp"
+            android:paddingTop="8dp">
+
+            <include layout="@layout/item_trip_shimmer"/>
+            <include layout="@layout/item_trip_shimmer"/>
+            <include layout="@layout/item_trip_shimmer"/>
+            <include layout="@layout/item_trip_shimmer"/>
+            <include layout="@layout/item_trip_shimmer"/>
+            <include layout="@layout/item_trip_shimmer"/>
+            <include layout="@layout/item_trip_shimmer"/>
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

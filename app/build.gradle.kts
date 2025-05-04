@@ -6,15 +6,15 @@ plugins {
     alias(libs.plugins.hilt)
     id("kotlin-parcelize")
     id("kotlin-kapt")
-    id("io.gitlab.arturbosch.detekt")
+    alias(libs.plugins.detekt)
 }
 
 android {
-    namespace = "ru.itis.t_travelling"
+    namespace = "ru.itis.travelling"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ru.itis.t_travelling"
+        applicationId = "ru.itis.travelling"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -75,7 +75,7 @@ dependencies {
 }
 
 detekt {
-    toolVersion = "1.23.8"
-    config.setFrom(file("config/detekt/detekt.yml"))
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
 }
