@@ -6,15 +6,15 @@ plugins {
     alias(libs.plugins.hilt)
     id("kotlin-parcelize")
     id("kotlin-kapt")
-    id("io.gitlab.arturbosch.detekt")
+    alias(libs.plugins.detekt)
 }
 
 android {
-    namespace = "ru.itis.t_travelling"
+    namespace = "ru.itis.travelling"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "ru.itis.t_travelling"
+        applicationId = "ru.itis.travelling"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -56,24 +56,26 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-//    implementation("dev.androidbroadcast.vbpd:vbpd:2.0.4")
-    implementation("com.github.kirich1409:viewbindingpropertydelegate:1.5.9") // для vbpd
+//    implementation("com.google.android.material:material:1.10.0")
+    implementation(libs.shimmer)
+
+    implementation(libs.vbpd) // для vbpd
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.fragment)
 
     // DataStore Preferences
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.datastore.preferences)
 
-    // Optional - для использования с корутинами
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    // для использования с корутинами
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
 
 }
 
 detekt {
-    toolVersion = "1.23.8"
-    config.setFrom(file("config/detekt/detekt.yml"))
+    toolVersion = libs.versions.detekt.get()
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
 }

@@ -52,4 +52,16 @@
         <item name="android:paddingEnd">16dp</item>
     </style>
 
+    <style name="BottomNavigationIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/white</item>
+    </style>
+
+    <style name="BottomNavigationStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:layout_height">64dp</item>  <!-- Стандартная высота 56dp, можно уменьшить до 48dp -->
+        <item name="android:minHeight">64dp</item>
+        <item name="itemIconTint">@drawable/bottom_nav_icon_color</item>
+        <item name="itemTextColor">@drawable/bottom_nav_icon_color</item>
+        <item name="itemActiveIndicatorStyle">@style/BottomNavigationIndicator</item>
+    </style>
+
 </resources>

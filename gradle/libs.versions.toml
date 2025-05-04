@@ -13,7 +13,11 @@ ksp = "2.0.21-1.0.27"
 secretsGradlePlugin = "2.0.1"
 fragment-version = "1.8.6"
 hilt = "2.56.1"
-vbpd-version = "2.0.4"
+shimmer-version = "0.5.0"
+vbpd = "1.5.9"
+datastore-version = "1.0.0"
+coroutines-version = "1.6.4"
+detekt = "1.23.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,8 +31,12 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment-version" }
-#vbpd = { group = "dev.androidbroadcast.vbpd", name = "vbpd", version.ref = "vbpd-version" }
-#vbpd-reflection = { group = "dev.androidbroadcast.vbpd", name = "vbpd-reflection", version.ref = "vbpd-version" }
+shimmer = { group = "com.facebook.shimmer", name = "shimmer", version.ref = "shimmer-version" }
+vbpd = { group = "com.github.kirich1409", name = "viewbindingpropertydelegate", version.ref = "vbpd" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-version" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines-version" }
+coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines-version" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -36,3 +44,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

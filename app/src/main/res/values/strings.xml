@@ -15,9 +15,25 @@
     <string name="add">Добавить</string>
     <string name="account_page">Профиль</string>
     <string name="error_invalid_phone">Неверный номер телефона</string>
-    <string name="error_invalid_password">Пароль должен содержать не менее 6 символов, заглавную букву и цифру</string>
+    <string name="error_invalid_password">Пароль должен содержать не менее 6 и не более 15 символов, заглавную букву и цифру</string>
     <string name="error_password_mismatch">Пароли не совпадают</string>
     <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>
     <string name="error_unknown">Произошла неизвестная ошибка. Пожалуйста, повторите попытку позже.</string>
     <string name="authorization">Авторизация</string>
+    <string name="archive_trips">Архив поездок</string>
+    <string name="price_0">0 ₽</string>
+    <string name="price">%s ₽</string>
+    <string name="trip_dates">"%1$s - %2$s"</string>
+    <string name="transactions">Транзакции</string>
+    <string name="participants">Участники</string>
+    <string name="admin_required">Требуется администратор</string>
+    <string name="only_admin_can_edit">Редактирование доступно только администратору поездки</string>
+    <string name="close">Закрыть</string>
+    <string name="leave_trip_title">Покинуть поездку</string>
+    <string name="leave_trip_message">Вы уверены, что хотите покинуть поездку?</string>
+    <string name="delete_trip_title">Удалить поездку</string>
+    <string name="delete_trip_message">Вы уверены, что хотите удалить поездку у всех участников?</string>
+    <string name="leave">Покинуть</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
 </resources>
