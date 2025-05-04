@@ -2,6 +2,8 @@ package ru.itis.travelling.presentation.base.navigation
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import ru.itis.travelling.R
+import ru.itis.travelling.presentation.addtrip.fragments.AddTripBottomSheet
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment.Companion.AUTHORIZATION_TAG
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment
@@ -17,9 +19,16 @@ import javax.inject.Singleton
 @Singleton
 class Navigator @Inject constructor() {
 
+//    sealed class NavigationState {
+//        object BottomNavigationHidden : NavigationState()
+//        object BottomNavigationVisible : NavigationState()
+//    }
+
     sealed class NavigationState {
         object BottomNavigationHidden : NavigationState()
-        object BottomNavigationVisible : NavigationState()
+        data class BottomNavigationVisible(
+            val selectedItemId: Int
+        ) : NavigationState()
     }
 
     private var mainContainerId: Int = UNKNOWN_ID
@@ -89,7 +98,8 @@ class Navigator @Inject constructor() {
 
     fun navigateToTripsFragment(phone: String?) {
         if (phone?.isNotBlank() == true) {
-            updateNavigationState(NavigationState.BottomNavigationVisible)
+            updateNavigationState(NavigationState.BottomNavigationVisible(R.id.menu_trips_tab))
+//            updateNavigationState(NavigationState.BottomNavigationVisible)
             navigate(
                 destination = TripsFragment.getInstance(param = phone),
                 destinationTag = TRIPS_TAG,
@@ -114,6 +124,17 @@ class Navigator @Inject constructor() {
     fun navigateToEditTrip(tripId: String) {
         //TODO
     }
+
+
+    fun showAddTripBottomSheet(phone: String) {
+        val fragmentManager = requireNotNull(rootFragmentManager.get()) {
+            "FragmentManager is not set. Call setUpNavigation() first"
+        }
+
+        AddTripBottomSheet.newInstance(phone).show(fragmentManager, AddTripBottomSheet.TAG)
+    }
+
+
 
     private fun updateNavigationState(state: NavigationState) {
         navigationStateListener?.invoke(state)

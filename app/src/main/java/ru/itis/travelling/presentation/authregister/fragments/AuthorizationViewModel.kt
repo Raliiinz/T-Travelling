@@ -97,8 +97,9 @@ class AuthorizationViewModel @Inject constructor(
 
     fun onAddTabSelected() {
         viewModelScope.launch {
-            //TODO
-            // Handle add tab navigation
+            authState.first { it != null }?.userPhone?.let { phone ->
+                navigator.showAddTripBottomSheet(phone)
+            }
         }
     }
 

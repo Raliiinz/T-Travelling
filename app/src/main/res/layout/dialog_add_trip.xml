@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="300dp"
+    android:background="@android:color/white">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_input_layout_title_trip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/MyTextInputLayoutStyle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_title_trip"
+            style="@style/TextInputEditTextStyle"
+            android:hint="Название путешествия"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_input_layout_cost_trip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/MyTextInputLayoutStyle"
+        app:layout_constraintTop_toBottomOf="@id/text_input_layout_title_trip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_cost_trip"
+            style="@style/TextInputEditTextStyle"
+            android:hint="Начальная стоимость"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/datesLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        android:text="Даты"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_input_layout_cost_trip"/>
+
+    <!-- Начало путешествия -->
+    <TextView
+        android:id="@+id/startDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:layout_marginTop="8dp"
+        android:text="Starts"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/datesLabel"/>
+
+    <TextView
+        android:id="@+id/startDateValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="May 16, 2023"
+        android:textColor="@android:color/black"
+        app:layout_constraintBaseline_toBaselineOf="@id/startDateLabel"
+        app:layout_constraintStart_toEndOf="@id/startDateLabel"/>
+
+    <TextView
+        android:id="@+id/startTimeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="11:00 AM"
+        android:textColor="@android:color/black"
+        app:layout_constraintBaseline_toBaselineOf="@id/startDateLabel"
+        app:layout_constraintStart_toEndOf="@id/startDateValue"/>
+
+    <View
+        android:id="@+id/selectStartDate"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/startDateLabel"
+        app:layout_constraintBottom_toBottomOf="@id/startDateLabel"/>
+
+    <!-- Конец путешествия -->
+    <TextView
+        android:id="@+id/endDateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:layout_marginTop="16dp"
+        android:text="Ends"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/startDateLabel"/>
+
+    <TextView
+        android:id="@+id/endDateValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="May 18, 2023"
+        android:textColor="@android:color/black"
+        app:layout_constraintBaseline_toBaselineOf="@id/endDateLabel"
+        app:layout_constraintStart_toEndOf="@id/endDateLabel"/>
+
+    <TextView
+        android:id="@+id/endTimeValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="12:00 PM"
+        android:textColor="@android:color/black"
+        app:layout_constraintBaseline_toBaselineOf="@id/endDateLabel"
+        app:layout_constraintStart_toEndOf="@id/endDateValue"/>
+
+    <View
+        android:id="@+id/selectEndDate"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/endDateLabel"
+        app:layout_constraintBottom_toBottomOf="@id/endDateLabel"/>
+
+    <TextView
+        android:id="@+id/participantsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_16dp"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:text="Участники"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/selectEndDate"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/participantsRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/participantsLabel"
+        tools:listitem="@layout/item_participant"/>
+
+    <TextView
+        android:id="@+id/tv_add_contacts_link"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Добавить контакты"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="@dimen/margin_16dp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toBottomOf="@id/participantsRecyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/createButton"
+        style="@style/PrimaryButtonStyle"
+        android:layout_marginTop="16dp"
+        android:text="Создать"
+        app:backgroundTint="@color/yellow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_add_contacts_link"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

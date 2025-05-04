@@ -34,10 +34,21 @@ class MainActivity : AppCompatActivity() {
             rootFragmentManager = supportFragmentManager,
             onStateChanged = { state ->
                 when (state) {
-                    Navigator.NavigationState.BottomNavigationHidden -> hideBottomNavigation()
-                    Navigator.NavigationState.BottomNavigationVisible -> showBottomNavigation()
+                    is Navigator.NavigationState.BottomNavigationHidden -> {
+                        hideBottomNavigation()
+                    }
+                    is Navigator.NavigationState.BottomNavigationVisible -> {
+                        showBottomNavigation()
+                        viewBinding.mainBottomNavigation.selectedItemId = state.selectedItemId
+                    }
                 }
             }
+//            onStateChanged = { state ->
+//                when (state) {
+//                    Navigator.NavigationState.BottomNavigationHidden -> hideBottomNavigation()
+//                    Navigator.NavigationState.BottomNavigationVisible -> showBottomNavigation()
+//                }
+//            }
         )
     }
 
