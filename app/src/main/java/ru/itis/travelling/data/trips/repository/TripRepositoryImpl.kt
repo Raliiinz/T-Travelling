@@ -18,13 +18,13 @@ class TripRepositoryImpl @Inject constructor(
             startDate = "12.12.2025",
             endDate = "24.12.2025",
             price = "150000",
-            admin = Participant("1", "89274486464"),
+            admin = Participant("1",  "89274486464"),
             participants = mutableListOf(
                 Participant("2", "+79274488464"),
                 Participant("3", "+79274386464"),
-                Participant("4", "+79374486464"),
-                Participant("5", "+79274433464"),
-                Participant("6", "+79274336464"),
+                Participant("4",  "+79374486464"),
+                Participant("5",  "+79274433464"),
+                Participant("6","+79274336464"),
             )
         ),
         Trip(
@@ -35,11 +35,11 @@ class TripRepositoryImpl @Inject constructor(
             price = "130000",
             admin = Participant("1", "+79376654566"),
             participants = mutableListOf(
-                Participant("2", "89274486464"),
+                Participant("2",  "89274486464"),
                 Participant("3", "+79274389964"),
-                Participant("4", "+79374996464"),
-                Participant("5", "+79299433464"),
-                Participant("6", "+79274399464"),
+                Participant("4","+79374996464"),
+                Participant("5","+79299433464"),
+                Participant("6","+79274399464"),
             )
         )
     )
@@ -67,5 +67,9 @@ class TripRepositoryImpl @Inject constructor(
 
     override suspend fun deleteTrip(tripId: String): Boolean {
         return mockTrips.removeAll { it.id == tripId }
+    }
+
+    override suspend fun createTrip(trip: Trip) {
+//        api.createTrip(trip)
     }
 }

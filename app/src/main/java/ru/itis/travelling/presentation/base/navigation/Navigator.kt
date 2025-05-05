@@ -3,7 +3,7 @@ package ru.itis.travelling.presentation.base.navigation
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import ru.itis.travelling.R
-import ru.itis.travelling.presentation.addtrip.fragments.AddTripBottomSheet
+import ru.itis.travelling.presentation.trips.fragments.AddTripBottomSheet
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment.Companion.AUTHORIZATION_TAG
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment

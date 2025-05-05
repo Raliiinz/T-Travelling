@@ -8,12 +8,24 @@
     android:minHeight="300dp"
     android:background="@android:color/white">
 
+    <ImageView
+        android:id="@+id/iv_back_arrow"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_close"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/text_input_layout_title_trip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/MyTextInputLayoutStyle"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_arrow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -53,14 +65,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_input_layout_cost_trip"/>
 
-    <!-- Начало путешествия -->
     <TextView
         android:id="@+id/startDateLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_16dp"
-        android:layout_marginTop="8dp"
-        android:text="Starts"
+        android:layout_marginTop="16dp"
+        android:text="Начало:"
+        android:textColor="@color/black"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/datesLabel"/>
 
@@ -69,20 +82,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="May 16, 2023"
-        android:textColor="@android:color/black"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="16 мая 2023"
         app:layout_constraintBaseline_toBaselineOf="@id/startDateLabel"
         app:layout_constraintStart_toEndOf="@id/startDateLabel"/>
-
-    <TextView
-        android:id="@+id/startTimeValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="11:00 AM"
-        android:textColor="@android:color/black"
-        app:layout_constraintBaseline_toBaselineOf="@id/startDateLabel"
-        app:layout_constraintStart_toEndOf="@id/startDateValue"/>
 
     <View
         android:id="@+id/selectStartDate"
@@ -96,14 +101,15 @@
         app:layout_constraintTop_toTopOf="@id/startDateLabel"
         app:layout_constraintBottom_toBottomOf="@id/startDateLabel"/>
 
-    <!-- Конец путешествия -->
     <TextView
         android:id="@+id/endDateLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_16dp"
         android:layout_marginTop="16dp"
-        android:text="Ends"
+        android:text="Конец:"
+        android:textColor="@color/black"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/startDateLabel"/>
 
@@ -112,20 +118,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="May 18, 2023"
-        android:textColor="@android:color/black"
+        android:textColor="@color/blue"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="18 мая 2023"
         app:layout_constraintBaseline_toBaselineOf="@id/endDateLabel"
         app:layout_constraintStart_toEndOf="@id/endDateLabel"/>
-
-    <TextView
-        android:id="@+id/endTimeValue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="12:00 PM"
-        android:textColor="@android:color/black"
-        app:layout_constraintBaseline_toBaselineOf="@id/endDateLabel"
-        app:layout_constraintStart_toEndOf="@id/endDateValue"/>
 
     <View
         android:id="@+id/selectEndDate"
@@ -164,6 +162,7 @@
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tv_add_contacts_link"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/participantsLabel"
         tools:listitem="@layout/item_participant"/>

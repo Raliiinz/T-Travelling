@@ -10,7 +10,10 @@ import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ItemParticipantBinding
 import ru.itis.travelling.domain.trips.model.Participant
 
-class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
+class ParticipantAdapter(
+    private val onRemoveClick: ((String) -> Unit)? = null
+) : ListAdapter<Participant, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParticipantViewHolder {
         val binding = ItemParticipantBinding.inflate(
@@ -25,12 +28,18 @@ class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.Partici
         holder.bind(getItem(position), position == 0)
     }
 
+
     inner class ParticipantViewHolder(
         private val binding: ItemParticipantBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(participant: Participant, isFirstItem: Boolean) = with(binding) {
             tvPhone.text = participant.phone
+
+            binding.root.setOnLongClickListener {
+                onRemoveClick?.invoke(participant.id)
+                true
+            }
 
             val cardView = root
             if (isFirstItem) {
