@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,20 +64,11 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     }
 
     private fun setupParticipantsAdapter() {
-        participantsAdapter = ParticipantAdapter(
-            onRemoveClick = { participantId ->
-                if (participantId != phoneNumber) {
-                    viewModel.removeParticipant(participantId, phoneNumber)
-                } else {
-                    showToast("Нельзя удалить администратора")
-                }
-            }
-        )
+        participantsAdapter = ParticipantAdapter()
         viewBinding.participantsRecyclerView.apply {
             adapter = participantsAdapter
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         }
-
     }
 
 
@@ -134,14 +124,23 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
 
     private fun showContactsPicker(contacts: List<Contact>) {
-        val dialog = ContactsPickerDialog.newInstance(
-            contacts = contacts,
+        val selectedIds = viewModel.fullParticipants.value
+            .filterNot { it.phone == phoneNumber } // Исключаем администратора
+            .map { it.id }
+            .toSet()
+
+        val dialog = ContactsPickerDialog(
             onContactsSelected = { selectedContacts ->
                 viewModel.addParticipants(selectedContacts, phoneNumber)
+            },
+            initiallySelectedContacts = selectedIds
+        ).apply {
+            arguments = Bundle().apply {
+                putParcelableArrayList("contacts", ArrayList(contacts))
             }
-        )
+        }
         dialog.show(parentFragmentManager, "ContactsPickerDialog")
-    }
+}
 
 
     private fun showPermissionDeniedDialog() {
@@ -195,7 +194,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
             }
         }
     }
-
 
     private fun showDatePicker(isStartDate: Boolean) {
         val currentDates = viewModel.datesState.value

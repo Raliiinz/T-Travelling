@@ -1,6 +1,5 @@
 package ru.itis.travelling.presentation.trips.list
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.ColorRes
@@ -11,10 +10,7 @@ import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ItemParticipantBinding
 import ru.itis.travelling.domain.trips.model.Participant
 
-class ParticipantAdapter(
-    private val onRemoveClick: ((String) -> Unit)? = null
-) : ListAdapter<Participant, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
-
+class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParticipantViewHolder {
         val binding = ItemParticipantBinding.inflate(
@@ -26,9 +22,6 @@ class ParticipantAdapter(
     }
 
     override fun onBindViewHolder(holder: ParticipantViewHolder, position: Int) {
-        val participant = getItem(position)
-        Log.d("ParticipantAdapter", "onBindViewHolder: $participant")
-
         holder.bind(getItem(position), position == 0)
     }
 
@@ -40,11 +33,6 @@ class ParticipantAdapter(
         fun bind(participant: Participant, isFirstItem: Boolean) = with(binding) {
             tvPhone.text = participant.phone
 
-            binding.root.setOnLongClickListener {
-                onRemoveClick?.invoke(participant.id)
-                true
-            }
-
             val cardView = root
             if (isFirstItem) {
                 cardView.strokeWidth = ADMIN_STROKE_WIDTH
@@ -52,17 +40,6 @@ class ParticipantAdapter(
             } else {
                 cardView.strokeWidth = REGULAR_STROKE_WIDTH
             }
-
-//            val isAdmin = position == 0
-//            if (isAdmin) {
-//                root.setOnLongClickListener(null)
-//                root.isClickable = false
-//            } else {
-//                root.setOnLongClickListener {
-//                    onRemoveClick?.invoke(participant.id)
-//                    true
-//                }
-//            }
         }
     }
 

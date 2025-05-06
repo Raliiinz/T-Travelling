@@ -3,11 +3,14 @@ package ru.itis.travelling.presentation.base.navigation
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import ru.itis.travelling.R
+import ru.itis.travelling.domain.trips.model.Contact
 import ru.itis.travelling.presentation.trips.fragments.AddTripBottomSheet
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment.Companion.AUTHORIZATION_TAG
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment.Companion.REGISTRATION_TAG
+
+
 import ru.itis.travelling.presentation.trips.fragments.TripDetailsFragment
 import ru.itis.travelling.presentation.trips.fragments.TripDetailsFragment.Companion.TRIP_TAG
 import ru.itis.travelling.presentation.trips.fragments.TripsFragment
@@ -133,6 +136,19 @@ class Navigator @Inject constructor() {
 
         AddTripBottomSheet.newInstance(phone).show(fragmentManager, AddTripBottomSheet.TAG)
     }
+
+//    fun navigateToContactsPicker(contacts: List<Contact>, selectedContacts: List<Contact>) {
+//        updateNavigationState(NavigationState.BottomNavigationHidden)
+//        navigate(
+//            destination = ContactsPickerFragment.newInstance(contacts, selectedContacts),
+//            destinationTag = "CONTACTS_PICKER_TAG",
+//            action = NavigationAction.REPLACE,
+//            isAddToBackStack = true
+//        )
+//    }
+
+    // In Navigator.kt
+
 
 
 

@@ -37,7 +37,6 @@
     <string name="delete">Удалить</string>
     <string name="cancel">Отмена</string>
 
-    <!-- strings.xml -->
     <string name="select_start_date">Выберите дату начала путешествия</string>
     <string name="select_end_date">Выберите дату окончания путешествия</string>
     <string name="select_participants">Выберите участников</string>
@@ -45,7 +44,6 @@
     <string name="contacts_permission_explanation">Для выбора участников из контактов необходимо разрешение</string>
     <string name="grant_permission">Дать разрешение</string>
 
-    <color name="date_picker_background">#FFFFFF</color>
 
     <!-- arrays.xml -->
     <string-array name="months_genitive">
@@ -74,5 +72,15 @@
     <string name="permission_permanently_denied_message">Вы запретили доступ к контактам навсегда. Пожалуйста, предоставьте разрешение в настройках приложения</string>
     <string name="open_settings">Открыть настройки</string>
     <string name="settings_open_error">Не удалось открыть настройки</string>
+    <string name="name_of_the_trip">Название путешествия</string>
+    <string name="initial_cost">Начальная стоимость</string>
+    <string name="dates">Даты</string>
+    <string name="beginning">Начало:</string>
+    <string name="the_end">Конец:</string>
+    <string name="add_contacts">Добавить контакты</string>
+    <string name="create">Создать</string>
+    <string name="select_the_participants">Выберите участников</string>
+    <string name="done">Готово</string>
+    <string name="select_at_least_one_contact">Выберите хотя бы один контакт</string>
 
 </resources>

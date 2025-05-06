@@ -1,6 +1,5 @@
 package ru.itis.travelling.presentation.trips.fragments
 
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,23 +67,26 @@ class AddTripViewModel @Inject constructor(
 
     fun addParticipants(newParticipants: List<Contact>, adminPhone: String) {
         _fullParticipants.update { currentList ->
-            val existingPhones = currentList.map { it.phone }.toSet()
-            val admin = currentList.find { it.phone == adminPhone }
-            val newParticipantsToAdd = newParticipants.filter { !existingPhones.contains(it.phoneNumber) }
+            // Создаем множество ID новых выбранных контактов
+            val newSelectedIds = newParticipants.map { it.id.toString() }.toSet()
+
+            // Удаляем участников, которых нет в новых выбранных контактах (кроме админа)
+            val filteredList = currentList.filter {
+                it.phone == adminPhone || newSelectedIds.contains(it.id)
+            }
+
+            // Добавляем новых участников, которых еще нет в списке
+            val existingIds = currentList.map { it.id }.toSet()
+            val participantsToAdd = newParticipants
+                .filterNot { existingIds.contains(it.id.toString()) }
                 .map { Participant(it.id.toString(), it.phoneNumber) }
 
-            // Ensure admin is always first
+            // Сохраняем админа первым
             buildList {
-                if (admin != null) add(admin)
-                addAll(currentList.filter { it.phone != adminPhone })
-                addAll(newParticipantsToAdd)
+                addAll(filteredList.filter { it.phone == adminPhone })
+                addAll(filteredList.filter { it.phone != adminPhone })
+                addAll(participantsToAdd)
             }
-        }
-    }
-
-    fun removeParticipant(participantId: String, adminPhone: String) {
-        if (participantId != adminPhone) { // Prevent removing admin
-            _fullParticipants.value = _fullParticipants.value.filter { it.id != participantId }
         }
     }
 
@@ -127,8 +129,6 @@ class AddTripViewModel @Inject constructor(
         }
     }
 
-// Вспомогательные методы:
-
     private fun validateTripData(title: String, cost: String) {
         when {
             title.isBlank() -> throw ValidationException("Trip title cannot be empty")
@@ -137,8 +137,6 @@ class AddTripViewModel @Inject constructor(
             _fullParticipants.value.isEmpty() -> throw ValidationException("Select at least one participant")
         }
     }
-
-
 
     private fun generateTripId(): String {
         return "TRIP_${System.currentTimeMillis()}_${Random.nextInt(1000, 9999)}"

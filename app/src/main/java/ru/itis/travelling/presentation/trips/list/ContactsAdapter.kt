@@ -10,10 +10,11 @@ import ru.itis.travelling.domain.trips.model.Contact
 
 
 class ContactsAdapter(
+    initiallySelectedContacts: Set<String> = emptySet(),
     private val onContactSelected: (Contact, Boolean) -> Unit
 ) : ListAdapter<Contact, ContactsAdapter.ViewHolder>(ContactDiffCallback()) {
 
-    private val selectedContacts = mutableSetOf<String>()
+    private val selectedContacts = initiallySelectedContacts.toMutableSet()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -28,7 +29,7 @@ class ContactsAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val contact = getItem(position)
-        holder.bind(contact, selectedContacts.contains(contact.id))
+        holder.bind(contact)
     }
 
     fun getSelectedContacts(): List<Contact> {
@@ -39,15 +40,16 @@ class ContactsAdapter(
         private val binding: ItemContactBinding,
         private val onContactSelected: (Contact, Boolean) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(contact: Contact, isSelected: Boolean) {
+        fun bind(contact: Contact) {
             with(binding) {
                 tvName.text = contact.name ?: contact.phoneNumber
                 tvPhone.text = contact.phoneNumber
-                checkbox.isChecked = isSelected
+                checkbox.isChecked = selectedContacts.contains(contact.id)
 
                 root.setOnClickListener {
-                    checkbox.isChecked = !checkbox.isChecked
-                    onCheckChanged(contact, checkbox.isChecked)
+                    val newCheckedState = !checkbox.isChecked
+                    checkbox.isChecked = newCheckedState
+                    onCheckChanged(contact, newCheckedState)
                 }
 
                 checkbox.setOnCheckedChangeListener { _, isChecked ->
@@ -76,3 +78,4 @@ class ContactsAdapter(
         }
     }
 }
+
