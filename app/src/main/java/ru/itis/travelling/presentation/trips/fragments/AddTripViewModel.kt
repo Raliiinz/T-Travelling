@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.trips.model.Contact
 import ru.itis.travelling.domain.trips.model.Participant
@@ -27,52 +28,31 @@ class AddTripViewModel @Inject constructor(
     private val _contactsState = MutableStateFlow<List<Contact>>(emptyList())
     val contactsState: StateFlow<List<Contact>> = _contactsState
 
-    private val _selectedParticipants = MutableStateFlow<List<Participant>>(emptyList())
-    val selectedParticipants: StateFlow<List<Participant>> = _selectedParticipants
-
     private val _uiState = MutableStateFlow<AddTripUiState>(AddTripUiState.Idle)
     val uiState: StateFlow<AddTripUiState> = _uiState
 
     private val _datesState = MutableStateFlow<Pair<LocalDate, LocalDate>>(
         Pair(
-            LocalDate.now().plusDays(1),
-            LocalDate.now().plusDays(3)
+            LocalDate.now(),
+            LocalDate.now().plusDays(1)
         )
     )
     val datesState: StateFlow<Pair<LocalDate, LocalDate>> = _datesState
-
 
     fun updateDates(newDates: Pair<LocalDate, LocalDate>) {
         _datesState.value = newDates
     }
 
-//
-//    fun createTrip(title: String, cost: String, phoneNumber: String) {
-//        viewModelScope.launch {
-//            _uiState.value = AddTripUiState.Loading
-//            runCatching {
-//                val admin = admin ?: throw IllegalStateException("Admin not initialized")
-//
-//                val trip = Trip(
-//                    id = "?",
-//                    destination = title,
-//                    startDate = _datesState.value.first.toString(),
-//                    endDate = _datesState.value.second.toString(),
-//                    price = cost,
-//                    admin = admin,
-//                    participants = _participants.value as MutableList<Participant>
-//                )
-//                createTripUseCase.invoke(trip)
-//            }.onSuccess {
-//                _uiState.value = AddTripUiState.Success
-//                navigator.navigateToTripsFragment(phoneNumber)
-//            }.onFailure {
-//                _uiState.value = AddTripUiState.Error(it.message ?: "Unknown error")
-//            }
-//        }
-//    }
+    private val _fullParticipants = MutableStateFlow<List<Participant>>(emptyList())
+    val fullParticipants: StateFlow<List<Participant>> = _fullParticipants
 
-
+    fun initializeWithAdmin(adminPhone: String) {
+        val admin = Participant(
+            id = adminPhone,
+            phone = adminPhone,
+        )
+        _fullParticipants.update { listOf(admin) }
+    }
 
     fun loadContacts() {
         viewModelScope.launch {
@@ -86,25 +66,26 @@ class AddTripViewModel @Inject constructor(
         }
     }
 
-//    fun updateSelectedContacts(contacts: List<Contact>) {
-//        _selectedParticipants.value = contacts
-//    }
+    fun addParticipants(newParticipants: List<Contact>, adminPhone: String) {
+        _fullParticipants.update { currentList ->
+            val existingPhones = currentList.map { it.phone }.toSet()
+            val admin = currentList.find { it.phone == adminPhone }
+            val newParticipantsToAdd = newParticipants.filter { !existingPhones.contains(it.phoneNumber) }
+                .map { Participant(it.id.toString(), it.phoneNumber) }
 
-    fun addParticipants(contacts: List<Contact>) {
-        val newParticipants = contacts.map { contact ->
-            Participant(
-                id = contact.id,
-                phone = contact.phoneNumber,
-
-            )
+            // Ensure admin is always first
+            buildList {
+                if (admin != null) add(admin)
+                addAll(currentList.filter { it.phone != adminPhone })
+                addAll(newParticipantsToAdd)
+            }
         }
-        println("Adding new participants: $newParticipants")  // Логирование
-        _selectedParticipants.value = _selectedParticipants.value + newParticipants
-        println("Current participants: ${_selectedParticipants.value}")  // Логирование
     }
 
-    fun removeParticipant(participantId: String) {
-        _selectedParticipants.value = _selectedParticipants.value.filter { it.id != participantId }
+    fun removeParticipant(participantId: String, adminPhone: String) {
+        if (participantId != adminPhone) { // Prevent removing admin
+            _fullParticipants.value = _fullParticipants.value.filter { it.id != participantId }
+        }
     }
 
     fun createTrip(title: String, cost: String, phoneNumber: String) {
@@ -114,9 +95,6 @@ class AddTripViewModel @Inject constructor(
             runCatching {
                 // 1. Валидация данных
                 validateTripData(title, cost)
-
-                // 2. Создание участников (admin + выбранные контакты)
-//                val participants = createParticipantsList(phoneNumber)
 
                 // 3. Создание объекта поездки
                 val trip = Trip(
@@ -128,10 +106,8 @@ class AddTripViewModel @Inject constructor(
                     admin = Participant(
                         id = phoneNumber,
                         phone = phoneNumber,
-//                        isAdmin = true
                     ),
-                    participants = _selectedParticipants.value.toMutableList(),
-//                    createdAt = System.currentTimeMillis() // Добавляем timestamp
+                    participants = _fullParticipants.value as MutableList<Participant>
                 )
 
                 // 4. Сохранение поездки
@@ -158,7 +134,7 @@ class AddTripViewModel @Inject constructor(
             title.isBlank() -> throw ValidationException("Trip title cannot be empty")
             cost.isBlank() -> throw ValidationException("Trip cost cannot be empty")
             !cost.matches(Regex("^\\d+(\\.\\d{1,2})?$")) -> throw ValidationException("Invalid cost format")
-            _selectedParticipants.value.isEmpty() -> throw ValidationException("Select at least one participant")
+            _fullParticipants.value.isEmpty() -> throw ValidationException("Select at least one participant")
         }
     }
 
@@ -169,7 +145,7 @@ class AddTripViewModel @Inject constructor(
     }
 
     private fun clearFormState() {
-        _selectedParticipants.value = emptyList()
+        _fullParticipants.value = emptyList()
     }
 
     // Класс для кастомных ошибок валидации

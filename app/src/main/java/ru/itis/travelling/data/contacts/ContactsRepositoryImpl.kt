@@ -7,16 +7,12 @@ import android.provider.ContactsContract
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.itis.travelling.domain.trips.model.Contact
-import ru.itis.travelling.domain.trips.model.Participant
 import ru.itis.travelling.domain.trips.repository.ContactsRepository
-import ru.itis.travelling.domain.trips.repository.ParticipantsRepository
 import javax.inject.Inject
 
-// features/addtrip/data/repository/ContactsRepositoryImpl.kt
 class ContactsRepositoryImpl @Inject constructor(
     private val context: Context
 ) : ContactsRepository {
@@ -55,7 +51,7 @@ class ContactsRepositoryImpl @Inject constructor(
                     }
                 }
             }
-            contacts.distinctBy { it.phoneNumber } // Remove duplicates
+            contacts.distinctBy { it.phoneNumber }
         }
     }
 

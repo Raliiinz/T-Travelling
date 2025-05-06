@@ -1,5 +1,6 @@
 package ru.itis.travelling.presentation.trips.list
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.ColorRes
@@ -25,6 +26,9 @@ class ParticipantAdapter(
     }
 
     override fun onBindViewHolder(holder: ParticipantViewHolder, position: Int) {
+        val participant = getItem(position)
+        Log.d("ParticipantAdapter", "onBindViewHolder: $participant")
+
         holder.bind(getItem(position), position == 0)
     }
 
@@ -48,6 +52,17 @@ class ParticipantAdapter(
             } else {
                 cardView.strokeWidth = REGULAR_STROKE_WIDTH
             }
+
+//            val isAdmin = position == 0
+//            if (isAdmin) {
+//                root.setOnLongClickListener(null)
+//                root.isClickable = false
+//            } else {
+//                root.setOnLongClickListener {
+//                    onRemoveClick?.invoke(participant.id)
+//                    true
+//                }
+//            }
         }
     }
 

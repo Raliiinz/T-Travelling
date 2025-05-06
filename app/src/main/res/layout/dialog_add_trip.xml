@@ -56,7 +56,7 @@
         android:id="@+id/datesLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginHorizontal="@dimen/margin_16dp"
         android:text="Даты"
         android:textSize="18sp"
@@ -141,7 +141,7 @@
         android:id="@+id/participantsLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_16dp"
+        android:layout_marginTop="24dp"
         android:layout_marginStart="@dimen/margin_16dp"
         android:text="Участники"
         android:textSize="18sp"
@@ -152,21 +152,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/selectEndDate"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/participantsRecyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:clipToPadding="false"
-        android:paddingBottom="8dp"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/tv_add_contacts_link"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/participantsLabel"
-        tools:listitem="@layout/item_participant"/>
-
     <TextView
         android:id="@+id/tv_add_contacts_link"
         android:layout_width="wrap_content"
@@ -175,23 +160,37 @@
         android:textColor="@color/blue"
         android:textSize="16sp"
         android:gravity="center"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="@dimen/margin_16dp"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintTop_toBottomOf="@id/participantsRecyclerView"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/selectEndDate"
+        app:layout_constraintStart_toEndOf="@id/participantsLabel"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/participantsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        android:layout_marginHorizontal="@dimen/margin_8dp"
+        app:layout_constraintVertical_bias="0.1"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/createButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/participantsLabel"
+        tools:listitem="@layout/item_participant"/>
 
     <Button
         android:id="@+id/createButton"
         style="@style/PrimaryButtonStyle"
-        android:layout_marginTop="16dp"
         android:text="Создать"
         app:backgroundTint="@color/yellow"
+        android:layout_marginBottom="@dimen/margin_16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_add_contacts_link"/>
+        app:layout_constraintStart_toStartOf="parent"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

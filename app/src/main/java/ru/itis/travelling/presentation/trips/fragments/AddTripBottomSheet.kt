@@ -1,20 +1,16 @@
 package ru.itis.travelling.presentation.trips.fragments
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.provider.Settings
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,9 +28,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.DialogAddTripBinding
 import ru.itis.travelling.domain.trips.model.Contact
-import ru.itis.travelling.domain.trips.model.Participant
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
-import ru.itis.travelling.presentation.trips.list.ParticipantsListAdapter
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -63,18 +57,36 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        participantsAdapter = ParticipantAdapter { participantId ->
-            viewModel.removeParticipant(participantId)
-        }
-        viewBinding.participantsRecyclerView.adapter = participantsAdapter
+        viewModel.initializeWithAdmin(phoneNumber)
 
+        setupParticipantsAdapter()
         initViews()
         setupObservers()
+    }
+
+    private fun setupParticipantsAdapter() {
+        participantsAdapter = ParticipantAdapter(
+            onRemoveClick = { participantId ->
+                if (participantId != phoneNumber) {
+                    viewModel.removeParticipant(participantId, phoneNumber)
+                } else {
+                    showToast("Нельзя удалить администратора")
+                }
+            }
+        )
+        viewBinding.participantsRecyclerView.apply {
+            adapter = participantsAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        }
+
     }
 
 
     private fun initViews() {
         viewBinding.apply {
+            startDateValue.text = viewModel.datesState.value.first.toBeautifulString()
+            endDateValue.text = viewModel.datesState.value.second.toBeautifulString()
+
             ivBackArrow.setOnClickListener { dismissWithNavigation() }
             selectStartDate.setOnClickListener { showDatePicker(isStartDate = true) }
             selectEndDate.setOnClickListener { showDatePicker(isStartDate = false) }
@@ -125,7 +137,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         val dialog = ContactsPickerDialog.newInstance(
             contacts = contacts,
             onContactsSelected = { selectedContacts ->
-                viewModel.addParticipants(selectedContacts)
+                viewModel.addParticipants(selectedContacts, phoneNumber)
             }
         )
         dialog.show(parentFragmentManager, "ContactsPickerDialog")
@@ -152,19 +164,10 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.selectedParticipants.collect { participants ->
-                        // Добавьте логирование для отладки
-                        println("Updating participants list: $participants")
-                        participantsAdapter.submitList(participants)
-
-                        // Добавляем callback для проверки обновления
-                        viewBinding.participantsRecyclerView.post {
-                            viewBinding.participantsRecyclerView.invalidateItemDecorations()
-                        }
-                        println("List updated with ${participants.size} items")
-                    }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.fullParticipants.collect { participants ->
+                    participantsAdapter.submitList(participants)
+                }
 
                 launch { observeUiState() }
                 launch { observeDates() }
@@ -275,8 +278,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-
-
     override fun onCreateDialog(savedInstanceState: Bundle?): BottomSheetDialog {
         val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
 
@@ -305,8 +306,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         }
         return dialog
     }
-
-
 
     companion object {
         const val TAG = "AddTripBottomSheet"
