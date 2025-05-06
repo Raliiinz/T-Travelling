@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.itis.travelling.R
@@ -14,6 +16,8 @@ import ru.itis.travelling.databinding.DialogAddTripBinding.bind
 import ru.itis.travelling.databinding.DialogContactsPickerBinding
 import ru.itis.travelling.domain.trips.model.Contact
 import ru.itis.travelling.presentation.trips.list.ContactsAdapter
+import ru.itis.travelling.presentation.trips.list.ContactsDividerItemDecoration
+import ru.itis.travelling.presentation.trips.util.getParcelableArrayListSafe
 
 class ContactsPickerDialog(
     private val onContactsSelected: (List<Contact>) -> Unit,
@@ -47,9 +51,14 @@ class ContactsPickerDialog(
         with(viewBinding.recyclerViewContacts) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@ContactsPickerDialog.adapter
+            addItemDecoration(ContactsDividerItemDecoration(
+                requireContext(),
+                marginStart = resources.getDimensionPixelSize(R.dimen.margin_16dp),
+                marginEnd = resources.getDimensionPixelSize(R.dimen.margin_16dp)
+            ))
         }
 
-       val contacts = arguments?.getParcelableArrayList<Contact>(ARG_CONTACTS) ?: emptyList()
+        val contacts = arguments?.getParcelableArrayListSafe<Contact>(ARG_CONTACTS) ?: emptyList()
         adapter.submitList(contacts)
     }
 

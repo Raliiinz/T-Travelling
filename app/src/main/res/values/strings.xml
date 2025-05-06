@@ -82,5 +82,7 @@
     <string name="select_the_participants">Выберите участников</string>
     <string name="done">Готово</string>
     <string name="select_at_least_one_contact">Выберите хотя бы один контакт</string>
+    <string name="enter_the_name_of_the_trip">Введите название путешествия</string>
+    <string name="enter_the_cost">Введите стоимость</string>
 
 </resources>

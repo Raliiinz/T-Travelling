@@ -37,7 +37,6 @@ import kotlin.getValue
 class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     private val viewBinding: DialogAddTripBinding by viewBinding(DialogAddTripBinding::bind)
     private val viewModel: AddTripViewModel by viewModels()
-
     private lateinit var participantsAdapter: ParticipantAdapter
     private val phoneNumber: String by lazy {
         arguments?.getString(PHONE_NUMBER) ?: ""
@@ -57,7 +56,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.initializeWithAdmin(phoneNumber)
-
         setupParticipantsAdapter()
         initViews()
         setupObservers()
@@ -71,16 +69,13 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         }
     }
 
-
     private fun initViews() {
         viewBinding.apply {
-            startDateValue.text = viewModel.datesState.value.first.toBeautifulString()
-            endDateValue.text = viewModel.datesState.value.second.toBeautifulString()
+            updateDateViews(viewModel.datesState.value)
 
             ivBackArrow.setOnClickListener { dismissWithNavigation() }
             selectStartDate.setOnClickListener { showDatePicker(isStartDate = true) }
             selectEndDate.setOnClickListener { showDatePicker(isStartDate = false) }
-
             tvAddContactsLink.setOnClickListener {
                 checkContactsPermission()
             }
@@ -94,6 +89,13 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                     )
                 }
             }
+        }
+    }
+
+    private fun updateDateViews(dates: Pair<LocalDate, LocalDate>) {
+        with(viewBinding) {
+            startDateValue.text = dates.first.toBeautifulString()
+            endDateValue.text = dates.second.toBeautifulString()
         }
     }
 
@@ -125,52 +127,50 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     private fun showContactsPicker(contacts: List<Contact>) {
         val selectedIds = viewModel.fullParticipants.value
-            .filterNot { it.phone == phoneNumber } // Исключаем администратора
+            .filterNot { it.phone == phoneNumber }
             .map { it.id }
             .toSet()
 
-        val dialog = ContactsPickerDialog(
-            onContactsSelected = { selectedContacts ->
-                viewModel.addParticipants(selectedContacts, phoneNumber)
-            },
+        ContactsPickerDialog(
+            onContactsSelected = { viewModel.addParticipants(it, phoneNumber) },
             initiallySelectedContacts = selectedIds
         ).apply {
             arguments = Bundle().apply {
                 putParcelableArrayList("contacts", ArrayList(contacts))
             }
-        }
-        dialog.show(parentFragmentManager, "ContactsPickerDialog")
-}
-
+        }.show(parentFragmentManager, "ContactsPickerDialog")
+    }
 
     private fun showPermissionDeniedDialog() {
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Permission Required")
-            .setMessage("Please grant contacts permission to select participants")
-            .setPositiveButton("Settings") { _, _ ->
+            .setTitle(getString(R.string.permission_required))
+            .setMessage(getString(R.string.permission_denied))
+            .setPositiveButton(getString(R.string.open_settings)) { _, _ ->
                 openAppSettings()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
 
     private fun openAppSettings() {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", requireContext().packageName, null)
-        }
-        startActivity(intent)
+        }.also { startActivity(it) }
     }
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.fullParticipants.collect { participants ->
-                    participantsAdapter.submitList(participants)
-                }
-
+                launch { observeParticipants() }
                 launch { observeUiState() }
                 launch { observeDates() }
             }
+        }
+    }
+
+    private suspend fun observeParticipants() {
+        viewModel.fullParticipants.collect {
+            participantsAdapter.submitList(it)
         }
     }
 
@@ -180,30 +180,20 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 is AddTripViewModel.AddTripUiState.Loading -> showProgress(true)
                 is AddTripViewModel.AddTripUiState.Success -> dismissWithNavigation()
                 is AddTripViewModel.AddTripUiState.Error -> showToast(state.message)
-                is AddTripViewModel.AddTripUiState.ContactsLoaded -> "showContactsDialog(state.contacts)"
                 AddTripViewModel.AddTripUiState.Idle -> Unit
             }
         }
     }
 
     private suspend fun observeDates() {
-        viewModel.datesState.collect { (startDate, endDate) ->
-            viewBinding.apply {
-                startDateValue.text = startDate.toBeautifulString()
-                endDateValue.text = endDate.toBeautifulString()
-            }
-        }
+        viewModel.datesState.collect { updateDateViews(it) }
     }
 
     private fun showDatePicker(isStartDate: Boolean) {
         val currentDates = viewModel.datesState.value
         val constraints = CalendarConstraints.Builder().apply {
-            val minDate = if (isStartDate) {
-                MaterialDatePicker.todayInUtcMilliseconds()
-            } else {
-                currentDates.first.toEpochMilli()
-            }
-            setStart(minDate)
+            setStart(if (isStartDate) MaterialDatePicker.todayInUtcMilliseconds()
+            else currentDates.first.toEpochMilli())
         }
 
         MaterialDatePicker.Builder.datePicker()
@@ -213,8 +203,10 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
             .build()
             .apply {
                 addOnPositiveButtonClickListener { millis ->
-                    val selectedDate = millis.toLocalDate()
-                    viewModel.updateDates(calculateNewDates(isStartDate, selectedDate))
+                    viewModel.updateDates(calculateNewDates(
+                        isStartDate,
+                        millis.toLocalDate()
+                    ))
                 }
             }
             .show(childFragmentManager, DATE_PICKER_TAG)
@@ -247,21 +239,20 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     }
 
     private fun validateInput(): Boolean {
-        return viewBinding.run {
-            when {
+        with(viewBinding) {
+            return when {
                 etTitleTrip.text.isNullOrBlank() -> {
-                    showToast("Введите название путешествия")
+                    showToast(getString(R.string.enter_the_name_of_the_trip))
                     false
                 }
                 etCostTrip.text.isNullOrBlank() -> {
-                    showToast("Введите стоимость")
+                    showToast(getString(R.string.enter_the_cost))
                     false
                 }
                 else -> true
             }
         }
     }
-
 
     private fun dismissWithNavigation() {
         viewModel.navigateToTrips(phoneNumber)

@@ -4,9 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.ContactsContract
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.itis.travelling.domain.trips.model.Contact
@@ -60,17 +58,5 @@ class ContactsRepositoryImpl @Inject constructor(
             context,
             Manifest.permission.READ_CONTACTS
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    override fun requestPermission(activity: FragmentActivity, onResult: (Boolean) -> Unit) {
-        ActivityCompat.requestPermissions(
-            activity,
-            arrayOf(Manifest.permission.READ_CONTACTS),
-            CONTACTS_PERMISSION_REQUEST_CODE
-        )
-    }
-
-    companion object {
-        const val CONTACTS_PERMISSION_REQUEST_CODE = 1001
     }
 }

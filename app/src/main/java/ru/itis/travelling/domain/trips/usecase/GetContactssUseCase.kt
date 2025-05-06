@@ -10,9 +10,10 @@ import javax.inject.Inject
 class GetContactsUseCase @Inject constructor(
     private val repository: ContactsRepository
 ) {
-    suspend operator fun invoke(): List<Contact> = repository.getContacts()
-    fun hasPermission() = repository.hasContactsPermission()
-    fun requestPermission(activity: FragmentActivity, onResult: (Boolean) -> Unit) {
-        repository.requestPermission(activity, onResult)
+    suspend operator fun invoke(): List<Contact> {
+        require(repository.hasContactsPermission()) {
+            "Contacts permission not granted"
+        }
+        return repository.getContacts()
     }
 }

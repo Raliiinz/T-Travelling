@@ -20,8 +20,8 @@ import kotlin.random.Random
 @HiltViewModel
 class AddTripViewModel @Inject constructor(
     private val createTripUseCase: CreateTripUseCase,
-    private val navigator: Navigator,
     private val getContactsUseCase: GetContactsUseCase,
+    private val navigator: Navigator
 ) : ViewModel() {
 
     private val _contactsState = MutableStateFlow<List<Contact>>(emptyList())
@@ -30,27 +30,22 @@ class AddTripViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AddTripUiState>(AddTripUiState.Idle)
     val uiState: StateFlow<AddTripUiState> = _uiState
 
-    private val _datesState = MutableStateFlow<Pair<LocalDate, LocalDate>>(
-        Pair(
-            LocalDate.now(),
-            LocalDate.now().plusDays(1)
-        )
+    private val _datesState = MutableStateFlow(
+        LocalDate.now() to LocalDate.now().plusDays(1)
     )
     val datesState: StateFlow<Pair<LocalDate, LocalDate>> = _datesState
+
+    private val _fullParticipants = MutableStateFlow<List<Participant>>(emptyList())
+    val fullParticipants: StateFlow<List<Participant>> = _fullParticipants
 
     fun updateDates(newDates: Pair<LocalDate, LocalDate>) {
         _datesState.value = newDates
     }
 
-    private val _fullParticipants = MutableStateFlow<List<Participant>>(emptyList())
-    val fullParticipants: StateFlow<List<Participant>> = _fullParticipants
-
     fun initializeWithAdmin(adminPhone: String) {
-        val admin = Participant(
-            id = adminPhone,
-            phone = adminPhone,
-        )
-        _fullParticipants.update { listOf(admin) }
+        _fullParticipants.update {
+            listOf(Participant(id = adminPhone, phone = adminPhone))
+        }
     }
 
     fun loadContacts() {
@@ -60,33 +55,27 @@ class AddTripViewModel @Inject constructor(
                 _contactsState.value = getContactsUseCase()
                 _uiState.value = AddTripUiState.Idle
             } catch (e: Exception) {
-                _uiState.value = AddTripUiState.Error(e.message ?: "Failed to load contacts")
+                _uiState.value = AddTripUiState.Error(
+                    if (e is SecurityException) "Permission denied"
+                    else e.message ?: "Failed to load contacts"
+                )
             }
         }
     }
 
     fun addParticipants(newParticipants: List<Contact>, adminPhone: String) {
         _fullParticipants.update { currentList ->
-            // Создаем множество ID новых выбранных контактов
             val newSelectedIds = newParticipants.map { it.id.toString() }.toSet()
-
-            // Удаляем участников, которых нет в новых выбранных контактах (кроме админа)
-            val filteredList = currentList.filter {
-                it.phone == adminPhone || newSelectedIds.contains(it.id)
-            }
-
-            // Добавляем новых участников, которых еще нет в списке
             val existingIds = currentList.map { it.id }.toSet()
+
+            val (admin, others) = currentList.partition { it.phone == adminPhone }
+            val filteredOthers = others.filter { newSelectedIds.contains(it.id) }
+
             val participantsToAdd = newParticipants
                 .filterNot { existingIds.contains(it.id.toString()) }
                 .map { Participant(it.id.toString(), it.phoneNumber) }
 
-            // Сохраняем админа первым
-            buildList {
-                addAll(filteredList.filter { it.phone == adminPhone })
-                addAll(filteredList.filter { it.phone != adminPhone })
-                addAll(participantsToAdd)
-            }
+            admin + filteredOthers + participantsToAdd
         }
     }
 
@@ -95,47 +84,46 @@ class AddTripViewModel @Inject constructor(
             _uiState.value = AddTripUiState.Loading
 
             runCatching {
-                // 1. Валидация данных
                 validateTripData(title, cost)
-
-                // 3. Создание объекта поездки
                 val trip = Trip(
-                    id = generateTripId(), // Генерация ID
+                    id = generateTripId(),
                     destination = title.trim(),
                     startDate = _datesState.value.first.toString(),
                     endDate = _datesState.value.second.toString(),
-                    price = (cost.toDoubleOrNull() ?: 0.0).toString(), // Безопасное преобразование
+                    price = (cost.toDoubleOrNull() ?: 0.0).toString(),
                     admin = Participant(
                         id = phoneNumber,
                         phone = phoneNumber,
                     ),
                     participants = _fullParticipants.value as MutableList<Participant>
                 )
-
-                // 4. Сохранение поездки
                 createTripUseCase.invoke(trip)
             }.onSuccess {
-                // 5. Очистка состояния после успешного создания
-                clearFormState()
-                _uiState.value = AddTripUiState.Success
-                navigator.navigateToTripsFragment(phoneNumber)
-            }.onFailure { e ->
-                // 6. Обработка ошибок
-                _uiState.value = when (e) {
-                    is ValidationException -> AddTripUiState.Error(e.message ?: "Validation error")
-                    else -> AddTripUiState.Error(e.message ?: "Failed to create trip")
-                }
+                ::handleTripCreationSuccess
+            }.onFailure {
+                ::handleTripCreationError
             }
         }
     }
 
-    private fun validateTripData(title: String, cost: String) {
-        when {
-            title.isBlank() -> throw ValidationException("Trip title cannot be empty")
-            cost.isBlank() -> throw ValidationException("Trip cost cannot be empty")
-            !cost.matches(Regex("^\\d+(\\.\\d{1,2})?$")) -> throw ValidationException("Invalid cost format")
-            _fullParticipants.value.isEmpty() -> throw ValidationException("Select at least one participant")
+    private fun handleTripCreationSuccess(trip: Trip) {
+        clearFormState()
+        _uiState.value = AddTripUiState.Success
+        navigator.navigateToTripsFragment(trip.admin.phone)
+    }
+
+    private fun handleTripCreationError(e: Throwable) {
+        _uiState.value = when (e) {
+            is ValidationException -> AddTripUiState.Error(e.message ?: "Validation error")
+            else -> AddTripUiState.Error(e.message ?: "Failed to create trip")
         }
+    }
+
+    private fun validateTripData(title: String, cost: String) {
+        require(title.isNotBlank()) { "Trip title cannot be empty" }
+        require(cost.isNotBlank()) { "Trip cost cannot be empty" }
+        require(cost.matches(COST_REGEX)) { "Invalid cost format" }
+        require(_fullParticipants.value.isNotEmpty()) { "Select at least one participant" }
     }
 
     private fun generateTripId(): String {
@@ -146,7 +134,16 @@ class AddTripViewModel @Inject constructor(
         _fullParticipants.value = emptyList()
     }
 
-    // Класс для кастомных ошибок валидации
+    fun navigateToTrips(phoneNumber: String) {
+        viewModelScope.launch {
+            navigator.navigateToTripsFragment(phoneNumber)
+        }
+    }
+
+    companion object {
+        private val COST_REGEX = Regex("^\\d+(\\.\\d{1,2})?$")
+    }
+
     class ValidationException(message: String) : Exception(message)
 
     sealed class AddTripUiState {
@@ -154,13 +151,5 @@ class AddTripViewModel @Inject constructor(
         object Loading : AddTripUiState()
         object Success : AddTripUiState()
         data class Error(val message: String) : AddTripUiState()
-        data class ContactsLoaded(val contacts: List<Participant>) : AddTripUiState()
-    }
-
-
-    fun navigateToTrips(phoneNumber: String) {
-        viewModelScope.launch {
-            navigator.navigateToTripsFragment(phoneNumber)
-        }
     }
 }
