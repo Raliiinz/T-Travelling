@@ -52,11 +52,4 @@ class ContactsRepositoryImpl @Inject constructor(
             contacts.distinctBy { it.phoneNumber }
         }
     }
-
-    override fun hasContactsPermission(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.READ_CONTACTS
-        ) == PackageManager.PERMISSION_GRANTED
-    }
 }

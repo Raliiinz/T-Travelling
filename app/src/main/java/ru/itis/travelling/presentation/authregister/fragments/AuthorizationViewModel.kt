@@ -1,5 +1,6 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
+import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,13 +36,13 @@ class AuthorizationViewModel @Inject constructor(
 
     fun login(phone: String, password: String) {
         viewModelScope.launch {
+            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phone)
             _uiState.update { AuthorizationUiState.Idle }
-
             try {
-                val isSuccess = loginUseCase(phone, password)
+                val isSuccess = loginUseCase(normalizedPhone, password)
                 if (isSuccess) {
-                    userPreferencesRepository.saveLoginState(true, phone)
-                    navigator.navigateToTripsFragment(phone)
+                    userPreferencesRepository.saveLoginState(true, normalizedPhone)
+                    navigator.navigateToTripsFragment(normalizedPhone)
                 } else {
                     _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
                 }

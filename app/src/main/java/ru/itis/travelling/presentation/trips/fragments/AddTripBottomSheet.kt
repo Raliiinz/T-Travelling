@@ -178,9 +178,20 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         viewModel.uiState.collect { state ->
             when (state) {
                 is AddTripViewModel.AddTripUiState.Loading -> showProgress(true)
-                is AddTripViewModel.AddTripUiState.Success -> dismissWithNavigation()
-                is AddTripViewModel.AddTripUiState.Error -> showToast(state.message)
+                is AddTripViewModel.AddTripUiState.Success -> {
+                    dismissAllowingStateLoss()
+                }
                 AddTripViewModel.AddTripUiState.Idle -> Unit
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is AddTripViewModel.AddTripEvent.Error -> {
+                        showToast(event.message)
+                    }
+                }
             }
         }
     }
@@ -255,8 +266,8 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     }
 
     private fun dismissWithNavigation() {
-        viewModel.navigateToTrips(phoneNumber)
         dismissAllowingStateLoss()
+        viewModel.navigateToTrips(phoneNumber)
     }
 
     private fun showProgress(show: Boolean) {

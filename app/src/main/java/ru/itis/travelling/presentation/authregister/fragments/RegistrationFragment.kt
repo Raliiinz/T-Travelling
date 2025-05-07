@@ -1,6 +1,8 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
@@ -19,6 +21,7 @@ import ru.itis.travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.travelling.presentation.authregister.util.setupPasswordToggle
 import ru.itis.travelling.presentation.authregister.util.setupValidation
 import ru.itis.travelling.presentation.authregister.util.ValidationUtils
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 
 
 @AndroidEntryPoint
@@ -29,10 +32,39 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupPhoneNumberInput()
         setupPasswordToggle()
         setupRealTimeValidation()
         setupListeners()
         setupObservers()
+    }
+
+    private var isFormatting = false
+
+    private fun setupPhoneNumberInput() {
+        viewBinding.etPhone.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isFormatting) return
+
+                s?.let {
+                    isFormatting = true
+
+                    val input = s.toString()
+                    val formatted = PhoneNumberUtils.formatPhoneNumber(input)
+
+                    if (formatted != input) {
+                        viewBinding.etPhone.setText(formatted)
+                        viewBinding.etPhone.setSelection(formatted.length)
+                    }
+
+                    isFormatting = false
+                }
+            }
+        })
     }
 
     private fun setupPasswordToggle() {
@@ -83,8 +115,7 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
     }
 
     private fun attemptRegister() {
-        print("here")
-        val phone = viewBinding.etPhone.text.toString().trim()
+        val phone = PhoneNumberUtils.normalizePhoneNumber(viewBinding.etPhone.text.toString())
         val password = viewBinding.etPassword.text.toString().trim()
         val confirmPassword = viewBinding.etPasswordRepeat.text.toString().trim()
 

@@ -137,21 +137,6 @@ class Navigator @Inject constructor() {
         AddTripBottomSheet.newInstance(phone).show(fragmentManager, AddTripBottomSheet.TAG)
     }
 
-//    fun navigateToContactsPicker(contacts: List<Contact>, selectedContacts: List<Contact>) {
-//        updateNavigationState(NavigationState.BottomNavigationHidden)
-//        navigate(
-//            destination = ContactsPickerFragment.newInstance(contacts, selectedContacts),
-//            destinationTag = "CONTACTS_PICKER_TAG",
-//            action = NavigationAction.REPLACE,
-//            isAddToBackStack = true
-//        )
-//    }
-
-    // In Navigator.kt
-
-
-
-
     private fun updateNavigationState(state: NavigationState) {
         navigationStateListener?.invoke(state)
     }

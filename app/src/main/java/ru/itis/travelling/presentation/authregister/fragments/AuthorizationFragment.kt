@@ -1,9 +1,12 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -17,19 +20,49 @@ import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.travelling.presentation.authregister.util.setupPasswordToggle
 import ru.itis.travelling.presentation.authregister.util.setupValidationOfNull
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 
 @AndroidEntryPoint
 class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
     private val viewBinding: FragmentAuthorizationBinding by viewBinding(FragmentAuthorizationBinding::bind)
     private val viewModel: AuthorizationViewModel by viewModels()
 
+    private var isFormatting = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupPhoneNumberInput()
         setupObservers()
         setupListeners()
         setupRealTimeValidation()
         setupPasswordToggle()
+    }
+
+    private fun setupPhoneNumberInput() {
+        viewBinding.etPhone.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isFormatting) return
+
+                s?.let {
+                    isFormatting = true
+
+                    val input = s.toString()
+                    val formatted = PhoneNumberUtils.formatPhoneNumber(input)
+
+                    if (formatted != input) {
+                        viewBinding.etPhone.setText(formatted)
+                        viewBinding.etPhone.setSelection(formatted.length)
+                    }
+
+                    isFormatting = false
+                }
+            }
+        })
     }
 
     private fun setupObservers() {
@@ -64,7 +97,7 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
     }
 
     private fun attemptLogin() {
-        val phone = viewBinding.etPhone.text.toString().trim()
+        val phone = PhoneNumberUtils.normalizePhoneNumber(viewBinding.etPhone.text.toString())
         val password = viewBinding.etPassword.text.toString().trim()
 
         val isPhoneValid = validateField(

@@ -1,5 +1,6 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.authregister.usecase.RegisterUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,10 +30,11 @@ class RegistrationViewModel @Inject constructor(
 
     fun register(phone: String, password: String) {
         viewModelScope.launch {
+            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phone)
             _uiState.update { RegistrationUiState.Loading }
             delay(2000)
             try {
-                val isSuccess = registerUseCase(phone, password)
+                val isSuccess = registerUseCase(normalizedPhone, password)
                 if (isSuccess) {
                     navigator.navigateToAuthorizationFragment()
                 }

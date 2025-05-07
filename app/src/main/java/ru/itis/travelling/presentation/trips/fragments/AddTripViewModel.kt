@@ -3,7 +3,9 @@ package ru.itis.travelling.presentation.trips.fragments
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -13,6 +15,8 @@ import ru.itis.travelling.domain.trips.model.Trip
 import ru.itis.travelling.domain.trips.usecase.CreateTripUseCase
 import ru.itis.travelling.domain.trips.usecase.GetContactsUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils.formatPhoneNumber
 import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.random.Random
@@ -38,27 +42,36 @@ class AddTripViewModel @Inject constructor(
     private val _fullParticipants = MutableStateFlow<List<Participant>>(emptyList())
     val fullParticipants: StateFlow<List<Participant>> = _fullParticipants
 
+    private val _events = MutableSharedFlow<AddTripEvent>()
+    val events: SharedFlow<AddTripEvent> = _events
+
     fun updateDates(newDates: Pair<LocalDate, LocalDate>) {
-        _datesState.value = newDates
+        _datesState.update { newDates }
     }
 
     fun initializeWithAdmin(adminPhone: String) {
-        _fullParticipants.update {
-            listOf(Participant(id = adminPhone, phone = adminPhone))
-        }
+        val formattedPhone = formatPhoneNumber(adminPhone)
+        _fullParticipants.update { listOf(
+            Participant(id = adminPhone, phone = formattedPhone)
+        )}
     }
 
     fun loadContacts() {
         viewModelScope.launch {
-            _uiState.value = AddTripUiState.Loading
+            _uiState.update { AddTripUiState.Loading }
             try {
-                _contactsState.value = getContactsUseCase()
-                _uiState.value = AddTripUiState.Idle
+                val contacts = getContactsUseCase().map { contact ->
+                    contact.copy(phoneNumber = formatPhoneNumber(contact.phoneNumber))
+                }
+                _contactsState.update { contacts }
+                _uiState.update { AddTripUiState.Idle }
             } catch (e: Exception) {
-                _uiState.value = AddTripUiState.Error(
-                    if (e is SecurityException) "Permission denied"
-                    else e.message ?: "Failed to load contacts"
-                )
+                val message = if (e is SecurityException) {
+                    e.message ?: "Permission denied"
+                } else {
+                    e.message ?: "Failed to load contacts"
+                }
+                _events.emit(AddTripEvent.Error(message))
             }
         }
     }
@@ -68,12 +81,17 @@ class AddTripViewModel @Inject constructor(
             val newSelectedIds = newParticipants.map { it.id.toString() }.toSet()
             val existingIds = currentList.map { it.id }.toSet()
 
-            val (admin, others) = currentList.partition { it.phone == adminPhone }
+            val (admin, others) = currentList.partition { it.phone == formatPhoneNumber(adminPhone) }
             val filteredOthers = others.filter { newSelectedIds.contains(it.id) }
 
             val participantsToAdd = newParticipants
                 .filterNot { existingIds.contains(it.id.toString()) }
-                .map { Participant(it.id.toString(), it.phoneNumber) }
+                .map {
+                    Participant(
+                        id = it.id.toString(),
+                        phone = formatPhoneNumber(it.phoneNumber)
+                    )
+                }
 
             admin + filteredOthers + participantsToAdd
         }
@@ -81,10 +99,12 @@ class AddTripViewModel @Inject constructor(
 
     fun createTrip(title: String, cost: String, phoneNumber: String) {
         viewModelScope.launch {
-            _uiState.value = AddTripUiState.Loading
+            _uiState.update { AddTripUiState.Loading }
 
             runCatching {
                 validateTripData(title, cost)
+                val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+
                 val trip = Trip(
                     id = generateTripId(),
                     destination = title.trim(),
@@ -92,31 +112,40 @@ class AddTripViewModel @Inject constructor(
                     endDate = _datesState.value.second.toString(),
                     price = (cost.toDoubleOrNull() ?: 0.0).toString(),
                     admin = Participant(
-                        id = phoneNumber,
-                        phone = phoneNumber,
+                        id = normalizedPhone,
+                        phone = normalizedPhone
                     ),
-                    participants = _fullParticipants.value as MutableList<Participant>
+                    participants = _fullParticipants.value.map {
+                        it.copy(phone = PhoneNumberUtils.normalizePhoneNumber(it.phone))
+                    }.toMutableList()
                 )
                 createTripUseCase.invoke(trip)
-            }.onSuccess {
-                ::handleTripCreationSuccess
-            }.onFailure {
-                ::handleTripCreationError
+                trip
+            }.onSuccess { trip ->
+                println("DEBUG: Trip created successfully! Trip: $trip")
+                handleTripCreationSuccess(trip)
+            }.onFailure { e->
+                println("DEBUG: Failed to create trip. Error: ${e.message}")
+                handleTripCreationError(e)
             }
         }
     }
 
     private fun handleTripCreationSuccess(trip: Trip) {
-        clearFormState()
-        _uiState.value = AddTripUiState.Success
-        navigator.navigateToTripsFragment(trip.admin.phone)
+        viewModelScope.launch {
+            clearFormState()
+            _uiState.update { AddTripUiState.Success }
+            navigateToTrips(trip.admin.phone)
+        }
     }
 
-    private fun handleTripCreationError(e: Throwable) {
-        _uiState.value = when (e) {
-            is ValidationException -> AddTripUiState.Error(e.message ?: "Validation error")
-            else -> AddTripUiState.Error(e.message ?: "Failed to create trip")
+    private suspend fun handleTripCreationError(e: Throwable) {
+        val message = if (e is ValidationException) {
+            e.message ?: "Validation error"
+        } else {
+            e.message ?: "Failed to create trip"
         }
+        _events.emit(AddTripEvent.Error(message))
     }
 
     private fun validateTripData(title: String, cost: String) {
@@ -131,7 +160,7 @@ class AddTripViewModel @Inject constructor(
     }
 
     private fun clearFormState() {
-        _fullParticipants.value = emptyList()
+        _fullParticipants.update { emptyList() }
     }
 
     fun navigateToTrips(phoneNumber: String) {
@@ -150,6 +179,9 @@ class AddTripViewModel @Inject constructor(
         object Idle : AddTripUiState()
         object Loading : AddTripUiState()
         object Success : AddTripUiState()
-        data class Error(val message: String) : AddTripUiState()
+    }
+
+    sealed class AddTripEvent {
+        data class Error(val message: String) : AddTripEvent()
     }
 }

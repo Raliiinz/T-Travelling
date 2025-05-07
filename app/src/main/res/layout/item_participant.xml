@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
-    android:layout_width="136dp"
+    android:layout_width="144dp"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/margin_8dp"
     android:layout_gravity="center_horizontal"
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="14sp"
             tools:text="+79274486767"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
