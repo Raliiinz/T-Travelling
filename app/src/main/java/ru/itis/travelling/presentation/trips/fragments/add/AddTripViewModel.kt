@@ -1,19 +1,20 @@
-package ru.itis.travelling.presentation.trips.fragments
+package ru.itis.travelling.presentation.trips.fragments.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.itis.travelling.domain.trips.model.Contact
+import ru.itis.travelling.domain.contacts.model.Contact
 import ru.itis.travelling.domain.trips.model.Participant
 import ru.itis.travelling.domain.trips.model.Trip
 import ru.itis.travelling.domain.trips.usecase.CreateTripUseCase
-import ru.itis.travelling.domain.trips.usecase.GetContactsUseCase
+import ru.itis.travelling.domain.contacts.usecase.GetContactsUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils.formatPhoneNumber
@@ -59,6 +60,7 @@ class AddTripViewModel @Inject constructor(
     fun loadContacts() {
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
+            delay(2000)
             try {
                 val contacts = getContactsUseCase().map { contact ->
                     contact.copy(phoneNumber = formatPhoneNumber(contact.phoneNumber))
@@ -100,6 +102,7 @@ class AddTripViewModel @Inject constructor(
     fun createTrip(title: String, cost: String, phoneNumber: String) {
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
+            delay(2000)
 
             runCatching {
                 validateTripData(title, cost)

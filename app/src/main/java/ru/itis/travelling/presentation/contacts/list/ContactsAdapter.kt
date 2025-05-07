@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.list
+package ru.itis.travelling.presentation.contacts.list
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.itis.travelling.databinding.ItemContactBinding
-import ru.itis.travelling.domain.trips.model.Contact
+import ru.itis.travelling.domain.contacts.model.Contact
 
 
 class ContactsAdapter(

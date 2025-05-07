@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.util
+package ru.itis.travelling.presentation.contacts.util
 
 import android.os.Build
 import android.os.Bundle

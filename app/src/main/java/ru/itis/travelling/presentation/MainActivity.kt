@@ -10,7 +10,6 @@ import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ActivityMainBinding
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationViewModel
-import ru.itis.travelling.presentation.trips.util.PermissionHandler
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -18,18 +17,11 @@ class MainActivity : AppCompatActivity() {
     private val mainContainerId = R.id.main_fragment_container
     private val viewBinding: ActivityMainBinding by viewBinding(ActivityMainBinding::bind)
     private val viewModel: AuthorizationViewModel by viewModels()
-    var permissionHandler: PermissionHandler? = null
     @Inject lateinit var navigator: Navigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        permissionHandler = PermissionHandler(
-            onSinglePermissionGranted = {},
-            onSinglePermissionDenied = {}
-        )
-        permissionHandler?.initContracts(this)
 
         initNavigation()
         setupBottomNavigation()
@@ -96,6 +88,5 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        permissionHandler = null
     }
 }

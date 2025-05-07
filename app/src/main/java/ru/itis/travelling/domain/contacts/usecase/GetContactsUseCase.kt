@@ -1,7 +1,7 @@
-package ru.itis.travelling.domain.trips.usecase
+package ru.itis.travelling.domain.contacts.usecase
 
-import ru.itis.travelling.domain.trips.model.Contact
-import ru.itis.travelling.domain.trips.repository.ContactsRepository
+import ru.itis.travelling.domain.contacts.model.Contact
+import ru.itis.travelling.domain.contacts.repository.ContactsRepository
 import javax.inject.Inject
 
 class GetContactsUseCase @Inject constructor(

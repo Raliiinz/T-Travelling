@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.fragments
+package ru.itis.travelling.presentation.trips.fragments.details
 
 import android.app.AlertDialog
 import android.os.Bundle

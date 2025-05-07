@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.list
+package ru.itis.travelling.presentation.contacts.list
 
 import android.content.Context
 import android.graphics.Canvas

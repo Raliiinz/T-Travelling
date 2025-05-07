@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.fragments
+package ru.itis.travelling.presentation.trips.fragments.add
 
 import android.Manifest
 import android.content.Intent
@@ -26,7 +26,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.DialogAddTripBinding
-import ru.itis.travelling.domain.trips.model.Contact
+import ru.itis.travelling.domain.contacts.model.Contact
+import ru.itis.travelling.presentation.contacts.fragments.ContactsPickerDialog
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
 import java.time.Instant
 import java.time.LocalDate
@@ -177,11 +178,12 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     private suspend fun observeUiState() {
         viewModel.uiState.collect { state ->
             when (state) {
-                is AddTripViewModel.AddTripUiState.Loading -> showProgress(true)
+                is AddTripViewModel.AddTripUiState.Loading -> showProgress()
                 is AddTripViewModel.AddTripUiState.Success -> {
+                    hideProgress()
                     dismissAllowingStateLoss()
                 }
-                AddTripViewModel.AddTripUiState.Idle -> Unit
+                is AddTripViewModel.AddTripUiState.Idle -> hideProgress()
             }
         }
 
@@ -270,8 +272,26 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         viewModel.navigateToTrips(phoneNumber)
     }
 
-    private fun showProgress(show: Boolean) {
-        // Реализация отображения прогресса
+    private fun showProgress() {
+        viewBinding.apply {
+            progressOverlay.visibility = View.VISIBLE
+            progressOverlay.isClickable = true
+            progressOverlay.isFocusable = true
+            progressOverlay.isFocusableInTouchMode = true
+
+            participantsRecyclerView.isNestedScrollingEnabled = false
+        }
+    }
+
+    private fun hideProgress() {
+        viewBinding.apply {
+            progressOverlay.visibility = View.GONE
+            progressOverlay.isClickable = false
+            progressOverlay.isFocusable = false
+            progressOverlay.isFocusableInTouchMode = false
+
+            participantsRecyclerView.isNestedScrollingEnabled = true
+        }
     }
 
     private fun showToast(message: String) {
@@ -287,7 +307,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         dialog.setOnShowListener {
             val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.let { sheet ->
-                val behavior = BottomSheetBehavior.from(sheet).apply {
+                BottomSheetBehavior.from(sheet).apply {
                     addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                         override fun onStateChanged(bottomSheet: View, newState: Int) {
                             if (newState == BottomSheetBehavior.STATE_HIDDEN) {

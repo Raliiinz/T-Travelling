@@ -1,23 +1,18 @@
-package ru.itis.travelling.presentation.trips.fragments
+package ru.itis.travelling.presentation.contacts.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.itis.travelling.R
-import ru.itis.travelling.databinding.DialogAddTripBinding
-import ru.itis.travelling.databinding.DialogAddTripBinding.bind
 import ru.itis.travelling.databinding.DialogContactsPickerBinding
-import ru.itis.travelling.domain.trips.model.Contact
-import ru.itis.travelling.presentation.trips.list.ContactsAdapter
-import ru.itis.travelling.presentation.trips.list.ContactsDividerItemDecoration
-import ru.itis.travelling.presentation.trips.util.getParcelableArrayListSafe
+import ru.itis.travelling.domain.contacts.model.Contact
+import ru.itis.travelling.presentation.contacts.list.ContactsAdapter
+import ru.itis.travelling.presentation.contacts.list.ContactsDividerItemDecoration
+import ru.itis.travelling.presentation.contacts.util.getParcelableArrayListSafe
 
 class ContactsPickerDialog(
     private val onContactsSelected: (List<Contact>) -> Unit,
@@ -51,11 +46,13 @@ class ContactsPickerDialog(
         with(viewBinding.recyclerViewContacts) {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@ContactsPickerDialog.adapter
-            addItemDecoration(ContactsDividerItemDecoration(
-                requireContext(),
-                marginStart = resources.getDimensionPixelSize(R.dimen.margin_16dp),
-                marginEnd = resources.getDimensionPixelSize(R.dimen.margin_16dp)
-            ))
+            addItemDecoration(
+                ContactsDividerItemDecoration(
+                    requireContext(),
+                    marginStart = resources.getDimensionPixelSize(R.dimen.margin_16dp),
+                    marginEnd = resources.getDimensionPixelSize(R.dimen.margin_16dp)
+                )
+            )
         }
 
         val contacts = arguments?.getParcelableArrayListSafe<Contact>(ARG_CONTACTS) ?: emptyList()
@@ -85,7 +82,6 @@ class ContactsPickerDialog(
 
     companion object {
         private const val ARG_CONTACTS = "contacts"
-//        private const val ARG_SELECTED = "selected_contacts"
 
         fun newInstance(
             contacts: List<Contact>,
@@ -95,7 +91,6 @@ class ContactsPickerDialog(
             return ContactsPickerDialog(onContactsSelected, initiallySelectedContacts).apply {
                 arguments = Bundle().apply {
                     putParcelableArrayList(ARG_CONTACTS, ArrayList(contacts))
-//                    putStringArrayList(ARG_SELECTED, ArrayList(initiallySelectedContacts))
                 }
             }
         }

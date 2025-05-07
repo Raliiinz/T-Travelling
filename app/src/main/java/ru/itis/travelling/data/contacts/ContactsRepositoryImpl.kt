@@ -1,14 +1,11 @@
 package ru.itis.travelling.data.contacts
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.provider.ContactsContract
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import ru.itis.travelling.domain.trips.model.Contact
-import ru.itis.travelling.domain.trips.repository.ContactsRepository
+import ru.itis.travelling.domain.contacts.model.Contact
+import ru.itis.travelling.domain.contacts.repository.ContactsRepository
 import javax.inject.Inject
 
 class ContactsRepositoryImpl @Inject constructor(
