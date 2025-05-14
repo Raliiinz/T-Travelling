@@ -16,7 +16,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private val mainContainerId = R.id.main_fragment_container
     private val viewBinding: ActivityMainBinding by viewBinding(ActivityMainBinding::bind)
-    private val viewModel: AuthorizationViewModel by viewModels()
+//    private val viewModel: AuthorizationViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     @Inject lateinit var navigator: Navigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,9 +85,5 @@ class MainActivity : AppCompatActivity() {
 
     fun hideBottomNavigation() {
         viewBinding.mainBottomNavigation.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 }
