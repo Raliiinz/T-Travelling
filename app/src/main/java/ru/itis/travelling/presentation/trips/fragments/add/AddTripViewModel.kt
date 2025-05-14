@@ -100,12 +100,45 @@ class AddTripViewModel @Inject constructor(
     }
 
     fun createTrip(title: String, cost: String, phoneNumber: String) {
+
+        when {
+            title.isBlank() -> {
+                viewModelScope.launch {
+                    _events.emit(AddTripEvent.ValidationError(
+                        ValidationErrorEvent.ValidationError(
+                            ValidationErrorEvent.ValidationFailureReason.EMPTY_TITLE
+                        )
+                    ))
+                }
+                return
+            }
+            cost.isBlank() -> {
+                viewModelScope.launch {
+                    _events.emit(AddTripEvent.ValidationError(
+                        ValidationErrorEvent.ValidationError(
+                            ValidationErrorEvent.ValidationFailureReason.EMPTY_COST
+                        )
+                    ))
+                }
+                return
+            }
+            _fullParticipants.value.isEmpty() -> {
+                viewModelScope.launch {
+                    _events.emit(AddTripEvent.ValidationError(
+                        ValidationErrorEvent.ValidationError(
+                            ValidationErrorEvent.ValidationFailureReason.NO_PARTICIPANTS
+                        )
+                    ))
+                }
+                return
+            }
+        }
+
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
             delay(2000)
 
             runCatching {
-                validateTripData(title, cost)
                 val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
 
                 val trip = Trip(
@@ -125,10 +158,8 @@ class AddTripViewModel @Inject constructor(
                 createTripUseCase.invoke(trip)
                 trip
             }.onSuccess { trip ->
-                println("DEBUG: Trip created successfully! Trip: $trip")
                 handleTripCreationSuccess(trip)
             }.onFailure { e->
-                println("DEBUG: Failed to create trip. Error: ${e.message}")
                 handleTripCreationError(e)
             }
         }
@@ -151,14 +182,8 @@ class AddTripViewModel @Inject constructor(
         _events.emit(AddTripEvent.Error(message))
     }
 
-    private fun validateTripData(title: String, cost: String) {
-        require(title.isNotBlank()) { "Trip title cannot be empty" }
-        require(cost.isNotBlank()) { "Trip cost cannot be empty" }
-        require(cost.matches(COST_REGEX)) { "Invalid cost format" }
-        require(_fullParticipants.value.isNotEmpty()) { "Select at least one participant" }
-    }
-
     private fun generateTripId(): String {
+        //пока нет апи
         return "TRIP_${System.currentTimeMillis()}_${Random.nextInt(1000, 9999)}"
     }
 
@@ -172,19 +197,26 @@ class AddTripViewModel @Inject constructor(
         }
     }
 
-    companion object {
-        private val COST_REGEX = Regex("^\\d+(\\.\\d{1,2})?$")
-    }
-
     class ValidationException(message: String) : Exception(message)
 
     sealed class AddTripUiState {
-        object Idle : AddTripUiState()
-        object Loading : AddTripUiState()
-        object Success : AddTripUiState()
+        data object Idle : AddTripUiState()
+        data object Loading : AddTripUiState()
+        data object Success : AddTripUiState()
+    }
+
+    sealed class ValidationErrorEvent {
+        data class ValidationError(val reason: ValidationFailureReason) : ValidationErrorEvent()
+
+        enum class ValidationFailureReason {
+            EMPTY_TITLE,
+            EMPTY_COST,
+            NO_PARTICIPANTS
+        }
     }
 
     sealed class AddTripEvent {
+        data class ValidationError(val error: ValidationErrorEvent.ValidationError) : AddTripEvent()
         data class Error(val message: String) : AddTripEvent()
     }
 }

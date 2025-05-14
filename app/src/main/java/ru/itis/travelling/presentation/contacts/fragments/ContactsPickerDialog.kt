@@ -5,8 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.DialogContactsPickerBinding
 import ru.itis.travelling.domain.contacts.model.Contact
@@ -16,15 +19,16 @@ import ru.itis.travelling.presentation.contacts.util.getParcelableArrayListSafe
 
 class ContactsPickerDialog(
     private val onContactsSelected: (List<Contact>) -> Unit,
-    private val initiallySelectedContacts: Set<String> = emptySet()
 ) : DialogFragment(R.layout.dialog_contacts_picker) {
 
     private val viewBinding: DialogContactsPickerBinding by viewBinding(DialogContactsPickerBinding::bind)
+    private val viewModel: ContactsViewModel by viewModels()
     private lateinit var adapter: ContactsAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupUi()
+        observeViewModel()
     }
 
     override fun onStart() {
@@ -35,13 +39,24 @@ class ContactsPickerDialog(
     private fun setupUi() {
         setupRecyclerView()
         setupButtons()
+
+        val contacts = arguments?.getParcelableArrayListSafe<Contact>(ARG_CONTACTS) ?: emptyList()
+        val initiallySelected = arguments?.getStringArrayList(ARG_SELECTED_CONTACTS)?.toSet() ?: emptySet()
+        viewModel.setContacts(contacts, initiallySelected)
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.contacts.collect { contacts ->
+                adapter.submitList(contacts)
+            }
+        }
     }
 
     private fun setupRecyclerView() {
-        adapter = ContactsAdapter(
-            initiallySelectedContacts = initiallySelectedContacts,
-            onContactSelected = { _, _ -> }
-        )
+        adapter = ContactsAdapter { contactId ->
+            viewModel.toggleContactSelection(contactId)
+        }
 
         with(viewBinding.recyclerViewContacts) {
             layoutManager = LinearLayoutManager(requireContext())
@@ -54,9 +69,6 @@ class ContactsPickerDialog(
                 )
             )
         }
-
-        val contacts = arguments?.getParcelableArrayListSafe<Contact>(ARG_CONTACTS) ?: emptyList()
-        adapter.submitList(contacts)
     }
 
     private fun setupButtons() {
@@ -65,13 +77,12 @@ class ContactsPickerDialog(
         }
 
         viewBinding.buttonDone.setOnClickListener {
-            val selected = adapter.getSelectedContacts()
-            when {
-                selected.isNotEmpty() || initiallySelectedContacts.isNotEmpty() -> {
-                    onContactsSelected(selected)
-                    dismiss()
-                }
-                else -> showToast(getString(R.string.select_at_least_one_contact))
+            val selected = viewModel.getSelectedContacts()
+            if (selected.isNotEmpty()) {
+                onContactsSelected.invoke(selected)
+                dismiss()
+            } else {
+                showToast(getString(R.string.select_at_least_one_contact))
             }
         }
     }
@@ -82,15 +93,17 @@ class ContactsPickerDialog(
 
     companion object {
         private const val ARG_CONTACTS = "contacts"
+        private const val ARG_SELECTED_CONTACTS = "selected_contacts"
 
         fun newInstance(
             contacts: List<Contact>,
             initiallySelectedContacts: Set<String>,
             onContactsSelected: (List<Contact>) -> Unit
         ): ContactsPickerDialog {
-            return ContactsPickerDialog(onContactsSelected, initiallySelectedContacts).apply {
+            return ContactsPickerDialog(onContactsSelected).apply {
                 arguments = Bundle().apply {
                     putParcelableArrayList(ARG_CONTACTS, ArrayList(contacts))
+                    putStringArrayList(ARG_SELECTED_CONTACTS, ArrayList(initiallySelectedContacts))
                 }
             }
         }

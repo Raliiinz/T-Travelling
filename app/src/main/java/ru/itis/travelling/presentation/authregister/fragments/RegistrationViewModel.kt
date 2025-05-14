@@ -155,10 +155,4 @@ class RegistrationViewModel @Inject constructor(
         UserAlreadyExists,
         Unknown
     }
-
-    enum class FieldType {
-        PHONE,
-        PASSWORD,
-        CONFIRM_PASSWORD
-    }
 }

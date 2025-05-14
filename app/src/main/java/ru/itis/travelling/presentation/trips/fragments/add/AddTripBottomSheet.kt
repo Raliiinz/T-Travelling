@@ -29,9 +29,10 @@ import ru.itis.travelling.databinding.DialogAddTripBinding
 import ru.itis.travelling.domain.contacts.model.Contact
 import ru.itis.travelling.presentation.contacts.fragments.ContactsPickerDialog
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
-import java.time.Instant
+import ru.itis.travelling.presentation.trips.util.DateUtils
+import ru.itis.travelling.presentation.trips.util.DateUtils.toEpochMilli
+import ru.itis.travelling.presentation.trips.util.DateUtils.toLocalDate
 import java.time.LocalDate
-import java.time.ZoneId
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -82,13 +83,11 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
             }
 
             createButton.setOnClickListener {
-                if (validateInput()) {
-                    viewModel.createTrip(
-                        etTitleTrip.text.toString(),
-                        etCostTrip.text.toString(),
-                        phoneNumber
-                    )
-                }
+                viewModel.createTrip(
+                    etTitleTrip.text.toString(),
+                    etCostTrip.text.toString(),
+                    phoneNumber
+                )
             }
         }
     }
@@ -125,21 +124,19 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         }
     }
 
-
     private fun showContactsPicker(contacts: List<Contact>) {
         val selectedIds = viewModel.fullParticipants.value
             .filterNot { it.phone == phoneNumber }
             .map { it.id }
             .toSet()
 
-        ContactsPickerDialog(
-            onContactsSelected = { viewModel.addParticipants(it, phoneNumber) },
-            initiallySelectedContacts = selectedIds
-        ).apply {
-            arguments = Bundle().apply {
-                putParcelableArrayList("contacts", ArrayList(contacts))
+        ContactsPickerDialog.newInstance(
+            contacts = contacts,
+            initiallySelectedContacts = selectedIds,
+            onContactsSelected = { selectedContacts ->
+                viewModel.addParticipants(selectedContacts, phoneNumber)
             }
-        }.show(parentFragmentManager, "ContactsPickerDialog")
+        ).show(parentFragmentManager, "ContactsPickerDialog")
     }
 
     private fun showPermissionDeniedDialog() {
@@ -165,6 +162,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 launch { observeParticipants() }
                 launch { observeUiState() }
                 launch { observeDates() }
+                launch { observeEvents() }
             }
         }
     }
@@ -186,20 +184,31 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 is AddTripViewModel.AddTripUiState.Idle -> hideProgress()
             }
         }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.events.collect { event ->
-                when (event) {
-                    is AddTripViewModel.AddTripEvent.Error -> {
-                        showToast(event.message)
-                    }
-                }
-            }
-        }
     }
 
     private suspend fun observeDates() {
         viewModel.datesState.collect { updateDateViews(it) }
+    }
+
+    private suspend fun observeEvents() {
+        viewModel.events.collect { event ->
+            when (event) {
+                is AddTripViewModel.AddTripEvent.ValidationError -> {
+                    val errorMessage = when (event.error.reason) {
+                        AddTripViewModel.ValidationErrorEvent.ValidationFailureReason.EMPTY_TITLE ->
+                            getString(R.string.enter_the_name_of_the_trip)
+                        AddTripViewModel.ValidationErrorEvent.ValidationFailureReason.EMPTY_COST ->
+                            getString(R.string.enter_the_cost)
+                        AddTripViewModel.ValidationErrorEvent.ValidationFailureReason.NO_PARTICIPANTS ->
+                            getString(R.string.select_at_least_one_contact)
+                    }
+                    showToast(errorMessage)
+                }
+                is AddTripViewModel.AddTripEvent.Error -> {
+                    showToast(event.message)
+                }
+            }
+        }
     }
 
     private fun showDatePicker(isStartDate: Boolean) {
@@ -226,45 +235,13 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     }
 
     private fun calculateNewDates(isStartDate: Boolean, selectedDate: LocalDate): Pair<LocalDate, LocalDate> {
-        val current = viewModel.datesState.value
-        return if (isStartDate) {
-            selectedDate to if (selectedDate > current.second) selectedDate else current.second
-        } else {
-            if (selectedDate < current.first) selectedDate to selectedDate else current.first to selectedDate
-        }
+        return DateUtils.calculateNewDates(viewModel.datesState.value, isStartDate, selectedDate)
     }
 
-    private fun Long.toLocalDate(): LocalDate {
-        return Instant.ofEpochMilli(this)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-    }
-
-    private fun LocalDate.toEpochMilli(): Long {
-        return atStartOfDay(ZoneId.systemDefault())
-            .toInstant()
-            .toEpochMilli()
-    }
 
     private fun LocalDate.toBeautifulString(): String {
         val month = resources.getStringArray(R.array.months_genitive)[monthValue - 1]
         return "$dayOfMonth $month $year"
-    }
-
-    private fun validateInput(): Boolean {
-        with(viewBinding) {
-            return when {
-                etTitleTrip.text.isNullOrBlank() -> {
-                    showToast(getString(R.string.enter_the_name_of_the_trip))
-                    false
-                }
-                etCostTrip.text.isNullOrBlank() -> {
-                    showToast(getString(R.string.enter_the_cost))
-                    false
-                }
-                else -> true
-            }
-        }
     }
 
     private fun dismissWithNavigation() {

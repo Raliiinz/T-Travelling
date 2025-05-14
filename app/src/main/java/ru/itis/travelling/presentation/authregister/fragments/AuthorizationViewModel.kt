@@ -18,18 +18,67 @@ class AuthorizationViewModel @Inject constructor(
     private val navigator: Navigator
 ) : ViewModel() {
 
+    private var phoneTouched = false
+    private var passwordTouched = false
+    private var submitAttempted = false
+
     private val _uiState = MutableStateFlow<AuthorizationUiState>(AuthorizationUiState.Idle)
     val uiState: StateFlow<AuthorizationUiState> = _uiState
+
+    private val _phoneState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    val phoneState: StateFlow<FieldState> = _phoneState
+
+    private val _passwordState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    val passwordState: StateFlow<FieldState> = _passwordState
 
     private val _events = MutableSharedFlow<AuthorizationEvent>()
     val events: SharedFlow<AuthorizationEvent> = _events
 
-    fun login(phone: String, password: String) {
+    fun onPhoneChanged(rawPhone: String) {
+        phoneTouched = true
+        val formatted = PhoneNumberUtils.formatPhoneNumber(rawPhone)
+        val isValid = formatted.isNotBlank()
+
+        _phoneState.value = FieldState(
+            value = formatted,
+            isValid = isValid,
+            shouldShowError = (phoneTouched || submitAttempted) && !isValid
+        )
+    }
+
+    fun onPasswordChanged(password: String) {
+        passwordTouched = true
+        val isValid = password.isNotBlank()
+
+        _passwordState.value = FieldState(
+            value = password,
+            isValid = isValid,
+            shouldShowError = (passwordTouched || submitAttempted) && !isValid
+        )
+    }
+
+    fun login() {
+        submitAttempted = true
+
+        _phoneState.update {
+            it.copy(shouldShowError = !it.isValid)
+        }
+        _passwordState.update {
+            it.copy(shouldShowError = !it.isValid)
+        }
+
+        if (!_phoneState.value.isValid || !_passwordState.value.isValid) {
+            return
+        }
+
         viewModelScope.launch {
-            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phone)
-            _uiState.update { AuthorizationUiState.Idle }
+            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
+            _uiState.update { AuthorizationUiState.Loading }
             try {
-                val isSuccess = loginUseCase(normalizedPhone, password)
+                val isSuccess = loginUseCase(
+                    normalizedPhone,
+                    _passwordState.value.value
+                )
                 if (isSuccess) {
                     userPreferencesRepository.saveLoginState(true, normalizedPhone)
                     navigator.navigateToTripsFragment(normalizedPhone)
@@ -50,12 +99,19 @@ class AuthorizationViewModel @Inject constructor(
         }
     }
 
+    data class FieldState(
+        val value: String,
+        val isValid: Boolean,
+        val shouldShowError: Boolean
+    )
+
     sealed class AuthorizationUiState {
-        object Idle : AuthorizationUiState()
+        data object Idle : AuthorizationUiState()
+        data object Loading : AuthorizationUiState()
+        data object Success : AuthorizationUiState()
     }
 
     sealed class AuthorizationEvent {
         data class ShowError(val message: String) : AuthorizationEvent()
     }
-
 }

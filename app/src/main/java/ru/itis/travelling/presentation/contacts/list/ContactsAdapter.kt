@@ -10,11 +10,8 @@ import ru.itis.travelling.domain.contacts.model.Contact
 
 
 class ContactsAdapter(
-    initiallySelectedContacts: Set<String> = emptySet(),
-    private val onContactSelected: (Contact, Boolean) -> Unit
+    private val onContactSelected: (String) -> Unit
 ) : ListAdapter<Contact, ContactsAdapter.ViewHolder>(ContactDiffCallback()) {
-
-    private val selectedContacts = initiallySelectedContacts.toMutableSet()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -28,43 +25,27 @@ class ContactsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val contact = getItem(position)
-        holder.bind(contact)
-    }
-
-    fun getSelectedContacts(): List<Contact> {
-        return currentList.filter { selectedContacts.contains(it.id) }
+        holder.bind(getItem(position))
     }
 
     inner class ViewHolder(
         private val binding: ItemContactBinding,
-        private val onContactSelected: (Contact, Boolean) -> Unit
+        private val onContactSelected: (String) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(contact: Contact) {
             with(binding) {
                 tvName.text = contact.name ?: contact.phoneNumber
                 tvPhone.text = contact.phoneNumber
-                checkbox.isChecked = selectedContacts.contains(contact.id)
+                checkbox.isChecked = contact.isSelected
 
                 root.setOnClickListener {
-                    val newCheckedState = !checkbox.isChecked
-                    checkbox.isChecked = newCheckedState
-                    onCheckChanged(contact, newCheckedState)
+                    onContactSelected(contact.id)
                 }
 
-                checkbox.setOnCheckedChangeListener { _, isChecked ->
-                    onCheckChanged(contact, isChecked)
+                checkbox.setOnClickListener {
+                    onContactSelected(contact.id)
                 }
             }
-        }
-
-        private fun onCheckChanged(contact: Contact, isChecked: Boolean) {
-            if (isChecked) {
-                selectedContacts.add(contact.id)
-            } else {
-                selectedContacts.remove(contact.id)
-            }
-            onContactSelected(contact, isChecked)
         }
     }
 
