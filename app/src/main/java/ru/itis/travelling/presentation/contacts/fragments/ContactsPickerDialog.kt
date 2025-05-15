@@ -3,7 +3,6 @@ package ru.itis.travelling.presentation.contacts.fragments
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -77,21 +76,13 @@ class ContactsPickerDialog(
         }
 
         viewBinding.buttonDone.setOnClickListener {
-            val selected = viewModel.getSelectedContacts()
-            if (selected.isNotEmpty()) {
-                onContactsSelected.invoke(selected)
-                dismiss()
-            } else {
-                showToast(getString(R.string.select_at_least_one_contact))
-            }
+            onContactsSelected.invoke(viewModel.getSelectedContacts())
+            dismiss()
         }
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
     companion object {
+        const val CONTACTS_PICKER_DIALOG = "contact_picker_dialog"
         private const val ARG_CONTACTS = "contacts"
         private const val ARG_SELECTED_CONTACTS = "selected_contacts"
 

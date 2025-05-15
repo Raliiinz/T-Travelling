@@ -28,6 +28,7 @@ import ru.itis.travelling.R
 import ru.itis.travelling.databinding.DialogAddTripBinding
 import ru.itis.travelling.domain.contacts.model.Contact
 import ru.itis.travelling.presentation.contacts.fragments.ContactsPickerDialog
+import ru.itis.travelling.presentation.contacts.fragments.ContactsPickerDialog.Companion.CONTACTS_PICKER_DIALOG
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.DateUtils.toEpochMilli
@@ -136,7 +137,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
             onContactsSelected = { selectedContacts ->
                 viewModel.addParticipants(selectedContacts, phoneNumber)
             }
-        ).show(parentFragmentManager, "ContactsPickerDialog")
+        ).show(parentFragmentManager, CONTACTS_PICKER_DIALOG)
     }
 
     private fun showPermissionDeniedDialog() {

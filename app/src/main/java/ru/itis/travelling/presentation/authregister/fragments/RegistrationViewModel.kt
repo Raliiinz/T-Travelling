@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.authregister.usecase.RegisterUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.FieldState
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
 
@@ -30,13 +31,13 @@ class RegistrationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<RegistrationUiState>(RegistrationUiState.Idle)
     val uiState: StateFlow<RegistrationUiState> = _uiState
 
-    private val _phoneState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    private val _phoneState = MutableStateFlow(FieldState.empty())
     val phoneState: StateFlow<FieldState> = _phoneState
 
-    private val _passwordState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    private val _passwordState = MutableStateFlow(FieldState.empty())
     val passwordState: StateFlow<FieldState> = _passwordState
 
-    private val _confirmPasswordState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    private val _confirmPasswordState = MutableStateFlow(FieldState.empty())
     val confirmPasswordState: StateFlow<FieldState> = _confirmPasswordState
 
     private val _events = MutableSharedFlow<RegistrationEvent>()
@@ -134,12 +135,6 @@ class RegistrationViewModel @Inject constructor(
             navigator.navigateToAuthorizationFragment()
         }
     }
-
-    data class FieldState(
-        val value: String,
-        val isValid: Boolean,
-        val shouldShowError: Boolean
-    )
 
     sealed class RegistrationUiState {
         data object Idle : RegistrationUiState()

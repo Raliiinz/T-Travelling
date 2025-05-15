@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.FieldState
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
 
@@ -25,10 +26,10 @@ class AuthorizationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AuthorizationUiState>(AuthorizationUiState.Idle)
     val uiState: StateFlow<AuthorizationUiState> = _uiState
 
-    private val _phoneState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    private val _phoneState = MutableStateFlow(FieldState.empty())
     val phoneState: StateFlow<FieldState> = _phoneState
 
-    private val _passwordState = MutableStateFlow(FieldState("", false, shouldShowError = false))
+    private val _passwordState = MutableStateFlow(FieldState.empty())
     val passwordState: StateFlow<FieldState> = _passwordState
 
     private val _events = MutableSharedFlow<AuthorizationEvent>()
@@ -98,12 +99,6 @@ class AuthorizationViewModel @Inject constructor(
             navigator.navigateToRegistrationFragment()
         }
     }
-
-    data class FieldState(
-        val value: String,
-        val isValid: Boolean,
-        val shouldShowError: Boolean
-    )
 
     sealed class AuthorizationUiState {
         data object Idle : AuthorizationUiState()

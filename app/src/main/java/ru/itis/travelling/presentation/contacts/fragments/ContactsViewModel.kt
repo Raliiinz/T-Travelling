@@ -2,7 +2,9 @@ package ru.itis.travelling.presentation.contacts.fragments
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import ru.itis.travelling.domain.contacts.model.Contact
 import javax.inject.Inject
