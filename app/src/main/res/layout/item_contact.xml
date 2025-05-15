@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:background="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="John Doe"/>
+
+        <TextView
+            android:id="@+id/tvPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/hint_color"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="+7 (123) 456-7890"/>
+    </LinearLayout>
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:buttonTint="@color/blue"
+        app:useMaterialThemeColors="false"
+        app:theme="@style/CheckBoxTheme"/>
+
+</LinearLayout>

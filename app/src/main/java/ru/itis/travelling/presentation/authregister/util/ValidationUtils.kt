@@ -1,12 +1,14 @@
 package ru.itis.travelling.presentation.authregister.util
 
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
+
 object ValidationUtils {
 
-    private val PHONE_REGEX = Regex("^(?:\\+7\\d{10}|8\\d{10})$")
     private val PASSWORD_REGEX = Regex("^(?=.*[A-Z])(?=.*\\d).{6,15}$")
 
     fun isValidPhone(phone: String): Boolean {
-        return PHONE_REGEX.matches(phone)
+        val normalized = PhoneNumberUtils.normalizePhoneNumber(phone)
+        return normalized.length == 11 && normalized.startsWith("89")
     }
 
     fun isValidPassword(password: String): Boolean {

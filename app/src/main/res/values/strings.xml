@@ -36,4 +36,53 @@
     <string name="leave">Покинуть</string>
     <string name="delete">Удалить</string>
     <string name="cancel">Отмена</string>
+
+    <string name="select_start_date">Выберите дату начала путешествия</string>
+    <string name="select_end_date">Выберите дату окончания путешествия</string>
+    <string name="select_participants">Выберите участников</string>
+    <string name="permission_required">Требуется разрешение</string>
+    <string name="contacts_permission_explanation">Для выбора участников из контактов необходимо разрешение</string>
+    <string name="grant_permission">Дать разрешение</string>
+
+
+    <!-- arrays.xml -->
+    <string-array name="months_genitive">
+        <item>января</item>
+        <item>февраля</item>
+        <item>марта</item>
+        <item>апреля</item>
+        <item>мая</item>
+        <item>июня</item>
+        <item>июля</item>
+        <item>августа</item>
+        <item>сентября</item>
+        <item>октября</item>
+        <item>ноября</item>
+        <item>декабря</item>
+    </string-array>
+
+
+    <string name="contacts_permission_denied">Для выбора контактов необходимо разрешение</string>
+    <string name="contact_has_no_phone">У контакта нет номера телефона</string>
+    <string name="contacts_app_not_found">Не найдено приложение для работы с контактами</string>
+    <string name="select_phone_number_for">Выберите номер для %s</string>
+
+    <string name="permission_denied">Для добавления участников необходимо разрешение на доступ к контактам</string>
+
+    <string name="permission_permanently_denied_message">Вы запретили доступ к контактам навсегда. Пожалуйста, предоставьте разрешение в настройках приложения</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="settings_open_error">Не удалось открыть настройки</string>
+    <string name="name_of_the_trip">Название путешествия</string>
+    <string name="initial_cost">Начальная стоимость</string>
+    <string name="dates">Даты</string>
+    <string name="beginning">Начало:</string>
+    <string name="the_end">Конец:</string>
+    <string name="add_contacts">Добавить контакты</string>
+    <string name="create">Создать</string>
+    <string name="select_the_participants">Выберите участников</string>
+    <string name="done">Готово</string>
+    <string name="select_at_least_one_contact">Выберите хотя бы один контакт</string>
+    <string name="enter_the_name_of_the_trip">Введите название путешествия</string>
+    <string name="enter_the_cost">Введите стоимость</string>
+
 </resources>

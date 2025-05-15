@@ -7,4 +7,5 @@ interface TripRepository {
     suspend fun getTripDetails(tripId: String): Trip?
     suspend fun leaveTrip(tripId: String, userPhone: String): Boolean
     suspend fun deleteTrip(tripId: String): Boolean
+    suspend fun createTrip(trip: Trip)
 }

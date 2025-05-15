@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.fragments
+package ru.itis.travelling.presentation.trips.fragments.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +17,7 @@ import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.LeaveTripUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.trips.util.FormatUtils
+import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
 
 @HiltViewModel
@@ -130,8 +131,19 @@ class TripDetailsViewModel @Inject constructor(
 
     private fun prepareParticipantsList(trip: Trip): MutableList<Participant> {
         val allParticipants = mutableListOf<Participant>()
-        allParticipants.add(trip.admin)
-        allParticipants.addAll(trip.participants.filter { p -> p.id != trip.admin.id })
+
+        val formattedAdmin = trip.admin.copy(
+            phone = PhoneNumberUtils.formatPhoneNumber(trip.admin.phone)
+        )
+        allParticipants.add(formattedAdmin)
+
+        trip.participants.forEach { participant ->
+            val formattedParticipant = participant.copy(
+                phone = PhoneNumberUtils.formatPhoneNumber(participant.phone)
+            )
+            allParticipants.add(formattedParticipant)
+        }
+
         return allParticipants
     }
 

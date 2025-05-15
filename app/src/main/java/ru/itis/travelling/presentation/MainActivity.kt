@@ -9,14 +9,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ActivityMainBinding
 import ru.itis.travelling.presentation.base.navigation.Navigator
-import ru.itis.travelling.presentation.authregister.fragments.AuthorizationViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val mainContainerId = R.id.main_fragment_container
     private val viewBinding: ActivityMainBinding by viewBinding(ActivityMainBinding::bind)
-    private val viewModel: AuthorizationViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     @Inject lateinit var navigator: Navigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,10 +33,21 @@ class MainActivity : AppCompatActivity() {
             rootFragmentManager = supportFragmentManager,
             onStateChanged = { state ->
                 when (state) {
-                    Navigator.NavigationState.BottomNavigationHidden -> hideBottomNavigation()
-                    Navigator.NavigationState.BottomNavigationVisible -> showBottomNavigation()
+                    is Navigator.NavigationState.BottomNavigationHidden -> {
+                        hideBottomNavigation()
+                    }
+                    is Navigator.NavigationState.BottomNavigationVisible -> {
+                        showBottomNavigation()
+                        viewBinding.mainBottomNavigation.selectedItemId = state.selectedItemId
+                    }
                 }
             }
+//            onStateChanged = { state ->
+//                when (state) {
+//                    Navigator.NavigationState.BottomNavigationHidden -> hideBottomNavigation()
+//                    Navigator.NavigationState.BottomNavigationVisible -> showBottomNavigation()
+//                }
+//            }
         )
     }
 

@@ -25,6 +25,7 @@ class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.Partici
         holder.bind(getItem(position), position == 0)
     }
 
+
     inner class ParticipantViewHolder(
         private val binding: ItemParticipantBinding
     ) : RecyclerView.ViewHolder(binding.root) {

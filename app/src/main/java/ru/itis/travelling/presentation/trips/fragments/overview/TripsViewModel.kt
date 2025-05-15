@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.trips.fragments
+package ru.itis.travelling.presentation.trips.fragments.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
