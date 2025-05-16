@@ -45,6 +45,13 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         arguments?.getString(PHONE_NUMBER) ?: ""
     }
 
+    private val isEditMode: Boolean by lazy {
+        arguments?.getBoolean(IS_EDIT_MODE, false) ?: false
+    }
+    private val tripId: String by lazy {
+        arguments?.getString(TRIP_ID) ?: ""
+    }
+
     private val contactsPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -58,7 +65,11 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initializeWithAdmin(phoneNumber)
+        if (isEditMode) {
+            viewModel.loadTripForEditing(tripId)
+        } else {
+            viewModel.initializeWithAdmin(phoneNumber)
+        }
         setupParticipantsAdapter()
         initViews()
         setupObservers()
@@ -83,8 +94,15 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 checkContactsPermission()
             }
 
+            createButton.text = if (isEditMode) {
+                getString(R.string.save_changes)
+            } else {
+                getString(R.string.create)
+            }
+
             createButton.setOnClickListener {
-                viewModel.createTrip(
+                viewModel.saveTrip(
+                    if (isEditMode) tripId else null,
                     etTitleTrip.text.toString(),
                     etCostTrip.text.toString(),
                     phoneNumber
@@ -128,14 +146,14 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     private fun showContactsPicker(contacts: List<Contact>) {
         val selectedIds = viewModel.fullParticipants.value
             .filterNot { it.phone == phoneNumber }
-            .map { it.id }
+            .map { it.phone }
             .toSet()
 
         ContactsPickerDialog.newInstance(
             contacts = contacts,
             initiallySelectedContacts = selectedIds,
             onContactsSelected = { selectedContacts ->
-                viewModel.addParticipants(selectedContacts, phoneNumber)
+                viewModel.addParticipants(selectedContacts)
             }
         ).show(parentFragmentManager, CONTACTS_PICKER_DIALOG)
     }
@@ -164,13 +182,15 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 launch { observeUiState() }
                 launch { observeDates() }
                 launch { observeEvents() }
+                launch { observeTripTitle() }
+                launch { observeTripCost() }
             }
         }
     }
 
     private suspend fun observeParticipants() {
-        viewModel.fullParticipants.collect {
-            participantsAdapter.submitList(it)
+        viewModel.observeCombinedParticipants().collect { participants ->
+            participantsAdapter.submitList(participants)
         }
     }
 
@@ -212,6 +232,22 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         }
     }
 
+    private suspend fun observeTripTitle() {
+        if (isEditMode) {
+            viewModel.tripTitle.collect { title ->
+                viewBinding.etTitleTrip.setText(title)
+            }
+        }
+    }
+
+    private suspend fun observeTripCost() {
+        if (isEditMode) {
+            viewModel.tripCost.collect { cost ->
+                viewBinding.etCostTrip.setText(cost)
+            }
+        }
+    }
+
     private fun showDatePicker(isStartDate: Boolean) {
         val currentDates = viewModel.datesState.value
         val constraints = CalendarConstraints.Builder().apply {
@@ -241,8 +277,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
 
     private fun LocalDate.toBeautifulString(): String {
-        val month = resources.getStringArray(R.array.months_genitive)[monthValue - 1]
-        return "$dayOfMonth $month $year"
+        return DateUtils.formatDateForDisplay(this)
     }
 
     private fun dismissWithNavigation() {
@@ -308,12 +343,25 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     companion object {
         const val TAG = "AddTripBottomSheet"
         private const val PHONE_NUMBER = "phone_number"
+        private const val TRIP_ID = "trip_id"
+        private const val IS_EDIT_MODE = "is_edit_mode"
         private const val DATE_PICKER_TAG = "DATE_PICKER_TAG"
 
         fun newInstance(phoneNumber: String): AddTripBottomSheet {
             return AddTripBottomSheet().apply {
                 arguments = Bundle().apply {
                     putString(PHONE_NUMBER, phoneNumber)
+                    putBoolean(IS_EDIT_MODE, false)
+                }
+            }
+        }
+
+        fun newInstanceForEditing(phoneNumber: String, tripId: String): AddTripBottomSheet {
+            return AddTripBottomSheet().apply {
+                arguments = Bundle().apply {
+                    putString(PHONE_NUMBER, phoneNumber)
+                    putString(TRIP_ID, tripId)
+                    putBoolean(IS_EDIT_MODE, true)
                 }
             }
         }

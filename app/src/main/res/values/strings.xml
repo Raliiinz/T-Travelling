@@ -79,6 +79,7 @@
     <string name="the_end">Конец:</string>
     <string name="add_contacts">Добавить контакты</string>
     <string name="create">Создать</string>
+    <string name="save_changes">Сохранить изменения</string>
     <string name="select_the_participants">Выберите участников</string>
     <string name="done">Готово</string>
     <string name="select_at_least_one_contact">Выберите хотя бы один контакт</string>

@@ -32,17 +32,15 @@ class ContactsRepositoryImpl @Inject constructor(
                 null,
                 sortOrder
             )?.use { cursor ->
-                val idIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
                 val nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
                 val phoneIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
 
                 while (cursor.moveToNext()) {
-                    val id = cursor.getString(idIndex)
                     val name = cursor.getString(nameIndex)
                     val phoneNumber = cursor.getString(phoneIndex)?.replace("\\D".toRegex(), "")
 
                     if (!phoneNumber.isNullOrBlank()) {
-                        contacts.add(Contact(id, name, phoneNumber))
+                        contacts.add(Contact(name, phoneNumber))
                     }
                 }
             }

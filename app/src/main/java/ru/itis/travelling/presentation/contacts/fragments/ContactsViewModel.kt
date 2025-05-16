@@ -2,9 +2,7 @@ package ru.itis.travelling.presentation.contacts.fragments
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import ru.itis.travelling.domain.contacts.model.Contact
 import javax.inject.Inject
@@ -19,7 +17,7 @@ class ContactsViewModel @Inject constructor() : ViewModel() {
 
     fun setContacts(contacts: List<Contact>, initiallySelected: Set<String> = emptySet()) {
         _contacts.value = contacts.map {
-            it.copy(isSelected = initiallySelected.contains(it.id))
+            it.copy(isSelected = initiallySelected.contains(it.phoneNumber))
         }
         _selectedContacts.value = initiallySelected.toSet()
     }
@@ -30,7 +28,7 @@ class ContactsViewModel @Inject constructor() : ViewModel() {
         }
         _selectedContacts.value = newSelected
         _contacts.value = _contacts.value.map {
-            it.copy(isSelected = newSelected.contains(it.id))
+            it.copy(isSelected = newSelected.contains(it.phoneNumber))
         }
     }
 

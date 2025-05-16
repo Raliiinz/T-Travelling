@@ -39,11 +39,11 @@ class ContactsAdapter(
                 checkbox.isChecked = contact.isSelected
 
                 root.setOnClickListener {
-                    onContactSelected(contact.id)
+                    onContactSelected(contact.phoneNumber)
                 }
 
                 checkbox.setOnClickListener {
-                    onContactSelected(contact.id)
+                    onContactSelected(contact.phoneNumber)
                 }
             }
         }
@@ -51,7 +51,7 @@ class ContactsAdapter(
 
     class ContactDiffCallback : DiffUtil.ItemCallback<Contact>() {
         override fun areItemsTheSame(oldItem: Contact, newItem: Contact): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.phoneNumber == newItem.phoneNumber
         }
 
         override fun areContentsTheSame(oldItem: Contact, newItem: Contact): Boolean {

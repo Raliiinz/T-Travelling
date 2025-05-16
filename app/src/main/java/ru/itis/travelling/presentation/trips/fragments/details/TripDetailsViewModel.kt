@@ -61,7 +61,7 @@ class TripDetailsViewModel @Inject constructor(
                 is TripDetailsState.Success -> {
                     val isAdmin = checkAdminStatus(currentUserPhone, currentState.trip)
                     if (isAdmin) {
-                        navigator.navigateToEditTrip(currentState.trip.id)
+                        navigator.showAddTripBottomSheet(currentUserPhone, currentState.trip.id)
                     } else {
                         _events.emit(TripDetailsEvent.ShowAdminAlert)
                     }
