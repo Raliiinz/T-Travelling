@@ -8,7 +8,7 @@ class ParticipantDiffItemCallback : DiffUtil.ItemCallback<Participant>() {
         oldItem: Participant,
         newItem: Participant
     ): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.phone == newItem.phone
     }
 
     override fun areContentsTheSame(

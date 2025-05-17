@@ -8,4 +8,5 @@ interface TripRepository {
     suspend fun leaveTrip(tripId: String, userPhone: String): Boolean
     suspend fun deleteTrip(tripId: String): Boolean
     suspend fun createTrip(trip: Trip)
+    suspend fun updateTrip(trip: Trip)
 }

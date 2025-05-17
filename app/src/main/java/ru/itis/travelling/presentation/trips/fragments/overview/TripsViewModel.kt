@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.trips.model.Trip
 import ru.itis.travelling.domain.trips.usecase.GetTripsByPhoneUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import javax.inject.Inject
 
@@ -37,7 +38,9 @@ class TripsViewModel @Inject constructor(
                 val trips = getTripsByPhoneUseCase.invoke(phoneNumber)
                     .map { trip ->
                         trip.copy(
-                            price = FormatUtils.formatPriceWithThousands(trip.price)
+                            price = FormatUtils.formatPriceWithThousands(trip.price),
+                            startDate = DateUtils.formatDateForDisplay(trip.startDate),
+                            endDate = DateUtils.formatDateForDisplay(trip.endDate)
                         )
                     }
                 _tripsState.update { TripsState.Success(trips) }

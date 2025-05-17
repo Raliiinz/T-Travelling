@@ -126,12 +126,20 @@ class Navigator @Inject constructor() {
     }
 
 
-    fun showAddTripBottomSheet(phone: String) {
+    fun showAddTripBottomSheet(phone: String, tripId: String) {
         val fragmentManager = requireNotNull(rootFragmentManager.get()) {
             "FragmentManager is not set. Call setUpNavigation() first"
         }
 
-        AddTripBottomSheet.newInstance(phone).show(fragmentManager, AddTripBottomSheet.TAG)
+        AddTripBottomSheet.newInstanceForEditing(phone, tripId).show(fragmentManager, AddTripBottomSheet.TAG)
+    }
+
+    fun showAddTripBottomSheet(phoneNumber: String) {
+        val fragmentManager = requireNotNull(rootFragmentManager.get()) {
+            "FragmentManager is not set. Call setUpNavigation() first"
+        }
+
+        AddTripBottomSheet.newInstance(phoneNumber).show(fragmentManager, AddTripBottomSheet.TAG)
     }
 
     private fun updateNavigationState(state: NavigationState) {

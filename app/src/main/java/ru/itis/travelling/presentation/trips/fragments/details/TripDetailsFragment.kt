@@ -15,6 +15,7 @@ import ru.itis.travelling.databinding.FragmentTripDetailsBinding
 import ru.itis.travelling.domain.trips.model.Trip
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
+import ru.itis.travelling.presentation.trips.util.DateUtils
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -102,7 +103,9 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
     private fun updateUi(trip: Trip) {
         with(viewBinding) {
             tvDestination.text = trip.destination
-            tvDates.text = getString(R.string.trip_dates, trip.startDate, trip.endDate)
+            val startDate = DateUtils.formatDateForDisplay(trip.startDate)
+            val endDate = DateUtils.formatDateForDisplay(trip.endDate)
+            tvDates.text = getString(R.string.trip_dates, startDate, endDate)
             tvPrice.text = getString(R.string.price, trip.price)
             participantAdapter.submitList(trip.participants)
         }
