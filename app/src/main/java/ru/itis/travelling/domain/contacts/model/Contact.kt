@@ -9,3 +9,4 @@ data class Contact(
     val phoneNumber: String,
     val isSelected: Boolean = false
 ) : Parcelable
+/////
