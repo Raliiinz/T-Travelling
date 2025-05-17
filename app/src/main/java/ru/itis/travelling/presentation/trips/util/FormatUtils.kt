@@ -8,7 +8,7 @@ object FormatUtils {
 
     fun formatPriceWithThousands(price: String?): String {
         return try {
-            val number = price?.toDoubleOrNull()
+            val number = price?.toIntOrNull()
             number?.let { numberFormat.format(it) } ?: ""
         } catch (e: Exception) {
             ""
