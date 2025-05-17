@@ -7,6 +7,6 @@ import kotlinx.parcelize.Parcelize
 data class Contact(
     val name: String?,
     val phoneNumber: String,
-    val isSelected: Boolean = false
+    val isSelected: Boolean = true
 ) : Parcelable
 /////
