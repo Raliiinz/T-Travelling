@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ItemTripBinding
 import ru.itis.travelling.domain.trips.model.Trip
-import ru.itis.travelling.presentation.trips.util.DateUtils
 
 class TripAdapter(
     private val onItemClick: (Trip) -> Unit
@@ -38,9 +37,7 @@ class TripAdapter(
 
         fun bind(trip: Trip) = with(binding) {
             tvDestination.text = trip.destination
-            val startDate = DateUtils.formatDateForDisplay(trip.startDate)
-            val endDate = DateUtils.formatDateForDisplay(trip.endDate)
-            tvDates.text = binding.root.context.getString(R.string.trip_dates, startDate, endDate)
+            tvDates.text = binding.root.context.getString(R.string.trip_dates, trip.startDate, trip.endDate)
             tvPrice.text = binding.root.context.getString(R.string.price, trip.price)
         }
     }

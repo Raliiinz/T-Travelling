@@ -20,6 +20,7 @@ import ru.itis.travelling.domain.contacts.usecase.GetContactsUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.UpdateTripUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.DateUtils.toLocalDate
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils.formatPhoneNumber
@@ -34,6 +35,9 @@ class AddTripViewModel @Inject constructor(
     private val updateTripUseCase: UpdateTripUseCase,
     private val navigator: Navigator
 ) : ViewModel() {
+
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode: StateFlow<Boolean> = _isEditMode
 
     private val _tripTitle = MutableStateFlow("")
     val tripTitle: StateFlow<String> = _tripTitle
@@ -52,6 +56,9 @@ class AddTripViewModel @Inject constructor(
     )
     val datesState: StateFlow<Pair<LocalDate, LocalDate>> = _datesState
 
+    private val _formattedDates = MutableStateFlow<Pair<String, String>>("" to "")
+    val formattedDates: StateFlow<Pair<String, String>> = _formattedDates
+
     private val _admin = MutableStateFlow<Participant?>(null)
     val admin: StateFlow<Participant?> = _admin
 
@@ -61,20 +68,29 @@ class AddTripViewModel @Inject constructor(
     private val _events = MutableSharedFlow<AddTripEvent>()
     val events: SharedFlow<AddTripEvent> = _events
 
-    private val _tripToEdit = MutableStateFlow<Trip?>(null)
-    val tripToEdit: StateFlow<Trip?> = _tripToEdit
+    init {
+        viewModelScope.launch {
+            datesState.collect { (startDate, endDate) ->
+                _formattedDates.value = formatDates(startDate, endDate)
+            }
+        }
+    }
+
+    private fun formatDates(startDate: LocalDate, endDate: LocalDate): Pair<String, String> {
+        return DateUtils.formatDateForDisplay(startDate) to DateUtils.formatDateForDisplay(endDate)
+    }
 
     fun updateDates(newDates: Pair<LocalDate, LocalDate>) {
         _datesState.update { newDates }
     }
 
     fun loadTripForEditing(tripId: String) {
+        _isEditMode.value = true
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
             try {
                 val trip = getTripDetailsUseCase(tripId)
                 if (trip != null) {
-                    _tripToEdit.value = trip
                     _tripTitle.value = trip.destination
                     _tripCost.value = trip.price
                     _datesState.update {
@@ -99,6 +115,7 @@ class AddTripViewModel @Inject constructor(
     }
 
     fun initializeWithAdmin(adminPhone: String) {
+        _isEditMode.value = false
         val formattedPhone = formatPhoneNumber(adminPhone)
         _admin.value = Participant(phone = formattedPhone)
     }
@@ -186,7 +203,7 @@ class AddTripViewModel @Inject constructor(
                     destination = title.trim(),
                     startDate = _datesState.value.first.toString(),
                     endDate = _datesState.value.second.toString(),
-                    price = (cost.toIntOrNull() ?: 0).toString(),
+                    price = (cost.toDoubleOrNull() ?: 0.0).toString(),
                     admin = Participant(phone = normalizedPhone),
                     participants = _fullParticipants.value
                         .filterNot { it.phone == normalizedPhone }
@@ -236,7 +253,11 @@ class AddTripViewModel @Inject constructor(
 
     fun observeCombinedParticipants(): Flow<List<Participant>> {
         return combine(admin, fullParticipants) { admin, participants ->
-            if (admin != null) listOf(admin) + participants else participants
+            if (admin != null) {
+                listOf(admin) + participants
+            } else {
+                participants
+            }
         }
     }
 

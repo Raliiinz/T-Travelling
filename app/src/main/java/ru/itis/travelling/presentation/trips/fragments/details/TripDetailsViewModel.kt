@@ -16,6 +16,7 @@ import ru.itis.travelling.domain.trips.usecase.DeleteTripUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.LeaveTripUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
@@ -41,6 +42,8 @@ class TripDetailsViewModel @Inject constructor(
                 val trip = getTripDetailsUseCase(tripId)
                 val formattedTrip = trip?.copy(
                     price = FormatUtils.formatPriceWithThousands(trip.price),
+                    startDate = DateUtils.formatDateForDisplay(trip.startDate),
+                    endDate = DateUtils.formatDateForDisplay(trip.endDate),
                     participants = prepareParticipantsList(trip)
                 )
                 if (formattedTrip != null) {

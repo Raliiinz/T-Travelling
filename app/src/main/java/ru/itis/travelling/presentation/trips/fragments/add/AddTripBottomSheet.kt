@@ -34,6 +34,7 @@ import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.DateUtils.toEpochMilli
 import ru.itis.travelling.presentation.trips.util.DateUtils.toLocalDate
 import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.getValue
 
 @AndroidEntryPoint
@@ -45,9 +46,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         arguments?.getString(PHONE_NUMBER) ?: ""
     }
 
-    private val isEditMode: Boolean by lazy {
-        arguments?.getBoolean(IS_EDIT_MODE, false) ?: false
-    }
     private val tripId: String by lazy {
         arguments?.getString(TRIP_ID) ?: ""
     }
@@ -65,10 +63,10 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (isEditMode) {
-            viewModel.loadTripForEditing(tripId)
-        } else {
-            viewModel.initializeWithAdmin(phoneNumber)
+        arguments?.getString(PHONE_NUMBER)?.let { phoneNumber ->
+            arguments?.getString(TRIP_ID)?.let { tripId ->
+                viewModel.loadTripForEditing(tripId)
+            } ?: viewModel.initializeWithAdmin(phoneNumber)
         }
         setupParticipantsAdapter()
         initViews()
@@ -85,7 +83,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     private fun initViews() {
         viewBinding.apply {
-            updateDateViews(viewModel.datesState.value)
 
             ivBackArrow.setOnClickListener { dismissWithNavigation() }
             selectStartDate.setOnClickListener { showDatePicker(isStartDate = true) }
@@ -94,15 +91,9 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 checkContactsPermission()
             }
 
-            createButton.text = if (isEditMode) {
-                getString(R.string.save_changes)
-            } else {
-                getString(R.string.create)
-            }
-
             createButton.setOnClickListener {
                 viewModel.saveTrip(
-                    if (isEditMode) tripId else null,
+                    arguments?.getString(TRIP_ID),
                     etTitleTrip.text.toString(),
                     etCostTrip.text.toString(),
                     phoneNumber
@@ -111,10 +102,10 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         }
     }
 
-    private fun updateDateViews(dates: Pair<LocalDate, LocalDate>) {
+    private fun updateDateViews(dates: Pair<String, String>) {
         with(viewBinding) {
-            startDateValue.text = dates.first.toBeautifulString()
-            endDateValue.text = dates.second.toBeautifulString()
+            startDateValue.text = dates.first
+            endDateValue.text = dates.second
         }
     }
 
@@ -184,6 +175,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 launch { observeEvents() }
                 launch { observeTripTitle() }
                 launch { observeTripCost() }
+                launch { observeEditMode() }
             }
         }
     }
@@ -208,7 +200,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     }
 
     private suspend fun observeDates() {
-        viewModel.datesState.collect { updateDateViews(it) }
+        viewModel.formattedDates.collect { updateDateViews(it) }
     }
 
     private suspend fun observeEvents() {
@@ -233,17 +225,23 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
     }
 
     private suspend fun observeTripTitle() {
-        if (isEditMode) {
-            viewModel.tripTitle.collect { title ->
-                viewBinding.etTitleTrip.setText(title)
-            }
+        viewModel.tripTitle.collect { title ->
+            viewBinding.etTitleTrip.setText(title)
         }
     }
 
     private suspend fun observeTripCost() {
-        if (isEditMode) {
-            viewModel.tripCost.collect { cost ->
-                viewBinding.etCostTrip.setText(cost)
+        viewModel.tripCost.collect { cost ->
+            viewBinding.etCostTrip.setText(cost)
+        }
+    }
+
+    private suspend fun observeEditMode() {
+        viewModel.isEditMode.collect { isEditMode ->
+            viewBinding.createButton.text = if (isEditMode) {
+                getString(R.string.save_changes)
+            } else {
+                getString(R.string.create)
             }
         }
     }
@@ -257,7 +255,8 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
         MaterialDatePicker.Builder.datePicker()
             .setTitleText(getString(if (isStartDate) R.string.select_start_date else R.string.select_end_date))
-            .setSelection(currentDates.let { if (isStartDate) it.first else it.second }.toEpochMilli())
+            .setSelection(viewModel.datesState.value.let { if (isStartDate) it.first else it.second }
+                .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
             .setCalendarConstraints(constraints.build())
             .build()
             .apply {
@@ -273,11 +272,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     private fun calculateNewDates(isStartDate: Boolean, selectedDate: LocalDate): Pair<LocalDate, LocalDate> {
         return DateUtils.calculateNewDates(viewModel.datesState.value, isStartDate, selectedDate)
-    }
-
-
-    private fun LocalDate.toBeautifulString(): String {
-        return DateUtils.formatDateForDisplay(this)
     }
 
     private fun dismissWithNavigation() {
@@ -344,14 +338,12 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
         const val TAG = "AddTripBottomSheet"
         private const val PHONE_NUMBER = "phone_number"
         private const val TRIP_ID = "trip_id"
-        private const val IS_EDIT_MODE = "is_edit_mode"
         private const val DATE_PICKER_TAG = "DATE_PICKER_TAG"
 
         fun newInstance(phoneNumber: String): AddTripBottomSheet {
             return AddTripBottomSheet().apply {
                 arguments = Bundle().apply {
                     putString(PHONE_NUMBER, phoneNumber)
-                    putBoolean(IS_EDIT_MODE, false)
                 }
             }
         }
@@ -361,7 +353,6 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 arguments = Bundle().apply {
                     putString(PHONE_NUMBER, phoneNumber)
                     putString(TRIP_ID, tripId)
-                    putBoolean(IS_EDIT_MODE, true)
                 }
             }
         }
