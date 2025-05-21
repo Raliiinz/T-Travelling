@@ -7,7 +7,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
+import ru.itis.travelling.domain.exception.BadRequestException
+import ru.itis.travelling.domain.exception.ForbiddenException
+import ru.itis.travelling.domain.exception.NetworkException
+import ru.itis.travelling.domain.exception.NotFoundException
+import ru.itis.travelling.domain.exception.ServerException
+import ru.itis.travelling.domain.exception.UnauthorizedException
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.common.state.FieldState
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
@@ -32,8 +39,8 @@ class AuthorizationViewModel @Inject constructor(
     private val _passwordState = MutableStateFlow(FieldState.empty())
     val passwordState: StateFlow<FieldState> = _passwordState
 
-    private val _events = MutableSharedFlow<AuthorizationEvent>()
-    val events: SharedFlow<AuthorizationEvent> = _events
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
 
     fun onPhoneChanged(rawPhone: String) {
         phoneTouched = true
@@ -73,25 +80,49 @@ class AuthorizationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
             _uiState.update { AuthorizationUiState.Loading }
-            try {
-                val isSuccess = loginUseCase(
-                    normalizedPhone,
-                    _passwordState.value.value
-                )
-                if (isSuccess) {
-                    userPreferencesRepository.saveLoginState(true, normalizedPhone)
-                    navigator.navigateToTripsFragment(normalizedPhone)
-                } else {
-                    _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
-                }
-            } catch (e: Exception) {
-                _events.emit(AuthorizationEvent.ShowError(e.message ?: "Ошибка"))
-            } finally {
+
+            runCatching {
+                val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
+                loginUseCase(normalizedPhone, _passwordState.value.value)
+                userPreferencesRepository.saveLoginState(true, normalizedPhone)
+                navigator.navigateToTripsFragment(normalizedPhone)
+            }.onFailure { error ->
+                handleAuthError(error)
+            }.also {
                 _uiState.update { AuthorizationUiState.Idle }
             }
+
+//
+//                val isSuccess = loginUseCase(
+//                    normalizedPhone,
+//                    _passwordState.value.value
+//                )
+//                if (isSuccess) {
+//                    userPreferencesRepository.saveLoginState(true, normalizedPhone)
+//                    navigator.navigateToTripsFragment(normalizedPhone)
+//                } else {
+//                    _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
+//                }
+//            } catch (e: Exception) {
+//                _events.emit(AuthorizationEvent.ShowError(e.message ?: "Ошибка"))
+//            } finally {
+//                _uiState.update { AuthorizationUiState.Idle }
+//            }
         }
+    }
+
+    private suspend fun handleAuthError(error: Throwable) {
+        val errorReason = when (error) {
+            is UnauthorizedException -> ErrorEvent.FailureReason.Unauthorized
+            is ForbiddenException -> ErrorEvent.FailureReason.Forbidden
+            is NotFoundException -> ErrorEvent.FailureReason.NotFound
+            is BadRequestException -> ErrorEvent.FailureReason.BadRequest
+            is ServerException -> ErrorEvent.FailureReason.Server
+            is NetworkException -> ErrorEvent.FailureReason.Network
+            else -> ErrorEvent.FailureReason.Unknown
+        }
+        _errorEvent.emit(ErrorEvent.Error(errorReason))
     }
 
     fun navigateToRegistration() {

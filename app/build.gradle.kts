@@ -21,6 +21,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        defaultConfig {
+            buildConfigField("String", "API_URL", "\"http://141.105.71.181:8080\"")
+        }
+
+        buildFeatures{
+            buildConfig = true
+        }
     }
 
     buildTypes {
@@ -72,6 +80,8 @@ dependencies {
     // для использования с корутинами
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
+    // Network
+    implementation(libs.bundles.network.deps)
 
 }
 

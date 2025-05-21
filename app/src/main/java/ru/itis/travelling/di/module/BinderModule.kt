@@ -4,11 +4,15 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.itis.travelling.data.authregister.handler.LogoutHandlerImpl
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.data.authregister.local.repository.UserPreferencesRepositoryImpl
 import ru.itis.travelling.data.authregister.local.repository.UserRepositoryImpl
+import ru.itis.travelling.data.authregister.local.storage.SecureTokenStorage
+import ru.itis.travelling.data.authregister.local.storage.TokenStorage
 import ru.itis.travelling.data.contacts.ContactsRepositoryImpl
 import ru.itis.travelling.data.trips.repository.TripRepositoryImpl
+import ru.itis.travelling.domain.authregister.handler.LogoutHandler
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.contacts.repository.ContactsRepository
 import ru.itis.travelling.domain.trips.repository.ParticipantsRepository
@@ -34,4 +38,11 @@ interface BinderModule {
     @Binds
     @Singleton
     fun bindContactsRepositoryToImpl(impl: ContactsRepositoryImpl): ContactsRepository
+
+    @Binds
+    @Singleton
+    fun bindTokenStorageToImpl(impl: SecureTokenStorage): TokenStorage
+
+//    @Binds
+//    fun bindLogoutHandler(impl: LogoutHandlerImpl): LogoutHandler
 }

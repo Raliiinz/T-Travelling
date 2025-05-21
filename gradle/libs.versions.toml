@@ -18,6 +18,10 @@ vbpd = "1.5.9"
 datastore-version = "1.0.0"
 coroutines-version = "1.6.4"
 detekt = "1.23.8"
+okhttp-version = "4.11.0"
+converter-gson-version="2.3.0"
+gson = "2.13.0"
+retrofit_version = "2.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,7 +40,14 @@ vbpd = { group = "com.github.kirich1409", name = "viewbindingpropertydelegate", 
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore-version" }
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines-version" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines-version" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit_version" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp-version" }
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converter-gson-version" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
+
+[bundles]
+network-deps = ["retrofit", "converter-gson", "okhttp", "gson"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
