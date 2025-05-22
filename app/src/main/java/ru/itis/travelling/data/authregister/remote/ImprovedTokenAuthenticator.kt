@@ -8,9 +8,9 @@ import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import retrofit2.HttpException
-import ru.itis.travelling.data.authregister.local.storage.TokenStorage
+import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserRepository
+import ru.itis.travelling.domain.authregister.storage.TokenStorage
 
 
 class ImprovedTokenAuthenticator @Inject constructor(
@@ -31,27 +31,39 @@ class ImprovedTokenAuthenticator @Inject constructor(
             }
 
             try {
-                val refreshToken = tokenStorage.getRefreshToken()
-                if (refreshToken.isNullOrEmpty()) {
+                if (!tokenStorage.isAccessTokenExpired()) {
                     return@runBlocking null
                 }
 
-                val newTokens = userRepository.refreshTokens(refreshToken)
-                Log.d("Auth", "Tokens refreshed successfully! New access: ${newTokens.accessToken.take(10)}...")
+                val refreshToken = tokenStorage.getRefreshToken() ?: return@runBlocking null
 
-                tokenStorage.saveTokens(
-                    accessToken = newTokens.accessToken,
-                    refreshToken = newTokens.refreshToken
-                )
+                when (val result = userRepository.refreshTokens(refreshToken)) {
+                    is ResultWrapper.Success -> {
+                        val newTokens = result.value
+                        Log.d("Auth", "Tokens refreshed successfully! New access: ${newTokens.accessToken.take(10)}...")
 
-                response.request.newBuilder()
-                    .header("Authorization", "Bearer ${newTokens.accessToken}")
-                    .header("Is-Retry", "true")
-                    .build()
-            } catch (e: Exception) {
-                if (e is HttpException && e.code() == 401) {
-                    tokenStorage.clearTokens()
+                        tokenStorage.saveTokens(
+                            accessToken = newTokens.accessToken,
+                            refreshToken = newTokens.refreshToken,
+                            expiresIn = newTokens.expiresIn ?: 3600 // Дефолтное значение, если expiresIn не пришёл
+                        )
+
+                        response.request.newBuilder()
+                            .header("Authorization", "Bearer ${newTokens.accessToken}")
+                            .header("Is-Retry", "true")
+                            .removeHeader("Request-ID")
+                            .build()
+                    }
+                    is ResultWrapper.GenericError -> {
+                        if (result.code == 401) {
+                            tokenStorage.clearTokens()
+                        }
+                        null
+                    }
+                    is ResultWrapper.NetworkError -> null
                 }
+            } catch (e: Exception) {
+                Log.e("Auth", "Token refresh failed", e)
                 null
             } finally {
                 mutex.unlock()

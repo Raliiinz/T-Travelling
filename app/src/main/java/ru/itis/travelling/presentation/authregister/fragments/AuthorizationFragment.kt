@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentAuthorizationBinding
+import ru.itis.travelling.presentation.authregister.state.AuthorizationUiState
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.travelling.presentation.authregister.util.setupPasswordToggle
@@ -36,9 +37,9 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewModel.uiState
             .onEach { state ->
                 when (state) {
-                    AuthorizationViewModel.AuthorizationUiState.Loading -> showProgress()
-                    AuthorizationViewModel.AuthorizationUiState.Idle -> hideProgress()
-                    AuthorizationViewModel.AuthorizationUiState.Success -> hideProgress()
+                    AuthorizationUiState.Loading -> showProgress()
+                    AuthorizationUiState.Idle -> hideProgress()
+                    AuthorizationUiState.Success -> hideProgress()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)

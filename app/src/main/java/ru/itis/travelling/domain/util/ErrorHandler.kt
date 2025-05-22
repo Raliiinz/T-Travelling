@@ -1,10 +1,6 @@
 package ru.itis.travelling.domain.util
 
-import ru.itis.travelling.domain.exception.BadRequestException
-import ru.itis.travelling.domain.exception.ForbiddenException
-import ru.itis.travelling.domain.exception.NotFoundException
-import ru.itis.travelling.domain.exception.ServerException
-import ru.itis.travelling.domain.exception.UnauthorizedException
+import retrofit2.HttpException
 import javax.inject.Inject
 
 class ErrorHandler @Inject constructor() {
@@ -17,14 +13,14 @@ class ErrorHandler @Inject constructor() {
         private const val HTTP_SERVER_ERROR = 500
     }
 
-    fun handleHttpException(code: Int): Exception {
-        return when (code) {
-            HTTP_BAD_REQUEST -> BadRequestException()
-            HTTP_UNAUTHORIZED -> UnauthorizedException()
-            HTTP_FORBIDDEN -> ForbiddenException()
-            HTTP_NOT_FOUND -> NotFoundException()
-            HTTP_SERVER_ERROR -> ServerException()
-            else -> Exception("Ошибка: $code")
+    fun getErrorMessage(throwable: HttpException): String {
+        return when (throwable.code()) {
+            HTTP_BAD_REQUEST -> "Неверный запрос"
+            HTTP_UNAUTHORIZED -> "Требуется авторизация"
+            HTTP_FORBIDDEN -> "Доступ запрещен"
+            HTTP_NOT_FOUND -> "Ресурс не найден"
+            HTTP_SERVER_ERROR -> "Ошибка сервера"
+            else -> "Ошибка: ${throwable.code()}"
         }
     }
 }

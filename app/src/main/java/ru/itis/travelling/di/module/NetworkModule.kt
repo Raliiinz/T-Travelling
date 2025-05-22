@@ -9,14 +9,13 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.itis.travelling.BuildConfig.API_URL
-import ru.itis.travelling.data.authregister.local.repository.UserRepositoryImpl
-import ru.itis.travelling.data.authregister.local.storage.TokenStorage
 import ru.itis.travelling.data.authregister.remote.ImprovedTokenAuthenticator
 import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
 import ru.itis.travelling.data.authregister.remote.interceptor.UnlockingInterceptor
 import ru.itis.travelling.data.authregister.remote.interceptor.UuidInterceptor
 import ru.itis.travelling.domain.authregister.repository.UserRepository
+import ru.itis.travelling.domain.authregister.storage.TokenStorage
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -42,12 +41,10 @@ object NetworkModule {
     @Singleton
     @Named("authOkHttpClient")
     fun provideAuthOkHttpClient(
-        uuidInterceptor: UuidInterceptor,
         tokenAuthenticator: ImprovedTokenAuthenticator,
         unlockingInterceptor: UnlockingInterceptor
     ): OkHttpClient {
         return providePublicOkHttpClient().newBuilder()
-            .addInterceptor(uuidInterceptor)
             .authenticator(tokenAuthenticator)
             .addInterceptor(unlockingInterceptor)
             .build()
@@ -120,6 +117,8 @@ object NetworkModule {
     fun provideUnlockingInterceptor(mutex: Mutex): UnlockingInterceptor {
         return UnlockingInterceptor(mutex)
     }
+
+// для внутренних запросов
 
 //    @Provides
 //    @Singleton

@@ -5,14 +5,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
-import ru.itis.travelling.domain.exception.BadRequestException
-import ru.itis.travelling.domain.exception.ForbiddenException
-import ru.itis.travelling.domain.exception.NetworkException
-import ru.itis.travelling.domain.exception.NotFoundException
-import ru.itis.travelling.domain.exception.ServerException
-import ru.itis.travelling.domain.exception.UnauthorizedException
+import ru.itis.travelling.presentation.authregister.state.AuthorizationUiState
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.common.state.FieldState
@@ -82,43 +78,33 @@ class AuthorizationViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { AuthorizationUiState.Loading }
 
-            runCatching {
-                val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
-                loginUseCase(normalizedPhone, _passwordState.value.value)
-                userPreferencesRepository.saveLoginState(true, normalizedPhone)
-                navigator.navigateToTripsFragment(normalizedPhone)
-            }.onFailure { error ->
-                handleAuthError(error)
-            }.also {
-                _uiState.update { AuthorizationUiState.Idle }
+            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
+            val result = loginUseCase(normalizedPhone, _passwordState.value.value)
+
+            when (result) {
+                is ResultWrapper.Success -> {
+                    userPreferencesRepository.saveLoginState(true, normalizedPhone)
+                    navigator.navigateToTripsFragment(normalizedPhone)
+                }
+                is ResultWrapper.GenericError -> {
+                    handleRegistrationError(result.code)
+                }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.Error(ErrorEvent.FailureReason.Network))
+                }
             }
-            //
-//                val isSuccess = loginUseCase(
-//                    normalizedPhone,
-//                    _passwordState.value.value
-//                )
-//                if (isSuccess) {
-//                    userPreferencesRepository.saveLoginState(true, normalizedPhone)
-//                    navigator.navigateToTripsFragment(normalizedPhone)
-//                } else {
-//                    _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
-//                }
-//            } catch (e: Exception) {
-//                _events.emit(AuthorizationEvent.ShowError(e.message ?: "Ошибка"))
-//            } finally {
-//                _uiState.update { AuthorizationUiState.Idle }
-//            }
+
+            _uiState.update { AuthorizationUiState.Idle }
         }
     }
 
-    private suspend fun handleAuthError(error: Throwable) {
-        val errorReason = when (error) {
-            is UnauthorizedException -> ErrorEvent.FailureReason.Unauthorized
-            is ForbiddenException -> ErrorEvent.FailureReason.Forbidden
-            is NotFoundException -> ErrorEvent.FailureReason.NotFound
-            is BadRequestException -> ErrorEvent.FailureReason.BadRequest
-            is ServerException -> ErrorEvent.FailureReason.Server
-            is NetworkException -> ErrorEvent.FailureReason.Network
+    private suspend fun handleRegistrationError(code: Int?) {
+        val errorReason = when (code) {
+            400 -> ErrorEvent.FailureReason.BadRequest
+            401 -> ErrorEvent.FailureReason.Unauthorized
+            403 -> ErrorEvent.FailureReason.Forbidden
+            404 -> ErrorEvent.FailureReason.NotFound
+            500 -> ErrorEvent.FailureReason.Server
             else -> ErrorEvent.FailureReason.Unknown
         }
         _errorEvent.emit(ErrorEvent.Error(errorReason))
@@ -128,15 +114,5 @@ class AuthorizationViewModel @Inject constructor(
         viewModelScope.launch {
             navigator.navigateToRegistrationFragment()
         }
-    }
-
-    sealed class AuthorizationUiState {
-        data object Idle : AuthorizationUiState()
-        data object Loading : AuthorizationUiState()
-        data object Success : AuthorizationUiState()
-    }
-
-    sealed class AuthorizationEvent {
-        data class ShowError(val message: String) : AuthorizationEvent()
     }
 }

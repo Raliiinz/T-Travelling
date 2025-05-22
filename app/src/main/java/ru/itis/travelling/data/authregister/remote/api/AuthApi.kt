@@ -11,6 +11,7 @@ import ru.itis.travelling.data.authregister.remote.model.TokensResponse
 interface AuthApi {
     @POST("/api/v1/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
     @POST("/api/v1/refresh")
     suspend fun refreshTokens(@Body request: RefreshTokenRequest): Response<TokensResponse>
 }

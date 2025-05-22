@@ -10,14 +10,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.model.User
 import ru.itis.travelling.domain.authregister.usecase.RegisterUseCase
-import ru.itis.travelling.domain.exception.BadRequestException
-import ru.itis.travelling.domain.exception.ForbiddenException
-import ru.itis.travelling.domain.exception.NetworkException
-import ru.itis.travelling.domain.exception.NotFoundException
-import ru.itis.travelling.domain.exception.ServerException
-import ru.itis.travelling.domain.exception.UnauthorizedException
 import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.authregister.state.RegistrationUiState
 import ru.itis.travelling.presentation.base.navigation.Navigator
@@ -148,43 +143,38 @@ class RegistrationViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { RegistrationUiState.Loading }
 
-            runCatching {
-                val user = User(
-                    phoneNumber = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value),
-                    firstName = _firstNameState.value.value,
-                    lastName = _lastNameState.value.value,
-                    password = _passwordState.value.value,
-                    confirmPassword = _confirmPasswordState.value.value
-                )
+            val user = User(
+                phoneNumber = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value),
+                firstName = _firstNameState.value.value,
+                lastName = _lastNameState.value.value,
+                password = _passwordState.value.value,
+                confirmPassword = _confirmPasswordState.value.value
+            )
 
-                registerUseCase(user)
-            }.onSuccess { isSuccess ->
-                if (isSuccess) {
+            when (val result = registerUseCase(user)) {
+                is ResultWrapper.Success -> {
                     _uiState.update { RegistrationUiState.Success }
                     navigator.navigateToAuthorizationFragment()
                 }
-            }.onFailure {
-                handleError(it)
-//                val registrationError = when (error.message) {
-//                    "User with this phone number already exists" ->
-//                        RegistrationError.UserAlreadyExists
-//                    else -> RegistrationError.Unknown
-//                }
-//                _events.emit(RegistrationEvent.ShowError(registrationError))
-            }.also {
-                _uiState.update { RegistrationUiState.Idle }
+                is ResultWrapper.GenericError -> {
+                    handleRegistrationError(result.code)
+                }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.Error(ErrorEvent.FailureReason.Network))
+                }
             }
+
+            _uiState.update { RegistrationUiState.Idle }
         }
     }
 
-    private suspend fun handleError(ex: Throwable) {
-        val errorReason = when (ex) {
-            is UnauthorizedException -> ErrorEvent.FailureReason.Unauthorized
-            is ForbiddenException -> ErrorEvent.FailureReason.Forbidden
-            is NotFoundException -> ErrorEvent.FailureReason.NotFound
-            is BadRequestException -> ErrorEvent.FailureReason.BadRequest
-            is ServerException -> ErrorEvent.FailureReason.Server
-            is NetworkException -> ErrorEvent.FailureReason.Network
+    private suspend fun handleRegistrationError(code: Int?) {
+        val errorReason = when (code) {
+            400 -> ErrorEvent.FailureReason.BadRequest
+            401 -> ErrorEvent.FailureReason.Unauthorized
+            403 -> ErrorEvent.FailureReason.Forbidden
+            404 -> ErrorEvent.FailureReason.NotFound
+            500 -> ErrorEvent.FailureReason.Server
             else -> ErrorEvent.FailureReason.Unknown
         }
         _errorEvent.emit(ErrorEvent.Error(errorReason))
