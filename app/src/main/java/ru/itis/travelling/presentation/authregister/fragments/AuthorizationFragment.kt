@@ -1,6 +1,5 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -65,34 +64,10 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewModel.errorEvent
             .onEach { event ->
                 when (event) {
-                    is ErrorEvent.Error -> showErrorDialog(event.reason)
+                    is ErrorEvent.Error -> showToast(event.reason)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
-    }
-
-    private fun showErrorDialog(reason: ErrorEvent.FailureReason) {
-        val (titleRes, messageRes) = when (reason) {
-            ErrorEvent.FailureReason.Unauthorized ->
-                Pair(R.string.error_title_auth, R.string.error_unauthorized)
-            ErrorEvent.FailureReason.Forbidden ->
-                Pair(R.string.error_title_auth, R.string.error_forbidden)
-            ErrorEvent.FailureReason.NotFound ->
-                Pair(R.string.error_title_server, R.string.error_not_found)
-            ErrorEvent.FailureReason.BadRequest ->
-                Pair(R.string.error_title_validation, R.string.error_bad_request)
-            ErrorEvent.FailureReason.Server ->
-                Pair(R.string.error_title_server, R.string.error_server)
-            ErrorEvent.FailureReason.Network ->
-                Pair(R.string.error_title_network, R.string.error_network)
-            ErrorEvent.FailureReason.Unknown ->
-                Pair(R.string.error_title_unknown, R.string.error_unknown)
-        }
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(titleRes))
-            .setMessage(getString(messageRes))
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
     }
 
     private fun setupListeners() {
@@ -126,7 +101,18 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewBinding.textInputLayoutPassword.setupPasswordToggle()
     }
 
-    private fun showToast(message: String) {
+    private fun showToast(reason: ErrorEvent.FailureReason) {
+        val message = when (reason) {
+            ErrorEvent.FailureReason.Unauthorized ->
+                getString(R.string.error_unauthorized_authorization)
+            ErrorEvent.FailureReason.Server ->
+                getString(R.string.error_server)
+            ErrorEvent.FailureReason.Network ->
+                getString(R.string.error_network)
+            ErrorEvent.FailureReason.Unknown ->
+                getString(R.string.error_unknown)
+            else -> getString(R.string.error_unknown)
+        }
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 

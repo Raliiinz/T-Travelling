@@ -1,6 +1,5 @@
 package ru.itis.travelling.data.authregister.local.repository
 
-import android.util.Log
 import retrofit2.HttpException
 import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
@@ -20,11 +19,6 @@ class UserRepositoryImpl @Inject constructor(
     private val apiHelper: ApiHelper,
     private val tokenStorage: TokenStorage
 ) : UserRepository {
-
-    companion object {
-        private const val TAG = "AuthRepository"
-        private const val LOG_TOKENS = true // Включить/выключить логирование токенов
-    }
 
     override suspend fun registerUser(
         phone: String,
@@ -82,7 +76,6 @@ class UserRepositoryImpl @Inject constructor(
     }
 
 //    override suspend fun login(phone: String, password: String): Boolean {
-//        // TODO: Заменить заглушку на реальную проверку пароля из базы данных
 //        // Simulate a login check
 //        return password == "111"
 //    }

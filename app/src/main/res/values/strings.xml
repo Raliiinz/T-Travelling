@@ -90,17 +90,16 @@
     <string name="surname">Фамилия</string>
 
     <!--Errors-->
-    <string name="error_title_validation">Номер уже зарегистрирован</string>
+    <string name="error_title_validation_registration">Ошибка регистрации</string>
+    <string name="error_bad_request_registration">Пользователь с таким номером телефона уже зарегистрирован.</string>
     <string name="error_title_auth">Ошибка авторизации</string>
-    <string name="error_title_server">Server Error</string>
-    <string name="error_title_network">Network Error</string>
-    <string name="error_title_unknown">Unknown Error</string>
-    <string name="error_unauthorized">Неверный логин или пароль. Проверьте введённые данные и попробуйте снова.</string>
-    <string name="error_forbidden">Access denied. You don\'t have permission.</string>
-    <string name="error_not_found">Recipes not found.</string>
-    <string name="error_bad_request">Пользователь с таким номером телефона уже существует.</string>
-    <string name="error_server">Server error. Please try again later.</string>
-    <string name="error_network">No internet connection.</string>
-    <string name="error_success">Success.</string>
+    <string name="error_title_server">Ошибка сервера</string>
+    <string name="error_title_network">Сетевая ошибка</string>
+    <string name="error_title_unknown">Неизвестная ошибка</string>
+    <string name="error_unauthorized_authorization">Неверный логин или пароль.</string>
+    <string name="error_forbidden">В доступе отказано. У вас нет разрешения.</string>
+    <string name="error_not_found">Запрашиваемый ресурс не найден.</string>
+    <string name="error_server">Пожалуйста, повторите попытку позже.</string>
+    <string name="error_network">Нет подключения к Интернету.</string>
 
 </resources>

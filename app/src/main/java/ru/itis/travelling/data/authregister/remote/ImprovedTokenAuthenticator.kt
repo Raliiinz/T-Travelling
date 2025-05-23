@@ -1,6 +1,5 @@
 package ru.itis.travelling.data.authregister.remote
 
-import android.util.Log
 import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 import kotlinx.coroutines.runBlocking
@@ -20,7 +19,6 @@ class ImprovedTokenAuthenticator @Inject constructor(
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
-        Log.d("Auth", "Attempting token refresh...")
         if (response.request.header("Is-Retry") == "true") {
             return null
         }
@@ -40,12 +38,11 @@ class ImprovedTokenAuthenticator @Inject constructor(
                 when (val result = userRepository.refreshTokens(refreshToken)) {
                     is ResultWrapper.Success -> {
                         val newTokens = result.value
-                        Log.d("Auth", "Tokens refreshed successfully! New access: ${newTokens.accessToken.take(10)}...")
 
                         tokenStorage.saveTokens(
                             accessToken = newTokens.accessToken,
                             refreshToken = newTokens.refreshToken,
-                            expiresIn = newTokens.expiresIn ?: 3600 // Дефолтное значение, если expiresIn не пришёл
+                            expiresIn = newTokens.expiresIn ?: 3600
                         )
 
                         response.request.newBuilder()
@@ -63,7 +60,6 @@ class ImprovedTokenAuthenticator @Inject constructor(
                     is ResultWrapper.NetworkError -> null
                 }
             } catch (e: Exception) {
-                Log.e("Auth", "Token refresh failed", e)
                 null
             } finally {
                 mutex.unlock()

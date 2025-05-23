@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
+import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.authregister.state.AuthorizationUiState
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.ErrorEvent
@@ -99,15 +100,7 @@ class AuthorizationViewModel @Inject constructor(
     }
 
     private suspend fun handleRegistrationError(code: Int?) {
-        val errorReason = when (code) {
-            400 -> ErrorEvent.FailureReason.BadRequest
-            401 -> ErrorEvent.FailureReason.Unauthorized
-            403 -> ErrorEvent.FailureReason.Forbidden
-            404 -> ErrorEvent.FailureReason.NotFound
-            500 -> ErrorEvent.FailureReason.Server
-            else -> ErrorEvent.FailureReason.Unknown
-        }
-        _errorEvent.emit(ErrorEvent.Error(errorReason))
+        _errorEvent.emit(ErrorEvent.Error(ErrorCodeMapper.fromCode(code)))
     }
 
     fun navigateToRegistration() {

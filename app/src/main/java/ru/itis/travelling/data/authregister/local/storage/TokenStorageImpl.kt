@@ -16,12 +16,10 @@ class TokenStorageImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ) : TokenStorage {
 
-    companion object {
-        private const val PREFS_NAME = "secure_auth_prefs"
-        private const val KEY_ACCESS_TOKEN = "access_token"
-        private const val KEY_REFRESH_TOKEN = "refresh_token"
-        private const val KEY_EXPIRES_AT = "expires"
-    }
+    private val prefsName = "secure_auth_prefs"
+    private val keyAccessToken = "access_token"
+    private val keyRefreshToken = "refresh_token"
+    private val keyExpiresAt = "expires"
 
     private val mutex = Mutex()
 
@@ -31,7 +29,7 @@ class TokenStorageImpl @Inject constructor(
 
     private val prefs = EncryptedSharedPreferences.create(
         context,
-        PREFS_NAME,
+        prefsName,
         masterKey,
         EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
@@ -40,10 +38,10 @@ class TokenStorageImpl @Inject constructor(
     override suspend fun saveTokens(accessToken: String, refreshToken: String, expiresIn: Long?) {
         mutex.withLock {
             prefs.edit {
-                putString(KEY_ACCESS_TOKEN, accessToken)
-                putString(KEY_REFRESH_TOKEN, refreshToken)
+                putString(keyAccessToken, accessToken)
+                putString(keyRefreshToken, refreshToken)
                 expiresIn?.let {
-                    putLong(KEY_EXPIRES_AT, System.currentTimeMillis() + it * 1000)
+                    putLong(keyExpiresAt, System.currentTimeMillis() + it * 1000)
                 }
             }
         }
@@ -51,19 +49,19 @@ class TokenStorageImpl @Inject constructor(
 
     override suspend fun getAccessToken(): String? {
         return mutex.withLock {
-            prefs.getString(KEY_ACCESS_TOKEN, null)
+            prefs.getString(keyAccessToken, null)
         }
     }
 
     override suspend fun getRefreshToken(): String? {
         return mutex.withLock {
-            prefs.getString(KEY_REFRESH_TOKEN, null)
+            prefs.getString(keyRefreshToken, null)
         }
     }
 
     override suspend fun isAccessTokenExpired(): Boolean {
         return mutex.withLock {
-            val expiresAt = prefs.getLong(KEY_EXPIRES_AT, 0L)
+            val expiresAt = prefs.getLong(keyExpiresAt, 0L)
             expiresAt == 0L || System.currentTimeMillis() > expiresAt
         }
     }
@@ -71,8 +69,9 @@ class TokenStorageImpl @Inject constructor(
     override suspend fun clearTokens() {
         mutex.withLock {
             prefs.edit {
-                remove(KEY_ACCESS_TOKEN)
-                remove(KEY_REFRESH_TOKEN)
+                remove(keyAccessToken)
+                remove(keyRefreshToken)
+                remove(keyExpiresAt)
                 apply()
             }
         }
