@@ -7,8 +7,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import dagger.hilt.android.AndroidEntryPoint
 import ru.itis.travelling.R
 
+@AndroidEntryPoint
 abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
     private var progressDialog: Dialog? = null
 

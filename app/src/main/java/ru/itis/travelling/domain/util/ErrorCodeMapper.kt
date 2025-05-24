@@ -1,8 +1,9 @@
 package ru.itis.travelling.domain.util
 
 import ru.itis.travelling.presentation.common.state.ErrorEvent
+import javax.inject.Inject
 
-object ErrorCodeMapper {
+class ErrorCodeMapper @Inject constructor() {
     fun fromCode(code: Int?): ErrorEvent.FailureReason = when (code) {
         400 -> ErrorEvent.FailureReason.BadRequest
         401 -> ErrorEvent.FailureReason.Unauthorized

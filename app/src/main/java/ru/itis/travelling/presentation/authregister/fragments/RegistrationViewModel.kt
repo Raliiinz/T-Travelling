@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.model.User
 import ru.itis.travelling.domain.authregister.usecase.RegisterUseCase
@@ -25,6 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
+    private val errorCodeMapper: ErrorCodeMapper,
     val navigator: Navigator
 ) : ViewModel() {
 
@@ -58,7 +60,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun onFirstNameChanged(firstName: String) {
         firstNameTouched = true
-        val isValid = firstName.isNotBlank()
+        val isValid = ValidationUtils.isValidName(firstName)
         _firstNameState.value = FieldState(
             value = firstName,
             isValid = isValid,
@@ -68,7 +70,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun onLastNameChanged(lastName: String) {
         lastNameTouched = true
-        val isValid = lastName.isNotBlank()
+        val isValid = ValidationUtils.isValidName(lastName)
         _lastNameState.value = FieldState(
             value = lastName,
             isValid = isValid,
@@ -161,7 +163,10 @@ class RegistrationViewModel @Inject constructor(
                     handleRegistrationError(result.code)
                 }
                 is ResultWrapper.NetworkError -> {
-                    _errorEvent.emit(ErrorEvent.Error(ErrorEvent.FailureReason.Network))
+                    _errorEvent.emit(ErrorEvent.FullError(
+                        R.string.error_title_network,
+                        R.string.error_network
+                    ))
                 }
             }
 
@@ -170,7 +175,28 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private suspend fun handleRegistrationError(code: Int?) {
-        _errorEvent.emit(ErrorEvent.Error(ErrorCodeMapper.fromCode(code)))
+        val reason = errorCodeMapper.fromCode(code)
+
+        val errorEvent = when (reason) {
+            ErrorEvent.FailureReason.BadRequest -> ErrorEvent.FullError(
+                R.string.error_title_validation_registration,
+                R.string.error_bad_request_registration
+            )
+            ErrorEvent.FailureReason.Server -> ErrorEvent.FullError(
+                R.string.error_title_server,
+                R.string.error_server
+            )
+            ErrorEvent.FailureReason.Network -> ErrorEvent.FullError(
+                R.string.error_title_network,
+                R.string.error_network
+            )
+            else -> ErrorEvent.FullError(
+                R.string.error_title_unknown,
+                R.string.error_unknown
+            )
+        }
+
+        _errorEvent.emit(errorEvent)
     }
 
     fun navigateToAuthorization() {

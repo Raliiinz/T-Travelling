@@ -85,6 +85,9 @@ dependencies {
     //EncryptedSharedPreferences
     implementation(libs.security.crypto)
 
+    //Annotation
+    implementation(libs.annotation)
+
 }
 
 detekt {

@@ -16,7 +16,9 @@
     <string name="account_page">Профиль</string>
     <string name="error_invalid_phone">Неверный номер телефона</string>
     <string name="error_first_name_empty">Имя не может быть пустым</string>
+    <string name="error_first_name_invalid">Имя должно начинаться с заглавной буквы и содержать только буквы, пробелы, \' или -</string>
     <string name="error_last_name_empty">Фамилия не может быть пустой</string>
+    <string name="error_last_name_invalid">Фамилия должна начинаться с заглавной буквы и содержать только буквы, пробелы, \' или -</string>
     <string name="error_invalid_password">Пароль должен содержать не менее 6 и не более 15 символов, заглавную букву и цифру</string>
     <string name="error_password_mismatch">Пароли не совпадают</string>
     <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>

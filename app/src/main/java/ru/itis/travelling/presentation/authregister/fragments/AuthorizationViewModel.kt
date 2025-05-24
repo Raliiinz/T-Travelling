@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class AuthorizationViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val loginUseCase: LoginUseCase,
+    private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
 
@@ -58,7 +60,7 @@ class AuthorizationViewModel @Inject constructor(
         _passwordState.value = FieldState(
             value = password,
             isValid = isValid,
-            shouldShowError = (passwordTouched || submitAttempted) && !isValid
+            shouldShowError = (passwordTouched ||  submitAttempted) && !isValid
         )
     }
 
@@ -91,7 +93,7 @@ class AuthorizationViewModel @Inject constructor(
                     handleRegistrationError(result.code)
                 }
                 is ResultWrapper.NetworkError -> {
-                    _errorEvent.emit(ErrorEvent.Error(ErrorEvent.FailureReason.Network))
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
                 }
             }
 
@@ -100,7 +102,14 @@ class AuthorizationViewModel @Inject constructor(
     }
 
     private suspend fun handleRegistrationError(code: Int?) {
-        _errorEvent.emit(ErrorEvent.Error(ErrorCodeMapper.fromCode(code)))
+        val reason = errorCodeMapper.fromCode(code)
+        val messageRes = when (reason) {
+            ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_authorization
+            ErrorEvent.FailureReason.Server -> R.string.error_server
+            ErrorEvent.FailureReason.Network -> R.string.error_network
+            else -> R.string.error_unknown
+        }
+        _errorEvent.emit(ErrorEvent.MessageOnly(messageRes))
     }
 
     fun navigateToRegistration() {

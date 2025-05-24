@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import ru.itis.travelling.data.network.model.ResultWrapper
-import ru.itis.travelling.domain.util.ErrorHandler
+import ru.itis.travelling.data.util.ErrorHandler
 import java.io.IOException
 import javax.inject.Inject
 

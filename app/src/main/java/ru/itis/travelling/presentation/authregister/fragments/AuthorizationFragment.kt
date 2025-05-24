@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -64,7 +65,8 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewModel.errorEvent
             .onEach { event ->
                 when (event) {
-                    is ErrorEvent.Error -> showToast(event.reason)
+                    is ErrorEvent.MessageOnly -> showToast(event.messageRes)
+                    else -> {}
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -101,19 +103,8 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewBinding.textInputLayoutPassword.setupPasswordToggle()
     }
 
-    private fun showToast(reason: ErrorEvent.FailureReason) {
-        val message = when (reason) {
-            ErrorEvent.FailureReason.Unauthorized ->
-                getString(R.string.error_unauthorized_authorization)
-            ErrorEvent.FailureReason.Server ->
-                getString(R.string.error_server)
-            ErrorEvent.FailureReason.Network ->
-                getString(R.string.error_network)
-            ErrorEvent.FailureReason.Unknown ->
-                getString(R.string.error_unknown)
-            else -> getString(R.string.error_unknown)
-        }
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    private fun showToast(@StringRes messageRes: Int) {
+        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_LONG).show()
     }
 
     companion object {

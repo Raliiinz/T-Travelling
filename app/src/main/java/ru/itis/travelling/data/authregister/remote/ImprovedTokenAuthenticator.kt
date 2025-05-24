@@ -11,7 +11,6 @@ import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
 
-
 class ImprovedTokenAuthenticator @Inject constructor(
     private val mutex: Mutex,
     private val tokenStorage: TokenStorage,

@@ -1,4 +1,4 @@
-package ru.itis.travelling.domain.util
+package ru.itis.travelling.data.util
 
 import retrofit2.HttpException
 import javax.inject.Inject
