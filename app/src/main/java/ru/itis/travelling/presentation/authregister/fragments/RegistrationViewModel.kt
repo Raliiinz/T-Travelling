@@ -10,7 +10,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.travelling.data.network.model.ResultWrapper
+import ru.itis.travelling.domain.authregister.model.User
 import ru.itis.travelling.domain.authregister.usecase.RegisterUseCase
+import ru.itis.travelling.domain.util.ErrorCodeMapper
+import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.authregister.state.RegistrationUiState
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.FieldState
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
@@ -23,6 +28,8 @@ class RegistrationViewModel @Inject constructor(
     val navigator: Navigator
 ) : ViewModel() {
 
+    private var firstNameTouched = false
+    private var lastNameTouched = false
     private var phoneTouched = false
     private var passwordTouched = false
     private var confirmPasswordTouched = false
@@ -30,6 +37,12 @@ class RegistrationViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<RegistrationUiState>(RegistrationUiState.Idle)
     val uiState: StateFlow<RegistrationUiState> = _uiState
+
+    private val _firstNameState = MutableStateFlow(FieldState.empty())
+    val firstNameState: StateFlow<FieldState> = _firstNameState
+
+    private val _lastNameState = MutableStateFlow(FieldState.empty())
+    val lastNameState: StateFlow<FieldState> = _lastNameState
 
     private val _phoneState = MutableStateFlow(FieldState.empty())
     val phoneState: StateFlow<FieldState> = _phoneState
@@ -40,8 +53,28 @@ class RegistrationViewModel @Inject constructor(
     private val _confirmPasswordState = MutableStateFlow(FieldState.empty())
     val confirmPasswordState: StateFlow<FieldState> = _confirmPasswordState
 
-    private val _events = MutableSharedFlow<RegistrationEvent>()
-    val events: SharedFlow<RegistrationEvent> = _events
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
+
+    fun onFirstNameChanged(firstName: String) {
+        firstNameTouched = true
+        val isValid = firstName.isNotBlank()
+        _firstNameState.value = FieldState(
+            value = firstName,
+            isValid = isValid,
+            shouldShowError = (firstNameTouched || submitAttempted) && !isValid
+        )
+    }
+
+    fun onLastNameChanged(lastName: String) {
+        lastNameTouched = true
+        val isValid = lastName.isNotBlank()
+        _lastNameState.value = FieldState(
+            value = lastName,
+            isValid = isValid,
+            shouldShowError = (lastNameTouched || submitAttempted) && !isValid
+        )
+    }
 
     fun onPhoneChanged(rawPhone: String) {
         phoneTouched = true
@@ -90,17 +123,19 @@ class RegistrationViewModel @Inject constructor(
     fun register() {
         submitAttempted = true
 
-        _phoneState.update {
-            it.copy(shouldShowError = !it.isValid)
-        }
-        _passwordState.update {
-            it.copy(shouldShowError = !it.isValid)
-        }
-        _confirmPasswordState.update {
-            it.copy(shouldShowError = !it.isValid)
+        listOf(
+            _firstNameState,
+            _lastNameState,
+            _phoneState,
+            _passwordState,
+            _confirmPasswordState
+        ).forEach { state ->
+            state.update { it.copy(shouldShowError = !it.isValid) }
         }
 
-        if (!_phoneState.value.isValid ||
+        if (!_firstNameState.value.isValid ||
+            !_lastNameState.value.isValid ||
+            !_phoneState.value.isValid ||
             !_passwordState.value.isValid ||
             !_confirmPasswordState.value.isValid) {
             return
@@ -108,46 +143,39 @@ class RegistrationViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { RegistrationUiState.Loading }
-            try {
-                val isSuccess = registerUseCase(
-                    PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value),
-                    _passwordState.value.value
-                )
-                if (isSuccess) {
+
+            val user = User(
+                phoneNumber = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value),
+                firstName = _firstNameState.value.value,
+                lastName = _lastNameState.value.value,
+                password = _passwordState.value.value,
+                confirmPassword = _confirmPasswordState.value.value
+            )
+
+            when (val result = registerUseCase(user)) {
+                is ResultWrapper.Success -> {
                     _uiState.update { RegistrationUiState.Success }
                     navigator.navigateToAuthorizationFragment()
                 }
-            } catch (e: Exception) {
-                val error = when (e.message) {
-                    "User with this phone number already exists" ->
-                        RegistrationError.UserAlreadyExists
-                    else -> RegistrationError.Unknown
+                is ResultWrapper.GenericError -> {
+                    handleRegistrationError(result.code)
                 }
-                _events.emit(RegistrationEvent.ShowError(error))
-            } finally {
-                _uiState.update { RegistrationUiState.Idle }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.Error(ErrorEvent.FailureReason.Network))
+                }
             }
+
+            _uiState.update { RegistrationUiState.Idle }
         }
+    }
+
+    private suspend fun handleRegistrationError(code: Int?) {
+        _errorEvent.emit(ErrorEvent.Error(ErrorCodeMapper.fromCode(code)))
     }
 
     fun navigateToAuthorization() {
         viewModelScope.launch {
             navigator.navigateToAuthorizationFragment()
         }
-    }
-
-    sealed class RegistrationUiState {
-        data object Idle : RegistrationUiState()
-        data object Loading : RegistrationUiState()
-        data object Success : RegistrationUiState()
-    }
-
-    sealed class RegistrationEvent {
-        data class ShowError(val error: RegistrationError) : RegistrationEvent()
-    }
-
-    enum class RegistrationError {
-        UserAlreadyExists,
-        Unknown
     }
 }

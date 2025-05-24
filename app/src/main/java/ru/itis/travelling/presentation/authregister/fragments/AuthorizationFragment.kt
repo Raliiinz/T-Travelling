@@ -13,9 +13,11 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentAuthorizationBinding
+import ru.itis.travelling.presentation.authregister.state.AuthorizationUiState
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.travelling.presentation.authregister.util.setupPasswordToggle
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 
 @AndroidEntryPoint
 class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
@@ -34,9 +36,9 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewModel.uiState
             .onEach { state ->
                 when (state) {
-                    AuthorizationViewModel.AuthorizationUiState.Loading -> showProgress()
-                    AuthorizationViewModel.AuthorizationUiState.Idle -> hideProgress()
-                    AuthorizationViewModel.AuthorizationUiState.Success -> hideProgress()
+                    AuthorizationUiState.Loading -> showProgress()
+                    AuthorizationUiState.Idle -> hideProgress()
+                    AuthorizationUiState.Success -> hideProgress()
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -59,12 +61,10 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.events
+        viewModel.errorEvent
             .onEach { event ->
                 when (event) {
-                    is AuthorizationViewModel.AuthorizationEvent.ShowError -> {
-                        showToast(event.message)
-                    }
+                    is ErrorEvent.Error -> showToast(event.reason)
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -101,7 +101,18 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
         viewBinding.textInputLayoutPassword.setupPasswordToggle()
     }
 
-    private fun showToast(message: String) {
+    private fun showToast(reason: ErrorEvent.FailureReason) {
+        val message = when (reason) {
+            ErrorEvent.FailureReason.Unauthorized ->
+                getString(R.string.error_unauthorized_authorization)
+            ErrorEvent.FailureReason.Server ->
+                getString(R.string.error_server)
+            ErrorEvent.FailureReason.Network ->
+                getString(R.string.error_network)
+            ErrorEvent.FailureReason.Unknown ->
+                getString(R.string.error_unknown)
+            else -> getString(R.string.error_unknown)
+        }
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
     }
 

@@ -5,9 +5,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
+import ru.itis.travelling.domain.util.ErrorCodeMapper
+import ru.itis.travelling.presentation.authregister.state.AuthorizationUiState
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.common.state.FieldState
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
@@ -32,8 +36,8 @@ class AuthorizationViewModel @Inject constructor(
     private val _passwordState = MutableStateFlow(FieldState.empty())
     val passwordState: StateFlow<FieldState> = _passwordState
 
-    private val _events = MutableSharedFlow<AuthorizationEvent>()
-    val events: SharedFlow<AuthorizationEvent> = _events
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
 
     fun onPhoneChanged(rawPhone: String) {
         phoneTouched = true
@@ -73,40 +77,35 @@ class AuthorizationViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
             _uiState.update { AuthorizationUiState.Loading }
-            try {
-                val isSuccess = loginUseCase(
-                    normalizedPhone,
-                    _passwordState.value.value
-                )
-                if (isSuccess) {
+
+            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(_phoneState.value.value)
+            val result = loginUseCase(normalizedPhone, _passwordState.value.value)
+
+            when (result) {
+                is ResultWrapper.Success -> {
                     userPreferencesRepository.saveLoginState(true, normalizedPhone)
                     navigator.navigateToTripsFragment(normalizedPhone)
-                } else {
-                    _events.emit(AuthorizationEvent.ShowError("Неверный номер телефона или пароль"))
                 }
-            } catch (e: Exception) {
-                _events.emit(AuthorizationEvent.ShowError(e.message ?: "Ошибка"))
-            } finally {
-                _uiState.update { AuthorizationUiState.Idle }
+                is ResultWrapper.GenericError -> {
+                    handleRegistrationError(result.code)
+                }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.Error(ErrorEvent.FailureReason.Network))
+                }
             }
+
+            _uiState.update { AuthorizationUiState.Idle }
         }
+    }
+
+    private suspend fun handleRegistrationError(code: Int?) {
+        _errorEvent.emit(ErrorEvent.Error(ErrorCodeMapper.fromCode(code)))
     }
 
     fun navigateToRegistration() {
         viewModelScope.launch {
             navigator.navigateToRegistrationFragment()
         }
-    }
-
-    sealed class AuthorizationUiState {
-        data object Idle : AuthorizationUiState()
-        data object Loading : AuthorizationUiState()
-        data object Success : AuthorizationUiState()
-    }
-
-    sealed class AuthorizationEvent {
-        data class ShowError(val message: String) : AuthorizationEvent()
     }
 }

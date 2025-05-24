@@ -1,9 +1,9 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentRegistrationBinding
+import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.authregister.state.RegistrationUiState
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.authregister.util.hideKeyboard
 import ru.itis.travelling.presentation.authregister.util.setupPasswordToggle
@@ -37,6 +39,14 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
     }
 
     private fun setupListeners() {
+        viewBinding.etFirstName.doOnTextChanged { text, _, _, _ ->
+            viewModel.onFirstNameChanged(text.toString())
+        }
+
+        viewBinding.etLastName.doOnTextChanged { text, _, _, _ ->
+            viewModel.onLastNameChanged(text.toString())
+        }
+
         viewBinding.etPhone.doOnTextChanged { text, _, _, _ ->
             viewModel.onPhoneChanged(text.toString())
         }
@@ -71,11 +81,25 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
         viewModel.uiState
             .onEach { state ->
                 when (state) {
-                    RegistrationViewModel.RegistrationUiState.Loading -> showProgress()
-                    RegistrationViewModel.RegistrationUiState.Idle -> hideProgress()
-                    RegistrationViewModel.RegistrationUiState.Success -> hideProgress()
+                    RegistrationUiState.Loading -> showProgress()
+                    RegistrationUiState.Idle -> hideProgress()
+                    RegistrationUiState.Success -> hideProgress()
 
                 }
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        viewModel.firstNameState
+            .onEach { state ->
+                viewBinding.textInputLayoutFirstName.error =
+                    if (state.shouldShowError) getString(R.string.error_first_name_empty) else null
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        viewModel.lastNameState
+            .onEach { state ->
+                viewBinding.textInputLayoutLastName.error =
+                    if (state.shouldShowError) getString(R.string.error_last_name_empty) else null
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
@@ -104,27 +128,35 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
-        viewModel.events
+        viewModel.errorEvent
             .onEach { event ->
                 when (event) {
-                    is RegistrationViewModel.RegistrationEvent.ShowError -> {
-                        handleErrors(event.error)
+                    is ErrorEvent.Error -> {
+                        showErrorDialog(event.reason)
                     }
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    private fun handleErrors(error: RegistrationViewModel.RegistrationError) {
-        val message = when (error) {
-            RegistrationViewModel.RegistrationError.UserAlreadyExists -> R.string.error_user_already_exists
-            RegistrationViewModel.RegistrationError.Unknown -> R.string.error_unknown
+    private fun showErrorDialog(reason: ErrorEvent.FailureReason) {
+        val (titleRes, messageRes) = when (reason) {
+            ErrorEvent.FailureReason.BadRequest ->
+                Pair(R.string.error_title_validation_registration, R.string.error_bad_request_registration)
+            ErrorEvent.FailureReason.Server ->
+                Pair(R.string.error_title_server, R.string.error_server)
+            ErrorEvent.FailureReason.Network ->
+                Pair(R.string.error_title_network, R.string.error_network)
+            ErrorEvent.FailureReason.Unknown ->
+                Pair(R.string.error_title_unknown, R.string.error_unknown)
+            else -> Pair(R.string.error_title_unknown, R.string.error_unknown)
         }
-        showToast(getString(message))
-    }
 
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(titleRes))
+            .setMessage(getString(messageRes))
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     companion object {

@@ -77,11 +77,13 @@ dependencies {
     // DataStore Preferences
     implementation(libs.datastore.preferences)
 
-    // для использования с корутинами
     implementation(libs.coroutines.core)
     implementation(libs.coroutines.android)
     // Network
     implementation(libs.bundles.network.deps)
+
+    //EncryptedSharedPreferences
+    implementation(libs.security.crypto)
 
 }
 
