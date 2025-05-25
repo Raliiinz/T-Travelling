@@ -104,6 +104,6 @@
     <string name="error_server">Пожалуйста, повторите попытку позже.</string>
     <string name="error_network">Нет подключения к Интернету.</string>
     <string name="error_bad_request_add">Неверные данные. Проверьте ввод и попробуйте снова.</string>
-    <string name="error_unauthorized_add">Вы не авторизованы. Войдите в аккаунт и попробуйте снова.</string>
+    <string name="error_unauthorized_trip">Вы не авторизованы. Войдите в аккаунт и попробуйте снова.</string>
 
 </resources>

@@ -4,8 +4,10 @@ import retrofit2.HttpException
 import ru.itis.travelling.data.network.ApiHelper
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.data.trips.mapper.TripDetailsMapper
+import ru.itis.travelling.data.trips.mapper.TripMapper
 import ru.itis.travelling.data.trips.remote.api.TripApi
 import ru.itis.travelling.domain.trips.model.Participant
+import ru.itis.travelling.domain.trips.model.Trip
 import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.repository.TripRepository
 import javax.inject.Inject
@@ -13,7 +15,8 @@ import javax.inject.Inject
 class TripRepositoryImpl @Inject constructor(
     private val tripApi: TripApi,
     private val apiHelper: ApiHelper,
-    private val tripMapper: TripDetailsMapper
+    private val tripMapper: TripMapper,
+    private val tripDetailsMapper: TripDetailsMapper
 ) : TripRepository {
 
     // Временное хранилище для демонстрации работы
@@ -48,9 +51,23 @@ class TripRepositoryImpl @Inject constructor(
         )
     )
 
-    override suspend fun getTripsByPhone(phoneNumber: String): List<TripDetails> {
-        return mockTrips.filter { trip ->
-            trip.admin.phone == phoneNumber || trip.participants.any { it.phone == phoneNumber }
+//    override suspend fun getTripsByPhone(phoneNumber: String): List<TripDetails> {
+//        return mockTrips.filter { trip ->
+//            trip.admin.phone == phoneNumber || trip.participants.any { it.phone == phoneNumber }
+//        }
+//    }
+
+
+
+    override suspend fun getActiveTrips(): ResultWrapper<List<Trip>> {
+        return apiHelper.safeApiCall {
+            val response = tripApi.getActiveTrips()
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+            response.body()?.map { tripResponse ->
+                tripMapper.mapToDomain(tripResponse)
+            } ?: throw IllegalStateException("Response body is null")
         }
     }
 
@@ -115,14 +132,14 @@ class TripRepositoryImpl @Inject constructor(
 
     override suspend fun createTrip(trip: TripDetails): ResultWrapper<TripDetails> {
         return apiHelper.safeApiCall {
-            val request = tripMapper.mapToRequest(trip)
+            val request = tripDetailsMapper.mapToRequest(trip)
             val response = tripApi.createTravel(request)
 
             if (!response.isSuccessful) {
                 throw HttpException(response)
             }
 
-            response.body()?.let { tripMapper.mapFromResponse(it) }
+            response.body()?.let { tripDetailsMapper.mapFromResponse(it) }
                 ?: throw IllegalStateException("Empty response body")
         }
     }

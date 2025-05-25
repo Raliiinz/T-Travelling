@@ -255,7 +255,7 @@ class AddTripViewModel @Inject constructor(
         val reason = errorCodeMapper.fromCode(code)
         val messageRes = when (reason) {
             ErrorEvent.FailureReason.BadRequest -> R.string.error_bad_request_add
-            ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_add
+            ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_trip
             ErrorEvent.FailureReason.Server -> R.string.error_server
             ErrorEvent.FailureReason.Network -> R.string.error_network
             else -> R.string.error_unknown

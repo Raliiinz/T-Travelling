@@ -3,6 +3,7 @@ package ru.itis.travelling.presentation.trips.fragments.overview
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentTripsBinding
 import ru.itis.travelling.presentation.base.BaseFragment
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.trips.list.TripAdapter
 
 @AndroidEntryPoint
@@ -31,7 +33,7 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         observeViewModel()
-        viewModel.loadTrips(phoneNumber)
+        viewModel.loadTrips()
     }
 
     private fun setupRecyclerView() {
@@ -57,12 +59,12 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
                     }
                 }
             }
-            viewModel.events
+
+            viewModel.errorEvent
                 .onEach { event ->
                     when (event) {
-                        is TripsViewModel.TripsEvent.Error -> {
-                            showError(event.message)
-                        }
+                        is ErrorEvent.MessageOnly -> showToast(event.messageRes)
+                        else -> {}
                     }
                 }
                 .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -81,8 +83,8 @@ class TripsFragment: BaseFragment(R.layout.fragment_trips) {
         viewBinding.rvTrips.visibility = View.VISIBLE
     }
 
-    private fun showError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    private fun showToast(@StringRes messageRes: Int) {
+        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_LONG).show()
     }
 
     companion object {

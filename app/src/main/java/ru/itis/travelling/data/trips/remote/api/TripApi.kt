@@ -15,5 +15,5 @@ interface TripApi {
     ): Response<TripDetailsResponse>
 
     @GET("api/v1/travels/active")
-    suspend fun getActiveTravels(): Response<List<TripResponse>>
+    suspend fun getActiveTrips(): Response<List<TripResponse>>
 }

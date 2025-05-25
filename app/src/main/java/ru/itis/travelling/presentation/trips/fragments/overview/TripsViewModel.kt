@@ -10,9 +10,14 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.itis.travelling.domain.trips.model.TripDetails
-import ru.itis.travelling.domain.trips.usecase.GetTripsByPhoneUseCase
+import ru.itis.travelling.R
+import ru.itis.travelling.data.network.model.ResultWrapper
+import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.usecase.GetActiveTripsUseCase
+import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.trips.fragments.add.AddTripViewModel.AddTripUiState
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import javax.inject.Inject
@@ -20,34 +25,54 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TripsViewModel @Inject constructor(
-    private val getTripsByPhoneUseCase: GetTripsByPhoneUseCase,
+    private val getActiveTripsUseCase: GetActiveTripsUseCase,
+    private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
 
     private val _tripsState = MutableStateFlow<TripsState>(TripsState.Loading)
     val tripsState: StateFlow<TripsState> = _tripsState
 
-    private val _events = MutableSharedFlow<TripsEvent>()
-    val events: SharedFlow<TripsEvent> = _events
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
 
-    fun loadTrips(phoneNumber: String) {
+    fun loadTrips() {
         viewModelScope.launch {
             _tripsState.update { TripsState.Loading }
             delay(2000)
-            try {
-                val trips = getTripsByPhoneUseCase.invoke(phoneNumber)
-                    .map { trip ->
+            when (val result = getActiveTripsUseCase()) {
+                is ResultWrapper.Success -> {
+                    val trips = result.value.map { trip ->
                         trip.copy(
-                            price = FormatUtils.formatPriceWithThousands(trip.price),
+                            price = FormatUtils.formatPriceWithThousands(trip.price.toString()),
                             startDate = DateUtils.formatDateForDisplay(trip.startDate),
                             endDate = DateUtils.formatDateForDisplay(trip.endDate)
                         )
                     }
-                _tripsState.update { TripsState.Success(trips) }
-            } catch (e: Exception) {
-                _events.emit(TripsEvent.Error(e.message ?: "Unknown error"))
+                    _tripsState.update { TripsState.Success(trips) }
+                }
+
+                is ResultWrapper.GenericError -> {
+                    handleTripError(result.code)
+                }
+
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                }
             }
+            _tripsState.update { TripsState.Idle }
         }
+    }
+
+    private suspend fun handleTripError(code: Int?) {
+        val reason = errorCodeMapper.fromCode(code)
+        val messageRes = when (reason) {
+            ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_trip
+            ErrorEvent.FailureReason.Server -> R.string.error_server
+            ErrorEvent.FailureReason.Network -> R.string.error_network
+            else -> R.string.error_unknown
+        }
+        _errorEvent.emit(ErrorEvent.MessageOnly(messageRes))
     }
 
     fun onTripClicked(tripId: String, phoneNumber: String) {
@@ -57,10 +82,7 @@ class TripsViewModel @Inject constructor(
     sealed class TripsState {
         object Idle : TripsState()
         object Loading : TripsState()
-        data class Success(val trips: List<TripDetails>) : TripsState()
+        data class Success(val trips: List<Trip>) : TripsState()
     }
 
-    sealed class TripsEvent {
-        data class Error(val message: String) : TripsEvent()
-    }
 }
