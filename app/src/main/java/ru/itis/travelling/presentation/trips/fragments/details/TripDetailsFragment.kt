@@ -12,7 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentTripDetailsBinding
-import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
 import ru.itis.travelling.presentation.trips.util.DateUtils
@@ -100,7 +100,7 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         }
     }
 
-    private fun updateUi(trip: Trip) {
+    private fun updateUi(trip: TripDetails) {
         with(viewBinding) {
             tvDestination.text = trip.destination
             val startDate = DateUtils.formatDateForDisplay(trip.startDate)

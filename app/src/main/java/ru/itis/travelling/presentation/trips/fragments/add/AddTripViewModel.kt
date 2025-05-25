@@ -12,14 +12,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.travelling.R
+import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.contacts.model.Contact
 import ru.itis.travelling.domain.trips.model.Participant
-import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.CreateTripUseCase
 import ru.itis.travelling.domain.contacts.usecase.GetContactsUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.UpdateTripUseCase
+import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.DateUtils.toLocalDate
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
@@ -33,6 +37,7 @@ class AddTripViewModel @Inject constructor(
     private val getContactsUseCase: GetContactsUseCase,
     private val getTripDetailsUseCase: GetTripDetailsUseCase,
     private val updateTripUseCase: UpdateTripUseCase,
+    private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
 
@@ -67,6 +72,9 @@ class AddTripViewModel @Inject constructor(
 
     private val _events = MutableSharedFlow<AddTripEvent>()
     val events: SharedFlow<AddTripEvent> = _events
+
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
 
     init {
         viewModelScope.launch {
@@ -193,39 +201,44 @@ class AddTripViewModel @Inject constructor(
 
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
-            delay(2000)
 
-            runCatching {
-                val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+            val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(phoneNumber)
+            val trip = TripDetails(
+                id = tripId ?: "",
+                destination = title.trim(),
+                startDate = _datesState.value.first.toString(),
+                endDate = _datesState.value.second.toString(),
+                price = (cost.toDoubleOrNull() ?: 0.0).toString(),
+                admin = Participant(phone = normalizedPhone),
+                participants = _fullParticipants.value
+                    .filterNot { it.phone == normalizedPhone }
+                    .map { it.copy(phone = PhoneNumberUtils.normalizePhoneNumber(it.phone)) }
+                    .toMutableList()
+            )
 
-                val trip = Trip(
-                    id = tripId ?: "",
-                    destination = title.trim(),
-                    startDate = _datesState.value.first.toString(),
-                    endDate = _datesState.value.second.toString(),
-                    price = (cost.toDoubleOrNull() ?: 0.0).toString(),
-                    admin = Participant(phone = normalizedPhone),
-                    participants = _fullParticipants.value
-                        .filterNot { it.phone == normalizedPhone }
-                        .map { it.copy(phone = PhoneNumberUtils.normalizePhoneNumber(it.phone)) }
-                        .toMutableList()
-                )
-
-                if (tripId == null) {
-                    createTripUseCase.invoke(trip)
-                } else {
-                    updateTripUseCase.invoke(trip)
-                }
-                trip to (tripId == null)
-            }.onSuccess { (trip, isNewTrip) ->
-                handleTripSaveSuccess(trip, isNewTrip)
-            }.onFailure { e ->
-                handleTripSaveError(e)
+            val result = if (tripId == null) {
+                createTripUseCase(trip)
+            } else {
+                updateTripUseCase(trip)
             }
+
+            when (result) {
+                is ResultWrapper.Success<*> -> {
+                    handleTripSaveSuccess(trip, isNewTrip = tripId == null)
+                }
+                is ResultWrapper.GenericError -> {
+                    handleTripError(result.code)
+                }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                }
+            }
+
+            _uiState.update { AddTripUiState.Idle }
         }
     }
 
-    private fun handleTripSaveSuccess(trip: Trip, isNewTrip: Boolean) {
+    private fun handleTripSaveSuccess(trip: TripDetails, isNewTrip: Boolean) {
         viewModelScope.launch {
             clearFormState()
             _uiState.update { AddTripUiState.Success }
@@ -238,13 +251,16 @@ class AddTripViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleTripSaveError(e: Throwable) {
-        val message = if (e is ValidationException) {
-            e.message ?: "Validation error"
-        } else {
-            e.message ?: "Failed to save trip"
+    private suspend fun handleTripError(code: Int?) {
+        val reason = errorCodeMapper.fromCode(code)
+        val messageRes = when (reason) {
+            ErrorEvent.FailureReason.BadRequest -> R.string.error_bad_request_add
+            ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_add
+            ErrorEvent.FailureReason.Server -> R.string.error_server
+            ErrorEvent.FailureReason.Network -> R.string.error_network
+            else -> R.string.error_unknown
         }
-        _events.emit(AddTripEvent.Error(message))
+        _errorEvent.emit(ErrorEvent.MessageOnly(messageRes))
     }
 
     private fun clearFormState() {
@@ -272,8 +288,6 @@ class AddTripViewModel @Inject constructor(
             navigator.navigateToTripDetailsFragment(tripId, phoneNumber)
         }
     }
-
-    class ValidationException(message: String) : Exception(message)
 
     sealed class AddTripUiState {
         data object Idle : AddTripUiState()

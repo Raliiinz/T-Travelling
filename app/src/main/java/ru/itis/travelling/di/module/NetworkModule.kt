@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -14,6 +15,7 @@ import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
 import ru.itis.travelling.data.authregister.remote.interceptor.UnlockingInterceptor
 import ru.itis.travelling.data.authregister.remote.interceptor.UuidInterceptor
+import ru.itis.travelling.data.trips.remote.api.TripApi
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
 import javax.inject.Named
@@ -42,12 +44,56 @@ object NetworkModule {
     @Named("authOkHttpClient")
     fun provideAuthOkHttpClient(
         tokenAuthenticator: ImprovedTokenAuthenticator,
-        unlockingInterceptor: UnlockingInterceptor
+        unlockingInterceptor: UnlockingInterceptor,
+        tokenStorage: TokenStorage
     ): OkHttpClient {
         return providePublicOkHttpClient().newBuilder()
             .authenticator(tokenAuthenticator)
             .addInterceptor(unlockingInterceptor)
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val builder = original.newBuilder()
+
+                runBlocking {
+                    val accessToken = tokenStorage.getAccessToken()
+                    if (!accessToken.isNullOrBlank()) {
+                        builder.header("Authorization", "Bearer $accessToken")
+                    }
+                }
+
+                chain.proceed(builder.build())
+            }
             .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("refreshOkHttpClient")
+    fun provideRefreshOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(UuidInterceptor()) // можно добавить uuid, но никаких auth
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("refreshRetrofit")
+    fun provideRefreshRetrofit(
+        @Named("refreshOkHttpClient") okHttpClient: OkHttpClient,
+        converterFactory: GsonConverterFactory
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(API_URL)
+            .client(okHttpClient)
+            .addConverterFactory(converterFactory)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("refreshAuthApi")
+    fun provideRefreshAuthApi(@Named("refreshRetrofit") retrofit: Retrofit): AuthApi {
+        return retrofit.create(AuthApi::class.java)
     }
 
     @Provides
@@ -83,11 +129,11 @@ object NetworkModule {
         return retrofit.create(RegisterApi::class.java)
     }
 
-    @Provides
-    @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi {
-        return retrofit.create(AuthApi::class.java)
-    }
+//    @Provides
+//    @Singleton
+//    fun provideAuthApi(retrofit: Retrofit): AuthApi {
+//        return retrofit.create(AuthApi::class.java)
+//    }
 
 
     @Provides
@@ -118,12 +164,10 @@ object NetworkModule {
         return UnlockingInterceptor(mutex)
     }
 
-// для внутренних запросов
-
-//    @Provides
-//    @Singleton
-//    fun provideSecureApi(@Named("authRetrofit") retrofit: Retrofit): SecureApi {
-//        return retrofit.create(SecureApi::class.java)
-//    }
+    @Provides
+    @Singleton
+    fun provideTripApi(@Named("authRetrofit") retrofit: Retrofit): TripApi {
+        return retrofit.create(TripApi::class.java)
+    }
 
 }

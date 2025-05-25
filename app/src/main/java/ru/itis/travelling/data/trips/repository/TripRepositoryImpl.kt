@@ -1,19 +1,24 @@
 package ru.itis.travelling.data.trips.repository
 
+import retrofit2.HttpException
+import ru.itis.travelling.data.network.ApiHelper
+import ru.itis.travelling.data.network.model.ResultWrapper
+import ru.itis.travelling.data.trips.mapper.TripDetailsMapper
+import ru.itis.travelling.data.trips.remote.api.TripApi
 import ru.itis.travelling.domain.trips.model.Participant
-import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.repository.TripRepository
-import ru.itis.travelling.presentation.trips.util.FormatUtils
 import javax.inject.Inject
 
 class TripRepositoryImpl @Inject constructor(
-//    TODO("Api")
-//    private val tripApi: TripApi,
+    private val tripApi: TripApi,
+    private val apiHelper: ApiHelper,
+    private val tripMapper: TripDetailsMapper
 ) : TripRepository {
 
     // Временное хранилище для демонстрации работы
     private val mockTrips = mutableListOf(
-        Trip(
+        TripDetails(
             id = "1",
             destination = "Сочи",
             startDate = "12.12.2025",
@@ -26,7 +31,7 @@ class TripRepositoryImpl @Inject constructor(
                 Participant("89374486464")
             )
         ),
-        Trip(
+        TripDetails(
             id = "2",
             destination = "Москва",
             startDate = "12.12.2026",
@@ -43,13 +48,13 @@ class TripRepositoryImpl @Inject constructor(
         )
     )
 
-    override suspend fun getTripsByPhone(phoneNumber: String): List<Trip> {
+    override suspend fun getTripsByPhone(phoneNumber: String): List<TripDetails> {
         return mockTrips.filter { trip ->
             trip.admin.phone == phoneNumber || trip.participants.any { it.phone == phoneNumber }
         }
     }
 
-    override suspend fun getTripDetails(tripId: String): Trip? {
+    override suspend fun getTripDetails(tripId: String): TripDetails? {
         return mockTrips.find { it.id == tripId }
     }
 
@@ -68,17 +73,17 @@ class TripRepositoryImpl @Inject constructor(
         return mockTrips.removeAll { it.id == tripId }
     }
 
-    override suspend fun createTrip(trip: Trip) {
-        //TODO
-//        api.createTrip(trip)
-        val newId = (mockTrips.maxOfOrNull { it.id.toInt() }?.plus(1) ?: 1).toString()
+//    override suspend fun createTrip(trip: Trip) {
+//        //TODO
+////        api.createTrip(trip)
+//        val newId = (mockTrips.maxOfOrNull { it.id.toInt() }?.plus(1) ?: 1).toString()
+//
+//        val newTrip = trip.copy(id = newId)
+//
+//        mockTrips.add(newTrip)
+//    }
 
-        val newTrip = trip.copy(id = newId)
-
-        mockTrips.add(newTrip)
-    }
-
-    override suspend fun updateTrip(trip: Trip) {
+    override suspend fun updateTrip(trip: TripDetails) {
         //TODO
         val index = mockTrips.indexOfFirst { it.id == trip.id }
 
@@ -89,4 +94,40 @@ class TripRepositoryImpl @Inject constructor(
             throw NoSuchElementException("Trip with id ${trip.id} not found")
         }
     }
+//    override suspend fun getTripsByPhone(phoneNumber: String): List<Trip> {
+//        TODO("Not yet implemented")
+//    }
+
+//    override suspend fun getTripDetails(tripId: String): Trip? {
+//        TODO("Not yet implemented")
+//    }
+//
+//    override suspend fun leaveTrip(
+//        tripId: String,
+//        userPhone: String
+//    ): Boolean {
+//        TODO("Not yet implemented")
+//    }
+//
+//    override suspend fun deleteTrip(tripId: String): Boolean {
+//        //TODO("Not yet implemented")
+//    }
+
+    override suspend fun createTrip(trip: TripDetails): ResultWrapper<TripDetails> {
+        return apiHelper.safeApiCall {
+            val request = tripMapper.mapToRequest(trip)
+            val response = tripApi.createTravel(request)
+
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+
+            response.body()?.let { tripMapper.mapFromResponse(it) }
+                ?: throw IllegalStateException("Empty response body")
+        }
+    }
+
+//    override suspend fun updateTrip(trip: Trip) {
+//        //TODO("Not yet implemented")
+//    }
 }

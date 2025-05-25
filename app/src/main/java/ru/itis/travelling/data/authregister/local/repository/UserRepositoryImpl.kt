@@ -1,5 +1,6 @@
 package ru.itis.travelling.data.authregister.local.repository
 
+import android.util.Log
 import retrofit2.HttpException
 import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
@@ -12,10 +13,12 @@ import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
 import javax.inject.Inject
+import javax.inject.Named
 
 class UserRepositoryImpl @Inject constructor(
     private val registerApi: RegisterApi,
-    private val authApi: AuthApi,
+//    @Named("authApi")  private val authApi: AuthApi,
+    @Named("refreshAuthApi") private val authApi: AuthApi, // 👈
     private val apiHelper: ApiHelper,
     private val tokenStorage: TokenStorage
 ) : UserRepository {
@@ -56,6 +59,7 @@ class UserRepositoryImpl @Inject constructor(
             }
 
             response.body()?.let { tokens ->
+                println(tokens.accessToken +" " + tokens.refreshToken)
                 tokenStorage.saveTokens(
                     accessToken = tokens.accessToken,
                     refreshToken = tokens.refreshToken,
@@ -66,12 +70,22 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshTokens(refreshToken: String): ResultWrapper<TokensResponse> {
-        return apiHelper.safeApiCall {
-            val response = authApi.refreshTokens(RefreshTokenRequest(refreshToken))
+//        return apiHelper.safeApiCall {
+//            val response = authApi.refreshTokens(RefreshTokenRequest(refreshToken))
+//            if (!response.isSuccessful) {
+//                throw HttpException(response)
+//            }
+//            response.body() ?: throw IllegalStateException("Empty response body")
+//        }
+
+        return try {
+            val response = authApi.refreshTokens(refreshToken)
             if (!response.isSuccessful) {
                 throw HttpException(response)
             }
-            response.body() ?: throw IllegalStateException("Empty response body")
+            ResultWrapper.Success(response.body() ?: throw IllegalStateException("Empty response body"))
+        } catch (e: Throwable) {
+            ResultWrapper.GenericError((e as? HttpException)?.code(), e.message)
         }
     }
 

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.travelling.domain.trips.model.Participant
-import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.DeleteTripUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.LeaveTripUseCase
@@ -122,7 +122,7 @@ class TripDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun checkAdminStatus(userPhone: String, trip: Trip): Boolean {
+    private fun checkAdminStatus(userPhone: String, trip: TripDetails): Boolean {
         return trip.admin.phone == userPhone
     }
 
@@ -132,7 +132,7 @@ class TripDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun prepareParticipantsList(trip: Trip): MutableList<Participant> {
+    private fun prepareParticipantsList(trip: TripDetails): MutableList<Participant> {
         val allParticipants = mutableListOf<Participant>()
 
         val formattedAdmin = trip.admin.copy(
@@ -152,7 +152,7 @@ class TripDetailsViewModel @Inject constructor(
 
     sealed class TripDetailsState {
         object Loading : TripDetailsState()
-        data class Success(val trip: Trip) : TripDetailsState()
+        data class Success(val trip: TripDetails) : TripDetailsState()
     }
 
     sealed class TripDetailsEvent {

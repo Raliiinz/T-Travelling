@@ -6,4 +6,5 @@ interface TokenStorage {
     suspend fun getRefreshToken(): String?
     suspend fun isAccessTokenExpired(): Boolean
     suspend fun clearTokens()
+    suspend fun hasRefreshToken(): Boolean
 }

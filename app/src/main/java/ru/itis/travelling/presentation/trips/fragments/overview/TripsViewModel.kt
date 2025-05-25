@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.GetTripsByPhoneUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.trips.util.DateUtils
@@ -57,7 +57,7 @@ class TripsViewModel @Inject constructor(
     sealed class TripsState {
         object Idle : TripsState()
         object Loading : TripsState()
-        data class Success(val trips: List<Trip>) : TripsState()
+        data class Success(val trips: List<TripDetails>) : TripsState()
     }
 
     sealed class TripsEvent {
