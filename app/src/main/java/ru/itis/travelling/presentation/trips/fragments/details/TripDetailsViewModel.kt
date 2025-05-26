@@ -10,12 +10,16 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.itis.travelling.R
+import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.trips.model.Participant
 import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.DeleteTripUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.LeaveTripUseCase
+import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
@@ -26,6 +30,7 @@ class TripDetailsViewModel @Inject constructor(
     private val getTripDetailsUseCase: GetTripDetailsUseCase,
     private val leaveTripUseCase: LeaveTripUseCase,
     private val deleteTripUseCase: DeleteTripUseCase,
+    private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
 
@@ -35,25 +40,34 @@ class TripDetailsViewModel @Inject constructor(
     private val _events = MutableSharedFlow< TripDetailsEvent>()
     val events: SharedFlow<TripDetailsEvent> = _events
 
+    private val _errorEvent = MutableSharedFlow<ErrorEvent>()
+    val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
+
     fun loadTripDetails(tripId: String) {
         viewModelScope.launch {
             _tripState.update { TripDetailsState.Loading }
-            try {
-                val trip = getTripDetailsUseCase(tripId)
-                val formattedTrip = trip?.copy(
-                    price = FormatUtils.formatPriceWithThousands(trip.price),
-                    startDate = DateUtils.formatDateForDisplay(trip.startDate),
-                    endDate = DateUtils.formatDateForDisplay(trip.endDate),
-                    participants = prepareParticipantsList(trip)
-                )
-                if (formattedTrip != null) {
-                    delay(2000)
-                    _tripState.update { TripDetailsState.Success(formattedTrip) }
-                } else {
-                    _events.emit(TripDetailsEvent.Error("Поездка не найдена"))
+            delay(2000)
+            when (val result = getTripDetailsUseCase(tripId)) {
+                is ResultWrapper.Success -> {
+                    result.value.let { trip ->
+                        val formattedTrip = trip.copy(
+                            price = FormatUtils.formatPriceWithThousands(trip.price),
+                            startDate = DateUtils.formatDateForDisplay(trip.startDate),
+                            endDate = DateUtils.formatDateForDisplay(trip.endDate),
+                            participants = prepareParticipantsList(trip)
+                        )
+                        _tripState.update { TripDetailsState.Success(formattedTrip) }
+                    }
+
                 }
-            } catch (e: Exception) {
-                _events.emit(TripDetailsEvent.Error(e.message ?: "Не удалось загрузить информацию о поездке"))
+
+                is ResultWrapper.GenericError -> {
+                    handleTripError(result.code)
+                }
+
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                }
             }
         }
     }
@@ -90,18 +104,42 @@ class TripDetailsViewModel @Inject constructor(
         }
     }
 
-    fun confirmLeaveTrip(userPhone: String) {
+    fun confirmLeaveTrip() {
         viewModelScope.launch {
             when (val currentState = _tripState.value) {
                 is TripDetailsState.Success -> {
-                    try {
-                        leaveTripUseCase(currentState.trip.id, userPhone)
-                        _events.emit(TripDetailsEvent.NavigateToTrips)
-                    } catch (e: Exception) {
-                        _events.emit(TripDetailsEvent.Error(e.message ?: "Не удалось покинуть поездку"))
+                    when (val result = leaveTripUseCase(currentState.trip.id)) {
+                        is ResultWrapper.Success -> {
+                            _events.emit(TripDetailsEvent.NavigateToTrips)
+                        }
+
+                        is ResultWrapper.GenericError -> {
+                            handleTripError(result.code)
+                        }
+
+                        is ResultWrapper.NetworkError -> {
+                            _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                        }
                     }
                 }
                 else -> _events.emit(TripDetailsEvent.Error("Trip data not loaded"))
+            }
+        }
+    }
+
+    fun confirmDeleteTrip(tripId: String) {
+        viewModelScope.launch {
+            _tripState.update { TripDetailsState.Loading }
+            when (val result = deleteTripUseCase(tripId)) {
+                is ResultWrapper.Success -> {
+                    _events.emit(TripDetailsEvent.NavigateToTrips)
+                }
+                is ResultWrapper.GenericError -> {
+                    handleTripError(result.code)
+                }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                }
             }
         }
     }
@@ -110,12 +148,7 @@ class TripDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             when (val currentState = _tripState.value) {
                 is TripDetailsState.Success -> {
-                    try {
-                        deleteTripUseCase(currentState.trip.id)
-                        _events.emit(TripDetailsEvent.NavigateToTrips)
-                    } catch (e: Exception) {
-                        _events.emit(TripDetailsEvent.Error(e.message ?: "Не удалось удалить поездку"))
-                    }
+                    confirmDeleteTrip(currentState.trip.id)
                 }
                 else -> _events.emit(TripDetailsEvent.Error("Trip data not loaded"))
             }
@@ -148,6 +181,20 @@ class TripDetailsViewModel @Inject constructor(
         }
 
         return allParticipants
+    }
+
+    private suspend fun handleTripError(code: Int?) {
+        val reason = errorCodeMapper.fromCode(code)
+        val messageRes = when (reason) {
+            ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_trip
+            ErrorEvent.FailureReason.NotFound -> R.string.error_not_found_trip
+            ErrorEvent.FailureReason.Forbidden -> R.string.error_forbidden
+            ErrorEvent.FailureReason.Conflict -> R.string.error_conflict
+            ErrorEvent.FailureReason.Server -> R.string.error_server
+            ErrorEvent.FailureReason.Network -> R.string.error_network
+            else -> R.string.error_unknown
+        }
+        _errorEvent.emit(ErrorEvent.MessageOnly(messageRes))
     }
 
     sealed class TripDetailsState {

@@ -17,11 +17,9 @@ import ru.itis.travelling.domain.trips.usecase.GetActiveTripsUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.ErrorEvent
-import ru.itis.travelling.presentation.trips.fragments.add.AddTripViewModel.AddTripUiState
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import javax.inject.Inject
-
 
 @HiltViewModel
 class TripsViewModel @Inject constructor(
@@ -84,5 +82,4 @@ class TripsViewModel @Inject constructor(
         object Loading : TripsState()
         data class Success(val trips: List<Trip>) : TripsState()
     }
-
 }

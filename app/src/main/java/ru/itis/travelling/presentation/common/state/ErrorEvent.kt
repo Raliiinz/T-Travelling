@@ -18,6 +18,7 @@ sealed class ErrorEvent {
         Forbidden,
         NotFound,
         BadRequest,
+        Conflict,
         Server,
         Network,
         Unknown

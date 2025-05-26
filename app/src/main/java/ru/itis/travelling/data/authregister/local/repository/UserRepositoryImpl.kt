@@ -1,11 +1,9 @@
 package ru.itis.travelling.data.authregister.local.repository
 
-import android.util.Log
 import retrofit2.HttpException
 import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
 import ru.itis.travelling.data.authregister.remote.model.LoginRequest
-import ru.itis.travelling.data.authregister.remote.model.RefreshTokenRequest
 import ru.itis.travelling.data.authregister.remote.model.RegistrationRequest
 import ru.itis.travelling.data.authregister.remote.model.TokensResponse
 import ru.itis.travelling.data.network.ApiHelper
@@ -13,12 +11,11 @@ import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
 import javax.inject.Inject
-import javax.inject.Named
+
 
 class UserRepositoryImpl @Inject constructor(
     private val registerApi: RegisterApi,
-//    @Named("authApi")  private val authApi: AuthApi,
-    @Named("refreshAuthApi") private val authApi: AuthApi, // 👈
+    private val authApi: AuthApi,
     private val apiHelper: ApiHelper,
     private val tokenStorage: TokenStorage
 ) : UserRepository {
@@ -70,14 +67,6 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshTokens(refreshToken: String): ResultWrapper<TokensResponse> {
-//        return apiHelper.safeApiCall {
-//            val response = authApi.refreshTokens(RefreshTokenRequest(refreshToken))
-//            if (!response.isSuccessful) {
-//                throw HttpException(response)
-//            }
-//            response.body() ?: throw IllegalStateException("Empty response body")
-//        }
-
         return try {
             val response = authApi.refreshTokens(refreshToken)
             if (!response.isSuccessful) {
@@ -88,9 +77,4 @@ class UserRepositoryImpl @Inject constructor(
             ResultWrapper.GenericError((e as? HttpException)?.code(), e.message)
         }
     }
-
-//    override suspend fun login(phone: String, password: String): Boolean {
-//        // Simulate a login check
-//        return password == "111"
-//    }
 }

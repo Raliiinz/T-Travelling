@@ -96,28 +96,35 @@ class AddTripViewModel @Inject constructor(
         _isEditMode.value = true
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
-            try {
-                val trip = getTripDetailsUseCase(tripId)
-                if (trip != null) {
-                    _tripTitle.value = trip.destination
-                    _tripCost.value = trip.price
-                    _datesState.update {
-                        trip.startDate.toLocalDate() to trip.endDate.toLocalDate()
+            delay(2000)
+            when (val result = getTripDetailsUseCase(tripId)) {
+                is ResultWrapper.Success -> {
+                    result.value.let { trip ->
+                        _tripTitle.value = trip.destination
+                        _tripCost.value = trip.price
+                        _datesState.update {
+                            trip.startDate.toLocalDate() to trip.endDate.toLocalDate()
+                        }
+                        _admin.value = Participant(phone = formatPhoneNumber(trip.admin.phone))
+
+                        val formattedParticipants = trip.participants.map { participant ->
+                            participant.copy(phone = formatPhoneNumber(participant.phone))
+                        }
+
+                        _fullParticipants.update { formattedParticipants }
                     }
-
-                    _admin.value = Participant(phone = formatPhoneNumber(trip.admin.phone))
-
-                    val formattedParticipants = trip.participants.map { participant ->
-                        participant.copy(phone = formatPhoneNumber(participant.phone))
-                    }
-
-                    _fullParticipants.update { formattedParticipants }
                     _uiState.update { AddTripUiState.Idle }
-                } else {
-                    _events.emit(AddTripEvent.Error("Trip not found"))
                 }
-            } catch (e: Exception) {
-                _events.emit(AddTripEvent.Error(e.message ?: "Failed to load trip"))
+
+                is ResultWrapper.GenericError -> {
+                    handleTripError(result.code)
+                    _uiState.update { AddTripUiState.Idle }
+                }
+
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                    _uiState.update { AddTripUiState.Idle }
+                }
             }
         }
     }
@@ -256,6 +263,8 @@ class AddTripViewModel @Inject constructor(
         val messageRes = when (reason) {
             ErrorEvent.FailureReason.BadRequest -> R.string.error_bad_request_add
             ErrorEvent.FailureReason.Unauthorized -> R.string.error_unauthorized_trip
+            ErrorEvent.FailureReason.Forbidden -> R.string.error_forbidden
+            ErrorEvent.FailureReason.NotFound -> R.string.error_not_found_trip
             ErrorEvent.FailureReason.Server -> R.string.error_server
             ErrorEvent.FailureReason.Network -> R.string.error_network
             else -> R.string.error_unknown

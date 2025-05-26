@@ -2,7 +2,7 @@ package ru.itis.travelling.data.trips.mapper
 
 import ru.itis.travelling.data.trips.remote.model.TripDetailsRequest
 import ru.itis.travelling.data.trips.remote.model.TripDetailsResponse
-import ru.itis.travelling.data.trips.remote.model.UserDto
+import ru.itis.travelling.data.trips.remote.model.ParticipantsResponse
 import ru.itis.travelling.domain.trips.model.Participant
 import ru.itis.travelling.domain.trips.model.TripDetails
 import javax.inject.Inject
@@ -26,12 +26,12 @@ class TripDetailsMapper @Inject constructor() {
             startDate = response.dateOfBegin,
             endDate = response.dateOfEnd,
             price = response.totalBudget.toString(),
-            admin = mapUserDtoToParticipant(response.creator),
-            participants = response.participants.map { mapUserDtoToParticipant(it) }.toMutableList()
+            admin = mapParticipant(response.creator),
+            participants = response.participants.map { mapParticipant(it) }.toMutableList()
         )
     }
 
-    private fun mapUserDtoToParticipant(userDto: UserDto): Participant {
+    private fun mapParticipant(userDto: ParticipantsResponse): Participant {
         return Participant(
             phone = userDto.phoneNumber,
             firstName = userDto.firstName,

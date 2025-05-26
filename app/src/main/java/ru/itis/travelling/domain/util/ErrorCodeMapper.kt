@@ -9,6 +9,7 @@ class ErrorCodeMapper @Inject constructor() {
         401 -> ErrorEvent.FailureReason.Unauthorized
         403 -> ErrorEvent.FailureReason.Forbidden
         404 -> ErrorEvent.FailureReason.NotFound
+        409 -> ErrorEvent.FailureReason.Conflict
         500 -> ErrorEvent.FailureReason.Server
         else -> ErrorEvent.FailureReason.Unknown
     }
