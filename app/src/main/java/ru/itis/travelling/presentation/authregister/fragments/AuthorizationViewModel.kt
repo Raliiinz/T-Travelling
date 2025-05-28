@@ -45,22 +45,28 @@ class AuthorizationViewModel @Inject constructor(
         phoneTouched = true
         val formatted = PhoneNumberUtils.formatPhoneNumber(rawPhone)
         val isValid = formatted.isNotBlank()
+        val shouldShow = (phoneTouched || submitAttempted) && !isValid
+        val errorRes = if (shouldShow) R.string.error_phone_empty else null
 
         _phoneState.value = FieldState(
             value = formatted,
             isValid = isValid,
-            shouldShowError = (phoneTouched || submitAttempted) && !isValid
+            shouldShowError = shouldShow,
+            errorMessageRes = errorRes
         )
     }
 
     fun onPasswordChanged(password: String) {
         passwordTouched = true
         val isValid = password.isNotBlank()
+        val shouldShow = (passwordTouched || submitAttempted) && !isValid
+        val errorRes = if (shouldShow) R.string.error_password_empty else null
 
         _passwordState.value = FieldState(
             value = password,
             isValid = isValid,
-            shouldShowError = (passwordTouched ||  submitAttempted) && !isValid
+            shouldShowError = shouldShow,
+            errorMessageRes = errorRes
         )
     }
 
@@ -68,10 +74,21 @@ class AuthorizationViewModel @Inject constructor(
         submitAttempted = true
 
         _phoneState.update {
-            it.copy(shouldShowError = !it.isValid)
+            val shouldShow = !it.isValid
+            val errorRes = if (shouldShow) R.string.error_phone_empty else null
+            it.copy(
+                shouldShowError = shouldShow,
+                errorMessageRes = errorRes
+            )
         }
+
         _passwordState.update {
-            it.copy(shouldShowError = !it.isValid)
+            val shouldShow = !it.isValid
+            val errorRes = if (shouldShow) R.string.error_password_empty else null
+            it.copy(
+                shouldShowError = shouldShow,
+                errorMessageRes = errorRes
+            )
         }
 
         if (!_phoneState.value.isValid || !_passwordState.value.isValid) {

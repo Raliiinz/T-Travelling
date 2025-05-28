@@ -35,11 +35,9 @@ class UserRepositoryImpl @Inject constructor(
                 password = password,
                 confirmPassword = confirmPassword
             )
-            registerApi.register(request).let {
-                if (!it.isSuccessful) {
-                    throw HttpException(it)
-                }
-            }
+            val response = registerApi.register(request)
+            apiHelper.handleResponse(response)
+            Unit
         }
     }
 
@@ -51,30 +49,20 @@ class UserRepositoryImpl @Inject constructor(
             )
 
             val response = authApi.login(request)
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
+            val tokens = apiHelper.handleResponse(response)
 
-            response.body()?.let { tokens ->
-                println(tokens.accessToken +" " + tokens.refreshToken)
-                tokenStorage.saveTokens(
-                    accessToken = tokens.accessToken,
-                    refreshToken = tokens.refreshToken,
-                    expiresIn = tokens.expiresIn
-                )
-            } ?: throw IllegalStateException("Empty response body")
+            tokenStorage.saveTokens(
+                accessToken = tokens.accessToken,
+                refreshToken = tokens.refreshToken,
+                expiresIn = tokens.expiresIn
+            )
         }
     }
 
     override suspend fun refreshTokens(refreshToken: String): ResultWrapper<TokensResponse> {
-        return try {
+        return apiHelper.safeApiCall {
             val response = authApi.refreshTokens(refreshToken)
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
-            ResultWrapper.Success(response.body() ?: throw IllegalStateException("Empty response body"))
-        } catch (e: Throwable) {
-            ResultWrapper.GenericError((e as? HttpException)?.code(), e.message)
+            apiHelper.handleResponse(response)
         }
     }
 }

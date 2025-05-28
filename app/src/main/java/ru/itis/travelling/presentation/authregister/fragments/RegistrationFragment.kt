@@ -92,21 +92,15 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
 
         viewModel.firstNameState
             .onEach { state ->
-                viewBinding.textInputLayoutFirstName.error = when {
-                    state.value.isBlank() && state.shouldShowError -> getString(R.string.error_first_name_empty)
-                    !state.isValid && state.shouldShowError -> getString(R.string.error_first_name_invalid)
-                    else -> null
-                }
+                viewBinding.textInputLayoutFirstName.error =
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.lastNameState
             .onEach { state ->
-                viewBinding.textInputLayoutLastName.error = when {
-                    state.value.isBlank() && state.shouldShowError -> getString(R.string.error_last_name_empty)
-                    !state.isValid && state.shouldShowError -> getString(R.string.error_last_name_invalid)
-                    else -> null
-                }
+                viewBinding.textInputLayoutLastName.error =
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
@@ -117,21 +111,21 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
                     viewBinding.etPhone.setSelection(state.value.length)
                 }
                 viewBinding.textInputLayoutPhone.error =
-                    if (state.shouldShowError) getString(R.string.error_invalid_phone) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.passwordState
             .onEach { state ->
                 viewBinding.textInputLayoutPassword.error =
-                    if (state.shouldShowError) getString(R.string.error_invalid_password) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.confirmPasswordState
             .onEach { state ->
                 viewBinding.textInputLayoutPasswordRepeat.error =
-                    if (state.shouldShowError) getString(R.string.error_password_mismatch) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 

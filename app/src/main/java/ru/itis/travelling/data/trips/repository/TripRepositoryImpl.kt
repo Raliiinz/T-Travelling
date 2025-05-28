@@ -1,6 +1,5 @@
 package ru.itis.travelling.data.trips.repository
 
-import retrofit2.HttpException
 import ru.itis.travelling.data.network.ApiHelper
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.data.trips.mapper.TripDetailsMapper
@@ -23,41 +22,30 @@ class TripRepositoryImpl @Inject constructor(
     override suspend fun getActiveTrips(): ResultWrapper<List<Trip>> {
         return apiHelper.safeApiCall {
             val response = tripApi.getActiveTrips()
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
-            response.body()?.map { tripResponse ->
-                tripMapper.mapToDomain(tripResponse)
-            } ?: throw IllegalStateException("Response body is null")
+            val body = apiHelper.handleResponse(response)
+            body.map { tripMapper.mapToDomain(it) }
         }
     }
 
     override suspend fun getTripDetails(tripId: String): ResultWrapper<TripDetails> {
         return apiHelper.safeApiCall {
             val response = tripApi.getTripDetails(tripId.toLong())
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
-            response.body()?.let { tripDetailsMapper.mapFromResponse(it) }
-                ?: throw IllegalStateException("Response body is null")
+            val body = apiHelper.handleResponse(response)
+            tripDetailsMapper.mapFromResponse(body)
         }
     }
 
     override suspend fun leaveTrip(tripId: String): ResultWrapper<Unit> {
         return apiHelper.safeApiCall {
             val response = tripApi.leaveTrip(tripId.toLong())
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
+            apiHelper.handleResponse(response)
         }
     }
 
     override suspend fun deleteTrip(tripId: String): ResultWrapper<Unit> {
         return apiHelper.safeApiCall {
             val response = tripApi.deleteTravel(tripId.toLong())
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
+            apiHelper.handleResponse(response)
         }
     }
 
@@ -65,13 +53,8 @@ class TripRepositoryImpl @Inject constructor(
         return apiHelper.safeApiCall {
             val request = tripDetailsMapper.mapToRequest(trip)
             val response = tripApi.createTravel(request)
-
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
-
-            response.body()?.let { tripDetailsMapper.mapFromResponse(it) }
-                ?: throw IllegalStateException("Empty response body")
+            val body = apiHelper.handleResponse(response)
+            tripDetailsMapper.mapFromResponse(body)
         }
     }
 
@@ -79,13 +62,8 @@ class TripRepositoryImpl @Inject constructor(
         return apiHelper.safeApiCall {
             val request = updateTripMapper.mapToUpdateRequest(trip)
             val response = tripApi.updateTrip(request)
-
-            if (!response.isSuccessful) {
-                throw HttpException(response)
-            }
-
-            response.body()?.let { tripDetailsMapper.mapFromResponse(it) }
-                ?: throw IllegalStateException("Empty response body")
+            val body = apiHelper.handleResponse(response)
+            tripDetailsMapper.mapFromResponse(body)
         }
     }
 }

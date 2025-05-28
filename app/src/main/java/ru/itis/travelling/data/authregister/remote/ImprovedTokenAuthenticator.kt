@@ -94,11 +94,11 @@ class ImprovedTokenAuthenticator @Inject constructor(
                             Log.w(TAG, "Пользователь разлогинен. Очищаем токены.")
                             tokenStorage.clearTokens()
                         }
-                        null
+                        return@runBlocking null
                     }
                     is ResultWrapper.NetworkError -> {
                         Log.e(TAG, "Сетевая ошибка при обновлении токена.")
-                        null
+                        return@runBlocking null
                     }
                 }
             } catch (e: Exception) {

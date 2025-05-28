@@ -51,14 +51,14 @@ class AuthorizationFragment : BaseFragment(R.layout.fragment_authorization) {
                     viewBinding.etPhone.setSelection(state.value.length)
                 }
                 viewBinding.textInputLayoutPhone.error =
-                    if (state.shouldShowError) getString(R.string.error_phone_empty) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.passwordState
             .onEach { state ->
                 viewBinding.textInputLayoutPassword.error =
-                    if (state.shouldShowError) getString(R.string.error_password_empty) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 

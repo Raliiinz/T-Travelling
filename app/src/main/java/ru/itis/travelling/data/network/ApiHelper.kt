@@ -9,8 +9,10 @@ import ru.itis.travelling.data.util.ErrorHandler
 import java.io.IOException
 import javax.inject.Inject
 import android.util.Log
+import retrofit2.Response
 
 private const val TAG = "ApiHelper"
+
 
 class ApiHelper @Inject constructor(
     private val errorHandler: ErrorHandler
@@ -44,6 +46,15 @@ class ApiHelper @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun <T> handleResponse(response: Response<T>): T {
+        if (response.isSuccessful) {
+            return response.body()
+                ?: throw IllegalStateException("Response body is null")
+        } else {
+            throw HttpException(response)
         }
     }
 }

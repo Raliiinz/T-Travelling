@@ -61,20 +61,35 @@ class RegistrationViewModel @Inject constructor(
     fun onFirstNameChanged(firstName: String) {
         firstNameTouched = true
         val isValid = ValidationUtils.isValidName(firstName)
+        val shouldShow = (firstNameTouched || submitAttempted) && !isValid
+        val errorRes = when {
+            firstName.isBlank() && shouldShow -> R.string.error_first_name_empty
+            !isValid && shouldShow -> R.string.error_first_name_invalid
+            else -> null
+        }
         _firstNameState.value = FieldState(
             value = firstName,
             isValid = isValid,
-            shouldShowError = (firstNameTouched || submitAttempted) && !isValid
+            shouldShowError = shouldShow,
+            errorMessageRes = errorRes
         )
     }
 
     fun onLastNameChanged(lastName: String) {
         lastNameTouched = true
         val isValid = ValidationUtils.isValidName(lastName)
+        val shouldShow = (lastNameTouched || submitAttempted) && !isValid
+        val errorRes = when {
+            lastName.isBlank() && shouldShow -> R.string.error_last_name_empty
+            !isValid && shouldShow -> R.string.error_last_name_invalid
+            else -> null
+        }
+
         _lastNameState.value = FieldState(
             value = lastName,
             isValid = isValid,
-            shouldShowError = (lastNameTouched || submitAttempted) && !isValid
+            shouldShowError = shouldShow,
+            errorMessageRes = errorRes
         )
     }
 
@@ -83,21 +98,28 @@ class RegistrationViewModel @Inject constructor(
         val formatted = PhoneNumberUtils.formatPhoneNumber(rawPhone)
         val normalized = PhoneNumberUtils.normalizePhoneNumber(formatted)
         val isValid = ValidationUtils.isValidPhone(normalized)
+        val shouldShow = (phoneTouched || submitAttempted) && !isValid
+        val errorRes = if (shouldShow) R.string.error_invalid_phone else null
 
         _phoneState.value = FieldState(
             value = formatted,
             isValid = isValid,
-            shouldShowError = (phoneTouched || submitAttempted) && !isValid
+            shouldShowError = shouldShow,
+            errorMessageRes = errorRes
         )
     }
 
     fun onPasswordChanged(password: String) {
         passwordTouched = true
         val isValid = ValidationUtils.isValidPassword(password)
+        val shouldShow = (passwordTouched || submitAttempted) && !isValid
+        val errorRes = if (shouldShow) R.string.error_invalid_password else null
+
         _passwordState.value = FieldState(
             value = password,
             isValid = isValid,
-            shouldShowError = (passwordTouched || submitAttempted) && !isValid
+            shouldShowError = shouldShow,
+            errorMessageRes = errorRes
         )
     }
 
@@ -106,18 +128,23 @@ class RegistrationViewModel @Inject constructor(
         _confirmPasswordState.value = FieldState(
             value = password,
             isValid = false,
-            shouldShowError = (confirmPasswordTouched || submitAttempted)
+            shouldShowError = (confirmPasswordTouched || submitAttempted),
+            errorMessageRes = null
         )
-        validatePasswordMatch(password)
+        validatePasswordMatch()
     }
 
-    private fun validatePasswordMatch(password: String) {
-        val passwordsMatch = _passwordState.value.value == _confirmPasswordState.value.value
+    private fun validatePasswordMatch() {
+        val confirmPassword = _confirmPasswordState.value.value
+        val passwordsMatch = _passwordState.value.value == confirmPassword
+        val shouldShow = (confirmPasswordTouched || submitAttempted) && !passwordsMatch && confirmPassword.isNotEmpty()
+        val errorRes = if (shouldShow) R.string.error_password_mismatch else null
+
         _confirmPasswordState.update {
             it.copy(
-                value = password,
                 isValid = passwordsMatch,
-                shouldShowError = (confirmPasswordTouched || submitAttempted) && !passwordsMatch && it.value.isNotEmpty()
+                shouldShowError = shouldShow,
+                errorMessageRes = errorRes
             )
         }
     }
@@ -125,15 +152,11 @@ class RegistrationViewModel @Inject constructor(
     fun register() {
         submitAttempted = true
 
-        listOf(
-            _firstNameState,
-            _lastNameState,
-            _phoneState,
-            _passwordState,
-            _confirmPasswordState
-        ).forEach { state ->
-            state.update { it.copy(shouldShowError = !it.isValid) }
-        }
+        onFirstNameChanged(_firstNameState.value.value)
+        onLastNameChanged(_lastNameState.value.value)
+        onPhoneChanged(_phoneState.value.value)
+        onPasswordChanged(_passwordState.value.value)
+        onConfirmPasswordChanged(_confirmPasswordState.value.value)
 
         if (!_firstNameState.value.isValid ||
             !_lastNameState.value.isValid ||
