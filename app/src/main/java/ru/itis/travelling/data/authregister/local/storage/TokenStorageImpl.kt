@@ -62,7 +62,14 @@ class TokenStorageImpl @Inject constructor(
     override suspend fun isAccessTokenExpired(): Boolean {
         return mutex.withLock {
             val expiresAt = prefs.getLong(keyExpiresAt, 0L)
-            expiresAt == 0L || System.currentTimeMillis() > expiresAt
+            System.currentTimeMillis() > (expiresAt - 60_000)
+//            expiresAt == 0L || System.currentTimeMillis() > expiresAt
+        }
+    }
+
+    override suspend fun hasRefreshToken(): Boolean {
+        return mutex.withLock {
+            !prefs.getString(keyRefreshToken, null).isNullOrBlank()
         }
     }
 

@@ -1,4 +1,4 @@
-package ru.itis.travelling.domain.util
+package ru.itis.travelling.data.util
 
 import retrofit2.HttpException
 import javax.inject.Inject
@@ -10,6 +10,7 @@ class ErrorHandler @Inject constructor() {
         private const val HTTP_UNAUTHORIZED = 401
         private const val HTTP_FORBIDDEN = 403
         private const val HTTP_NOT_FOUND = 404
+        private const val HTTP_CONFLICT = 409
         private const val HTTP_SERVER_ERROR = 500
     }
 
@@ -19,6 +20,7 @@ class ErrorHandler @Inject constructor() {
             HTTP_UNAUTHORIZED -> "Требуется авторизация"
             HTTP_FORBIDDEN -> "Доступ запрещен"
             HTTP_NOT_FOUND -> "Ресурс не найден"
+            HTTP_CONFLICT -> "Конфликт"
             HTTP_SERVER_ERROR -> "Ошибка сервера"
             else -> "Ошибка: ${throwable.code()}"
         }

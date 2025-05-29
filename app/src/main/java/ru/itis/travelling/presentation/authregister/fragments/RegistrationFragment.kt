@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.annotation.StringRes
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -92,14 +93,14 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
         viewModel.firstNameState
             .onEach { state ->
                 viewBinding.textInputLayoutFirstName.error =
-                    if (state.shouldShowError) getString(R.string.error_first_name_empty) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.lastNameState
             .onEach { state ->
                 viewBinding.textInputLayoutLastName.error =
-                    if (state.shouldShowError) getString(R.string.error_last_name_empty) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
@@ -110,51 +111,40 @@ class RegistrationFragment : BaseFragment(R.layout.fragment_registration) {
                     viewBinding.etPhone.setSelection(state.value.length)
                 }
                 viewBinding.textInputLayoutPhone.error =
-                    if (state.shouldShowError) getString(R.string.error_invalid_phone) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.passwordState
             .onEach { state ->
                 viewBinding.textInputLayoutPassword.error =
-                    if (state.shouldShowError) getString(R.string.error_invalid_password) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.confirmPasswordState
             .onEach { state ->
                 viewBinding.textInputLayoutPasswordRepeat.error =
-                    if (state.shouldShowError) getString(R.string.error_password_mismatch) else null
+                    state.errorMessageRes?.let { getString(it) }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
 
         viewModel.errorEvent
             .onEach { event ->
                 when (event) {
-                    is ErrorEvent.Error -> {
-                        showErrorDialog(event.reason)
+                    is ErrorEvent.FullError -> {
+                        showErrorDialog(event.titleRes, event.messageRes)
                     }
+                    else -> {}
                 }
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
-    private fun showErrorDialog(reason: ErrorEvent.FailureReason) {
-        val (titleRes, messageRes) = when (reason) {
-            ErrorEvent.FailureReason.BadRequest ->
-                Pair(R.string.error_title_validation_registration, R.string.error_bad_request_registration)
-            ErrorEvent.FailureReason.Server ->
-                Pair(R.string.error_title_server, R.string.error_server)
-            ErrorEvent.FailureReason.Network ->
-                Pair(R.string.error_title_network, R.string.error_network)
-            ErrorEvent.FailureReason.Unknown ->
-                Pair(R.string.error_title_unknown, R.string.error_unknown)
-            else -> Pair(R.string.error_title_unknown, R.string.error_unknown)
-        }
-
+    private fun showErrorDialog(@StringRes titleRes: Int, @StringRes messageRes: Int) {
         AlertDialog.Builder(requireContext())
-            .setTitle(getString(titleRes))
-            .setMessage(getString(messageRes))
+            .setTitle(titleRes)
+            .setMessage(messageRes)
             .setPositiveButton(android.R.string.ok, null)
             .show()
     }

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -12,8 +13,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentTripDetailsBinding
-import ru.itis.travelling.domain.trips.model.Trip
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.presentation.base.BaseFragment
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import kotlin.getValue
@@ -84,6 +86,15 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.errorEvent.collect { event ->
+                when (event) {
+                    is ErrorEvent.MessageOnly -> showToast(event.messageRes)
+                    else -> {}
+                }
+            }
+        }
     }
 
     private fun setupListeners() {
@@ -100,7 +111,7 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         }
     }
 
-    private fun updateUi(trip: Trip) {
+    private fun updateUi(trip: TripDetails) {
         with(viewBinding) {
             tvDestination.text = trip.destination
             val startDate = DateUtils.formatDateForDisplay(trip.startDate)
@@ -127,7 +138,7 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
             .setTitle(getString(R.string.leave_trip_title))
             .setMessage(getString(R.string.leave_trip_message))
             .setPositiveButton(getString(R.string.leave)) { dialog, _ ->
-                viewModel.confirmLeaveTrip(phoneNumber)
+                viewModel.confirmLeaveTrip()
                 dialog.dismiss()
             }
             .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
@@ -170,6 +181,10 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
 
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showToast(@StringRes messageRes: Int) {
+        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_LONG).show()
     }
 
     companion object {

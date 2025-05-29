@@ -12,8 +12,10 @@ import ru.itis.travelling.BuildConfig.API_URL
 import ru.itis.travelling.data.authregister.remote.ImprovedTokenAuthenticator
 import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
+import ru.itis.travelling.data.authregister.remote.interceptor.BearerTokenInterceptor
 import ru.itis.travelling.data.authregister.remote.interceptor.UnlockingInterceptor
 import ru.itis.travelling.data.authregister.remote.interceptor.UuidInterceptor
+import ru.itis.travelling.data.trips.remote.api.TripApi
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
 import javax.inject.Named
@@ -30,10 +32,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @Named("publicOkHttpClient")
-    fun providePublicOkHttpClient(): OkHttpClient {
+    fun providePublicOkHttpClient(
+        uuidInterceptor: UuidInterceptor
+    ): OkHttpClient {
         return OkHttpClient.Builder()
-            .addInterceptor(UuidInterceptor())
+            .addInterceptor(uuidInterceptor)
             .build()
     }
 
@@ -42,9 +45,13 @@ object NetworkModule {
     @Named("authOkHttpClient")
     fun provideAuthOkHttpClient(
         tokenAuthenticator: ImprovedTokenAuthenticator,
-        unlockingInterceptor: UnlockingInterceptor
+        unlockingInterceptor: UnlockingInterceptor,
+        uuidInterceptor: UuidInterceptor,
+        bearerTokenInterceptor: BearerTokenInterceptor
     ): OkHttpClient {
-        return providePublicOkHttpClient().newBuilder()
+        return OkHttpClient.Builder()
+            .addInterceptor(uuidInterceptor)
+            .addInterceptor(bearerTokenInterceptor)
             .authenticator(tokenAuthenticator)
             .addInterceptor(unlockingInterceptor)
             .build()
@@ -52,13 +59,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(
-        @Named("publicOkHttpClient") okHttpClient: OkHttpClient,
+    fun providePublicRetrofit(
+        publicOkHttpClient: OkHttpClient,
         converterFactory: GsonConverterFactory
     ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(API_URL)
-            .client(okHttpClient)
+            .client(publicOkHttpClient)
             .addConverterFactory(converterFactory)
             .build()
     }
@@ -89,7 +96,6 @@ object NetworkModule {
         return retrofit.create(AuthApi::class.java)
     }
 
-
     @Provides
     @Singleton
     fun provideTokenAuthenticator(
@@ -118,12 +124,15 @@ object NetworkModule {
         return UnlockingInterceptor(mutex)
     }
 
-// для внутренних запросов
+    @Provides
+    @Singleton
+    fun provideBearerTokenInterceptor(tokenStorage: TokenStorage): BearerTokenInterceptor {
+        return BearerTokenInterceptor(tokenStorage)
+    }
 
-//    @Provides
-//    @Singleton
-//    fun provideSecureApi(@Named("authRetrofit") retrofit: Retrofit): SecureApi {
-//        return retrofit.create(SecureApi::class.java)
-//    }
-
+    @Provides
+    @Singleton
+    fun provideTripApi(@Named("authRetrofit") retrofit: Retrofit): TripApi {
+        return retrofit.create(TripApi::class.java)
+    }
 }

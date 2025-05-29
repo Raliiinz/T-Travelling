@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.DialogAddTripBinding
 import ru.itis.travelling.domain.contacts.model.Contact
+import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.contacts.fragments.ContactsPickerDialog
 import ru.itis.travelling.presentation.contacts.fragments.ContactsPickerDialog.Companion.CONTACTS_PICKER_DIALOG
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
@@ -173,6 +175,7 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 launch { observeUiState() }
                 launch { observeDates() }
                 launch { observeEvents() }
+                launch { observeErrors() }
                 launch { observeTripTitle() }
                 launch { observeTripCost() }
                 launch { observeEditMode() }
@@ -220,6 +223,15 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
                 is AddTripViewModel.AddTripEvent.Error -> {
                     showToast(event.message)
                 }
+            }
+        }
+    }
+
+    private suspend fun observeErrors() {
+        viewModel.errorEvent.collect { event ->
+            when (event) {
+                is ErrorEvent.MessageOnly -> showToast(event.messageRes)
+                else -> {}
             }
         }
     }
@@ -303,6 +315,10 @@ class AddTripBottomSheet : BottomSheetDialogFragment(R.layout.dialog_add_trip) {
 
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showToast(@StringRes messageRes: Int) {
+        Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_LONG).show()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): BottomSheetDialog {

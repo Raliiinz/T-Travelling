@@ -14,4 +14,11 @@ object ValidationUtils {
     fun isValidPassword(password: String): Boolean {
         return PASSWORD_REGEX.matches(password)
     }
+
+    fun isValidName(name: String): Boolean {
+        if (name.isBlank()) return false
+        if (!name.first().isUpperCase()) return false
+        val namePattern = "^[A-Za-zА-Яа-я][A-Za-zА-Яа-я' -]*$".toRegex()
+        return namePattern.matches(name)
+    }
 }
