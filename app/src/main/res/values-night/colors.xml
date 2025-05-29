@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Цвета для темной темы (переопределяем только нужные) -->
+    <color name="white">#FF121212</color> <!-- Темный фон -->
+    <color name="black">#FFFFFFFF</color> <!-- Текст становится белым -->
+    <color name="gray_field_background">#1E1E1E</color>
+    <color name="dark_gray_text">#E0E0E0</color>
+    <color name="hint_color">#9299A2</color> <!-- Можно оставить как есть -->
+    <color name="gray_button">#BBBBBB</color>
+    <!-- Цвета для темной темы -->
+    <color name="surface">#1E1E1E</color>
+    <color name="outline">#424242</color>
+</resources>

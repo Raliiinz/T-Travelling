@@ -1,10 +1,12 @@
 package ru.itis.travelling.presentation.profile.fragments
 
 import android.app.AlertDialog
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -16,6 +18,7 @@ import ru.itis.travelling.domain.profile.model.Participant
 import ru.itis.travelling.presentation.MainActivity
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.utils.ThemeUtils
 
 @AndroidEntryPoint
 class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
@@ -27,6 +30,7 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         setupListeners()
         observeViewModel()
         viewModel.loadProfile()
+        setupThemeSwitch()
     }
 
     private fun setupListeners() {
@@ -107,6 +111,33 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
             .setNegativeButton(getString(R.string.cancel), null)
             .show()
     }
+
+    private fun setupThemeSwitch() {
+        // Установка начального состояния
+        viewBinding.themeSwitch.isChecked = ThemeUtils.isDarkTheme(requireContext())
+
+        viewBinding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            ThemeUtils.toggleTheme(requireContext())
+            requireActivity().recreate()
+        }
+    }
+//    private fun setupThemeSwitch() {
+//        viewBinding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+//            // Здесь логика переключения темы
+//            if (isChecked) {
+//                // Активировать темную тему
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+//            } else {
+//                // Активировать светлую тему
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+//            }
+//            requireActivity().recreate() // Пересоздать активити для применения темы
+//        }
+//
+//        // Установить начальное состояние Switch
+//        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+//        viewBinding.themeSwitch.isChecked = currentNightMode == Configuration.UI_MODE_NIGHT_YES
+//    }
 
     private fun showToast(@StringRes messageRes: Int) {
         Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_LONG).show()

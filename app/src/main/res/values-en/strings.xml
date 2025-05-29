@@ -109,7 +109,7 @@
     <string name="profile_title">Profile</string>
     <string name="archive_trips">Trip Archive</string>
     <string name="change_language">Change language</string>
-    <string name="change_theme">Change theme</string>
+    <string name="dark_theme">Dark theme</string>
     <string name="logout">Logout</string>
     <string name="logout_title">Logout</string>
     <string name="logout_confirmation">Are you sure you want to logout?</string>

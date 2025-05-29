@@ -14,6 +14,7 @@ import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl.Companion.LA
 import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl.Companion.PREFS_NAME
 import ru.itis.travelling.databinding.ActivityMainBinding
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.utils.ThemeUtils
 import java.util.Locale
 import javax.inject.Inject
 
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ThemeUtils.applyTheme(this)
         setContentView(R.layout.activity_main)
 
         selectedNavItemId = savedInstanceState?.getInt(SELECTED_NAV_ITEM_KEY) ?: selectedNavItemId

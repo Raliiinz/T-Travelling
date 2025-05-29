@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Основные цвета (не изменяются в темной теме) -->
     <color name="yellow">#FFDD2D</color>
     <color name="blue">#428BF9</color>
     <color name="blue_back">#007AFF</color>
     <color name="red">#F52222</color>
+
+    <!-- Цвета для светлой темы -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
     <color name="gray_field_background">#F7F8F8</color>
     <color name="dark_gray_text">#424242</color>
     <color name="hint_color">#9299A2</color>
     <color name="gray_button">#333333</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="outline">#424242</color>
+
+    <!-- Цвета для Switch -->
+    <color name="switch_thumb_off">#F5F5F5</color>
+    <color name="switch_thumb_on">#FFFFFF</color>
+    <color name="switch_track_off">#BDBDBD</color>
+    <color name="switch_track_on">#81C784</color>
+    <color name="switch_shadow">#33000000</color>
 </resources>

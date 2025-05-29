@@ -112,7 +112,7 @@
     <string name="profile_title">Профиль</string>
     <string name="archive_trips">Архив поездок</string>
     <string name="change_language">Сменить язык</string>
-    <string name="change_theme">Сменить тему</string>
+    <string name="dark_theme">Темная тема</string>
     <string name="logout">Выйти из профиля</string>
     <string name="logout_title">Выход</string>
     <string name="logout_confirmation">Вы уверены, что хотите выйти из профиля?</string>

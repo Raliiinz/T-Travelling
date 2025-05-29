@@ -89,7 +89,8 @@
         android:id="@+id/iv_archive"
         android:layout_width="28dp"
         android:layout_height="28dp"
-        android:src="@drawable/ic_archive"
+        app:srcCompat="@drawable/ic_archive"
+        app:tint="?attr/colorOnBackground"
         android:layout_marginStart="@dimen/margin_16dp"
         app:layout_constraintTop_toBottomOf="@id/iv_photo_person"
         app:layout_constraintStart_toStartOf="parent"
@@ -121,7 +122,8 @@
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_marginTop="@dimen/margin_16dp"
-        android:src="@drawable/ic_language"
+        app:srcCompat="@drawable/ic_language"
+        app:tint="?attr/colorOnBackground"
         android:layout_marginStart="@dimen/margin_16dp"
         app:layout_constraintTop_toBottomOf="@id/divider1"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -152,7 +154,8 @@
         android:layout_width="28dp"
         android:layout_height="28dp"
         android:layout_marginTop="@dimen/margin_16dp"
-        android:src="@drawable/ic_theme"
+        app:srcCompat="@drawable/ic_theme"
+        app:tint="?attr/colorOnBackground"
         android:layout_marginStart="@dimen/margin_16dp"
         app:layout_constraintTop_toBottomOf="@id/divider2"
         app:layout_constraintStart_toStartOf="parent"/>
@@ -161,7 +164,7 @@
         android:id="@+id/tv_themeItem"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/change_theme"
+        android:text="@string/dark_theme"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:padding="20dp"
@@ -169,6 +172,22 @@
         app:layout_constraintTop_toTopOf="@id/iv_theme"
         app:layout_constraintBottom_toBottomOf="@id/iv_theme"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Switch
+        android:id="@+id/theme_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:checked="false"
+        android:elevation="4dp"
+        android:background="@drawable/switch_background"
+        app:trackTintMode="multiply"
+        app:thumbTint="@drawable/switch_thumb_selector"
+        app:trackTint="@drawable/switch_track_selector"
+        app:layout_constraintBottom_toBottomOf="@id/tv_themeItem"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_themeItem"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <View
         android:id="@+id/divider3"
