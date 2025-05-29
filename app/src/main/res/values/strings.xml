@@ -106,5 +106,6 @@
     <string name="error_bad_request_add">Неверные данные. Проверьте ввод и попробуйте снова.</string>
     <string name="error_unauthorized_trip">Вы не авторизованы. Войдите в аккаунт и попробуйте снова.</string>
     <string name="error_conflict">Создатель поездки не может удалить себя.</string>
+    <string name="edit_profile">Редактирование профиля</string>
 
 </resources>

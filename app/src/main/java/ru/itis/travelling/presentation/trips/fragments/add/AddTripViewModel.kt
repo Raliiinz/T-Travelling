@@ -33,6 +33,10 @@ import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils.formatPhoneNumber
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.collections.map
+import kotlin.collections.plus
+import kotlin.collections.toMutableList
+import kotlin.collections.toSet
 
 @HiltViewModel
 class AddTripViewModel @Inject constructor(
@@ -167,10 +171,17 @@ class AddTripViewModel @Inject constructor(
     fun addParticipants(newParticipants: List<Contact>) {
         _tripState.update { current ->
             current?.let {
-                val existingPhones = it.participants.map { p -> p.phone }.toSet()
+                val existingPhones = it.participants.map { p ->
+                    PhoneNumberUtils.normalizePhoneNumber(p.phone)
+                }.toSet()
+
                 val newFormatted = newParticipants
-                    .filterNot { existingPhones.contains(it.phoneNumber.toString()) }
-                    .map { Participant(phone = formatPhoneNumber(it.phoneNumber)) }
+                    .map { contact ->
+                        Participant(phone = formatPhoneNumber(contact.phoneNumber))
+                    }
+                    .filterNot { participant ->
+                        existingPhones.contains(PhoneNumberUtils.normalizePhoneNumber(participant.phone))
+                    }
 
                 it.copy(participants = (it.participants + newFormatted).toMutableList())
             }
