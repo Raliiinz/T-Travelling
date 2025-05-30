@@ -15,8 +15,8 @@
         tools:ignore="MenuTitle" />
 
     <item
-        android:id="@+id/menu_archive_tab"
-        android:icon="@drawable/ic_archive"
+        android:id="@+id/menu_profile_tab"
+        android:icon="@drawable/ic_person"
         app:showAsAction="ifRoom"
         tools:ignore="MenuTitle" />
 

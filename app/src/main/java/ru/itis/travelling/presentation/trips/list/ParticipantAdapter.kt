@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ItemParticipantBinding
-import ru.itis.travelling.domain.trips.model.Participant
+import ru.itis.travelling.domain.profile.model.Participant
 
 class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
 

@@ -8,6 +8,8 @@ import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragm
 import ru.itis.travelling.presentation.authregister.fragments.AuthorizationFragment.Companion.AUTHORIZATION_TAG
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment.Companion.REGISTRATION_TAG
+import ru.itis.travelling.presentation.profile.fragments.ProfileFragment
+import ru.itis.travelling.presentation.profile.fragments.ProfileFragment.Companion.PROFILE_TAG
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment.Companion.TRIP_TAG
 import ru.itis.travelling.presentation.trips.fragments.overview.TripsFragment
@@ -18,11 +20,6 @@ import javax.inject.Singleton
 
 @Singleton
 class Navigator @Inject constructor() {
-
-//    sealed class NavigationState {
-//        object BottomNavigationHidden : NavigationState()
-//        object BottomNavigationVisible : NavigationState()
-//    }
 
     sealed class NavigationState {
         object BottomNavigationHidden : NavigationState()
@@ -99,7 +96,6 @@ class Navigator @Inject constructor() {
     fun navigateToTripsFragment(phone: String?) {
         if (phone?.isNotBlank() == true) {
             updateNavigationState(NavigationState.BottomNavigationVisible(R.id.menu_trips_tab))
-//            updateNavigationState(NavigationState.BottomNavigationVisible)
             navigate(
                 destination = TripsFragment.getInstance(param = phone),
                 destinationTag = TRIPS_TAG,
@@ -121,11 +117,6 @@ class Navigator @Inject constructor() {
         )
     }
 
-    fun navigateToEditTrip(tripId: String) {
-        //TODO
-    }
-
-
     fun showAddTripBottomSheet(phone: String, tripId: String) {
         val fragmentManager = requireNotNull(rootFragmentManager.get()) {
             "FragmentManager is not set. Call setUpNavigation() first"
@@ -144,6 +135,16 @@ class Navigator @Inject constructor() {
 
     private fun updateNavigationState(state: NavigationState) {
         navigationStateListener?.invoke(state)
+    }
+
+    fun navigateToProfileFragment() {
+        updateNavigationState(NavigationState.BottomNavigationVisible(R.id.menu_profile_tab))
+        navigate(
+            destination = ProfileFragment(),
+            destinationTag = PROFILE_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = false
+        )
     }
 
     companion object {

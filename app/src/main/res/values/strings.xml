@@ -24,7 +24,6 @@
     <string name="error_user_already_exists">Пользователь с этим номером телефона уже существует</string>
     <string name="error_unknown">Произошла неизвестная ошибка. Пожалуйста, повторите попытку позже.</string>
     <string name="authorization">Авторизация</string>
-    <string name="archive_trips">Архив поездок</string>
     <string name="price_0">0 ₽</string>
     <string name="price">%s ₽</string>
     <string name="trip_dates">"%1$s - %2$s"</string>
@@ -107,5 +106,19 @@
     <string name="error_unauthorized_trip">Вы не авторизованы. Войдите в аккаунт и попробуйте снова.</string>
     <string name="error_conflict">Создатель поездки не может удалить себя.</string>
     <string name="edit_profile">Редактирование профиля</string>
+    <string name="error_bad_request_profile">Пользователь не найден.</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Профиль</string>
+    <string name="archive_trips">Архив поездок</string>
+    <string name="change_language">Сменить язык</string>
+    <string name="dark_theme">Темная тема</string>
+    <string name="logout">Выйти из профиля</string>
+    <string name="logout_title">Выход</string>
+    <string name="logout_confirmation">Вы уверены, что хотите выйти из профиля?</string>
+    <string name="error_logout">Ошибка при выходе из профиля</string>
+    <string name="change_language_title">Выберите язык</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_english">Английский</string>
 
 </resources>

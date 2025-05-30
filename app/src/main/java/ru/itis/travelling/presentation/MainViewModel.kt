@@ -1,5 +1,7 @@
 package ru.itis.travelling.presentation
 
+import android.content.Context
+import androidx.core.content.edit
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,7 +13,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl.Companion.LANGUAGE_KEY
+import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl.Companion.PREFS_NAME
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
+import ru.itis.travelling.domain.base.usecase.GetCurrentLanguageUseCase
+import ru.itis.travelling.domain.base.usecase.SetLanguageUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import javax.inject.Inject
 
@@ -75,8 +81,7 @@ class MainViewModel @Inject constructor(
 
     fun onProfileTabSelected() {
         viewModelScope.launch {
-            //TODO
-            // Handle profile tab navigation
+            navigator.navigateToProfileFragment()
         }
     }
 

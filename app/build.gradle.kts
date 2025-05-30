@@ -26,6 +26,10 @@ android {
             buildConfigField("String", "API_URL", "\"http://141.105.71.181:8080\"")
         }
 
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+
         buildFeatures{
             buildConfig = true
         }
@@ -87,6 +91,11 @@ dependencies {
 
     //Annotation
     implementation(libs.annotation)
+
+    //Room
+    implementation(libs.room)
+    implementation(libs.room.ktx)
+    ksp(libs.room.ksp)
 
 }
 

@@ -8,11 +8,15 @@ import ru.itis.travelling.domain.authregister.repository.UserPreferencesReposito
 import ru.itis.travelling.data.authregister.local.repository.UserPreferencesRepositoryImpl
 import ru.itis.travelling.data.authregister.local.repository.UserRepositoryImpl
 import ru.itis.travelling.data.authregister.local.storage.TokenStorageImpl
+import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl
 import ru.itis.travelling.data.contacts.ContactsRepositoryImpl
+import ru.itis.travelling.data.profile.repository.ProfileRepositoryImpl
 import ru.itis.travelling.data.trips.repository.TripRepositoryImpl
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
+import ru.itis.travelling.domain.base.repository.LocaleRepository
 import ru.itis.travelling.domain.contacts.repository.ContactsRepository
+import ru.itis.travelling.domain.profile.repository.ProfileRepository
 import ru.itis.travelling.domain.trips.repository.TripRepository
 import javax.inject.Singleton
 
@@ -40,4 +44,11 @@ interface BinderModule {
     @Singleton
     fun bindTokenStorageToImpl(impl: TokenStorageImpl): TokenStorage
 
+    @Binds
+    @Singleton
+    fun bindLocaleRepositoryToImpl(impl: LocaleRepositoryImpl): LocaleRepository
+
+    @Binds
+    @Singleton
+    fun bindProfileRepositoryToImpl(impl: ProfileRepositoryImpl): ProfileRepository
 }

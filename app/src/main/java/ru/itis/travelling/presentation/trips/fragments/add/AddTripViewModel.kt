@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.contacts.model.Contact
-import ru.itis.travelling.domain.trips.model.Participant
+import ru.itis.travelling.domain.profile.model.Participant
 import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.CreateTripUseCase
 import ru.itis.travelling.domain.contacts.usecase.GetContactsUseCase

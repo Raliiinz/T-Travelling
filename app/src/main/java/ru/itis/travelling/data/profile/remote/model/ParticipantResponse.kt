@@ -1,8 +1,8 @@
-package ru.itis.travelling.data.trips.remote.model
+package ru.itis.travelling.data.profile.remote.model
 
 import com.google.gson.annotations.SerializedName
 
-data class ParticipantsResponse(
+data class ParticipantResponse(
     @SerializedName("firstName") val firstName: String,
     @SerializedName("lastName") val lastName: String,
     @SerializedName("phoneNumber") val phoneNumber: String
