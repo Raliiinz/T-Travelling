@@ -1,12 +1,10 @@
 package ru.itis.travelling.presentation.profile.fragments
 
 import android.app.AlertDialog
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -113,31 +111,17 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
     }
 
     private fun setupThemeSwitch() {
-        // Установка начального состояния
         viewBinding.themeSwitch.isChecked = ThemeUtils.isDarkTheme(requireContext())
 
         viewBinding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            ThemeUtils.toggleTheme(requireContext())
-            requireActivity().recreate()
+            if (isChecked) {
+                ThemeUtils.setDarkTheme(requireContext())
+            } else {
+                ThemeUtils.setLightTheme(requireContext())
+            }
+            (activity as? MainActivity)?.recreate()
         }
     }
-//    private fun setupThemeSwitch() {
-//        viewBinding.themeSwitch.setOnCheckedChangeListener { _, isChecked ->
-//            // Здесь логика переключения темы
-//            if (isChecked) {
-//                // Активировать темную тему
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-//            } else {
-//                // Активировать светлую тему
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-//            }
-//            requireActivity().recreate() // Пересоздать активити для применения темы
-//        }
-//
-//        // Установить начальное состояние Switch
-//        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-//        viewBinding.themeSwitch.isChecked = currentNightMode == Configuration.UI_MODE_NIGHT_YES
-//    }
 
     private fun showToast(@StringRes messageRes: Int) {
         Toast.makeText(requireContext(), getString(messageRes), Toast.LENGTH_LONG).show()

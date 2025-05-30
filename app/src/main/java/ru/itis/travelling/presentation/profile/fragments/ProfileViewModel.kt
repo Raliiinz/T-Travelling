@@ -3,7 +3,6 @@ package ru.itis.travelling.presentation.profile.fragments
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,6 +12,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
+import ru.itis.travelling.domain.authregister.usecase.LogoutUseCase
 import ru.itis.travelling.domain.base.usecase.GetCurrentLanguageUseCase
 import ru.itis.travelling.domain.base.usecase.SetLanguageUseCase
 import ru.itis.travelling.domain.profile.model.Participant
@@ -25,12 +25,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
     private val getProfileUseCase: GetProfileUseCase,
     private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator,
     private val setLanguageUseCase: SetLanguageUseCase,
-    private val getCurrentLanguageUseCase: GetCurrentLanguageUseCase
+    private val getCurrentLanguageUseCase: GetCurrentLanguageUseCase,
+    private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
     private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
@@ -38,7 +38,6 @@ class ProfileViewModel @Inject constructor(
 
     private val _errorEvent = MutableSharedFlow<ErrorEvent>()
     val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
-
 
     fun getCurrentLanguage(): String {
         return getCurrentLanguageUseCase()
@@ -53,7 +52,6 @@ class ProfileViewModel @Inject constructor(
     fun loadProfile() {
         viewModelScope.launch {
             _profileState.update { ProfileState.Loading }
-            delay(2000)
 
             when (val result = getProfileUseCase()) {
                 is ResultWrapper.Success -> {
@@ -80,11 +78,14 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            try {
-                userPreferencesRepository.clearAuthData()
-                navigator.navigateToAuthorizationFragment()
-            } catch (e: Exception) {
-                _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_logout))
+            when (val result = logoutUseCase()) {
+                is ResultWrapper.Success -> {
+                    navigator.navigateToAuthorizationFragment()
+                }
+
+                else -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_logout))
+                }
             }
         }
     }

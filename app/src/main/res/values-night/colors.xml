@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Цвета для темной темы (переопределяем только нужные) -->
-    <color name="white">#FF121212</color> <!-- Темный фон -->
-    <color name="black">#FFFFFFFF</color> <!-- Текст становится белым -->
+    <color name="white">#FF121212</color>
+    <color name="black">#FFFFFFFF</color>
     <color name="gray_field_background">#1E1E1E</color>
     <color name="dark_gray_text">#E0E0E0</color>
-    <color name="hint_color">#9299A2</color> <!-- Можно оставить как есть -->
+    <color name="hint_color">#9299A2</color>
     <color name="gray_button">#BBBBBB</color>
-    <!-- Цвета для темной темы -->
     <color name="surface">#1E1E1E</color>
     <color name="outline">#424242</color>
+
+    <color name="switch_thumb_off">#BDBDBD</color>
+    <color name="switch_thumb_on">#FFFFFF</color>
+    <color name="switch_track_off">#616161</color>
+    <color name="switch_track_on">#FFDD2D</color>
+    <color name="switch_shadow">#66000000</color>
+
+    <color name="bottom_nav_background">#FF000000</color>
+    <color name="bottom_nav_icon_active">#FFDD2D</color>
+    <color name="bottom_nav_icon_inactive">#757575</color>
+    <color name="bottom_nav_indicator">#FF000000</color>
 </resources>

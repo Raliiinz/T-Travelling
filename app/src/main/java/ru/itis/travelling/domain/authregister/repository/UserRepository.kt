@@ -7,4 +7,5 @@ interface UserRepository {
     suspend fun registerUser(phone: String, firstName: String, lastName: String, password: String, confirmPassword: String): ResultWrapper<Unit>
     suspend fun login(phone: String, password: String): ResultWrapper<Unit>
     suspend fun refreshTokens(refreshToken: String): ResultWrapper<TokensResponse>
+    suspend fun clearUserData()
 }

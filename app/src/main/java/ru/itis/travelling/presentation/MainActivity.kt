@@ -32,9 +32,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         ThemeUtils.applyTheme(this)
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if (!ThemeUtils.isDarkTheme(this)) {
+            viewBinding.mainBottomNavigation.setBackgroundColor(getColor(R.color.white))
+        }
 
         selectedNavItemId = savedInstanceState?.getInt(SELECTED_NAV_ITEM_KEY) ?: selectedNavItemId
 

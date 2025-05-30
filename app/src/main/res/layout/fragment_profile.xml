@@ -181,7 +181,6 @@
         android:checked="false"
         android:elevation="4dp"
         android:background="@drawable/switch_background"
-        app:trackTintMode="multiply"
         app:thumbTint="@drawable/switch_thumb_selector"
         app:trackTint="@drawable/switch_track_selector"
         app:layout_constraintBottom_toBottomOf="@id/tv_themeItem"
