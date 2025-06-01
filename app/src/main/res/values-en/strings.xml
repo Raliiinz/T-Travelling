@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">T-Travelling</string>
+    <string name="logo">Logo</string>
+    <string name="phone">Phone number</string>
+    <string name="password">Password</string>
+    <string name="enter">Log in</string>
+    <string name="registration">Registration</string>
+    <string name="to_register">Register</string>
+    <string name="back">Back</string>
+    <string name="password_repeat">Repeat password</string>
+    <string name="error_phone_empty">Phone cannot be empty</string>
+    <string name="error_password_empty">Password cannot be empty</string>
+    <string name="incorrect_email_or_password">Incorrect email or password</string>
+    <string name="my_trips">My trips</string>
+    <string name="add">Add</string>
+    <string name="account_page">Profile</string>
+    <string name="error_invalid_phone">Invalid phone number</string>
+    <string name="error_first_name_empty">First name cannot be empty</string>
+    <string name="error_first_name_invalid">First name must start with a capital letter and contain only letters, spaces, \' or -</string>
+    <string name="error_last_name_empty">Last name cannot be empty</string>
+    <string name="error_last_name_invalid">Last name must start with a capital letter and contain only letters, spaces, \' or -</string>
+    <string name="error_invalid_password">Password must contain at least 6 and no more than 15 characters, one capital letter and one digit</string>
+    <string name="error_password_mismatch">Passwords don\'t match</string>
+    <string name="error_user_already_exists">User with this phone number already exists</string>
+    <string name="error_unknown">An unknown error occurred. Please try again later.</string>
+    <string name="authorization">Authorization</string>
+    <string name="price_0">0 ₽</string>
+    <string name="price">%s ₽</string>
+    <string name="trip_dates">"%1$s - %2$s"</string>
+    <string name="transactions">Transactions</string>
+    <string name="participants">Participants</string>
+    <string name="admin_required">Admin required</string>
+    <string name="only_admin_can_edit">Editing is available only to the trip admin</string>
+    <string name="close">Close</string>
+    <string name="leave_trip_title">Leave trip</string>
+    <string name="leave_trip_message">Are you sure you want to leave the trip?</string>
+    <string name="delete_trip_title">Delete trip</string>
+    <string name="delete_trip_message">Are you sure you want to delete the trip for all participants?</string>
+    <string name="leave">Leave</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_start_date">Select trip start date</string>
+    <string name="select_end_date">Select trip end date</string>
+    <string name="select_participants">Select participants</string>
+    <string name="permission_required">Permission required</string>
+    <string name="contacts_permission_explanation">Contact permission is required to select participants</string>
+    <string name="grant_permission">Grant permission</string>
+
+    <!-- arrays.xml -->
+    <string-array name="months_genitive">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
+    <string name="contacts_permission_denied">Contact permission is required</string>
+    <string name="contact_has_no_phone">Contact has no phone number</string>
+    <string name="contacts_app_not_found">No contacts app found</string>
+    <string name="select_phone_number_for">Select phone number for %s</string>
+    <string name="permission_denied">Contact permission is required to add participants</string>
+    <string name="permission_permanently_denied_message">You permanently denied contact permission. Please grant it in app settings</string>
+    <string name="open_settings">Open settings</string>
+    <string name="settings_open_error">Failed to open settings</string>
+    <string name="name_of_the_trip">Trip name</string>
+    <string name="initial_cost">Initial cost</string>
+    <string name="dates">Dates</string>
+    <string name="beginning">Start:</string>
+    <string name="the_end">End:</string>
+    <string name="add_contacts">Add contacts</string>
+    <string name="create">Create</string>
+    <string name="save_changes">Save changes</string>
+    <string name="select_the_participants">Select participants</string>
+    <string name="done">Done</string>
+    <string name="select_at_least_one_contact">Select at least one contact</string>
+    <string name="enter_the_name_of_the_trip">Enter trip name</string>
+    <string name="enter_the_cost">Enter cost</string>
+    <string name="name">Name</string>
+    <string name="surname">Surname</string>
+
+    <!--Errors-->
+    <string name="error_title_validation_registration">Registration error</string>
+    <string name="error_bad_request_registration">User with this phone number already exists.</string>
+    <string name="error_title_auth">Authorization error</string>
+    <string name="error_title_server">Server error</string>
+    <string name="error_title_network">Network error</string>
+    <string name="error_title_unknown">Unknown error</string>
+    <string name="error_unauthorized_authorization">Incorrect login or password.</string>
+    <string name="error_forbidden">You don\'t have permission to perform this action.</string>
+    <string name="error_not_found_trip">Trip not found.</string>
+    <string name="error_server">Please try again later.</string>
+    <string name="error_network">No internet connection.</string>
+    <string name="error_bad_request_add">Invalid data. Check your input and try again.</string>
+    <string name="error_unauthorized_trip">You are not authorized. Please log in and try again.</string>
+    <string name="error_conflict">Trip creator cannot delete themselves.</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="error_bad_request_profile">User not found.</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Profile</string>
+    <string name="archive_trips">Trip Archive</string>
+    <string name="change_language">Change language</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="logout">Logout</string>
+    <string name="logout_title">Logout</string>
+    <string name="logout_confirmation">Are you sure you want to logout?</string>
+    <string name="error_logout">Logout error</string>
+    <string name="change_language_title">Select language</string>
+    <string name="language_russian">Russian</string>
+    <string name="language_english">English</string>
+</resources>

@@ -1,7 +1,7 @@
 package ru.itis.travelling.presentation.trips.list
 
 import androidx.recyclerview.widget.DiffUtil
-import ru.itis.travelling.domain.trips.model.Participant
+import ru.itis.travelling.domain.profile.model.Participant
 
 class ParticipantDiffItemCallback : DiffUtil.ItemCallback<Participant>() {
     override fun areItemsTheSame(

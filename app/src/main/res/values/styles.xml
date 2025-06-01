@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Базовый стиль для TextInputLayout -->
     <style name="BaseTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/gray_field_background</item>
         <item name="boxStrokeWidth">0dp</item>
@@ -13,13 +12,11 @@
         <item name="boxCornerRadiusTopEnd">12dp</item>
     </style>
 
-    <!-- Стандартный TextInputLayout -->
     <style name="MyTextInputLayoutStyle" parent="BaseTextInputLayoutStyle">
         <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:layout_marginTop">16dp</item>
     </style>
 
-    <!-- TextInputLayout для пароля с toggle -->
     <style name="PasswordTextInputLayoutStyle" parent="BaseTextInputLayoutStyle">
         <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:layout_marginTop">16dp</item>
@@ -29,7 +26,6 @@
         <item name="errorIconDrawable">@null</item>
     </style>
 
-    <!-- Стиль для кнопки -->
     <style name="PrimaryButtonStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
@@ -38,10 +34,9 @@
         <item name="android:paddingVertical">16dp</item>
         <item name="android:textSize">16sp</item>
         <item name="android:background">@drawable/rounded_button_yellow</item>
-        <item name="android:textColor">@color/gray_button</item>
+        <item name="android:textColor">@color/design_default_color_on_secondary</item>
     </style>
 
-    <!-- Стиль для EditText внутри TextInputLayout -->
     <style name="TextInputEditTextStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">56dp</item>
@@ -53,17 +48,21 @@
     </style>
 
     <style name="BottomNavigationIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/white</item>
+        <item name="android:color">@color/bottom_nav_indicator</item>
     </style>
 
     <style name="BottomNavigationStyle" parent="Widget.Material3.BottomNavigationView">
-        <item name="android:layout_height">64dp</item>  <!-- Стандартная высота 56dp, можно уменьшить до 48dp -->
+        <item name="android:layout_height">64dp</item>
         <item name="android:minHeight">64dp</item>
         <item name="itemIconTint">@drawable/bottom_nav_icon_color</item>
         <item name="itemTextColor">@drawable/bottom_nav_icon_color</item>
+        <item name="android:background">@color/bottom_nav_background</item>
         <item name="itemActiveIndicatorStyle">@style/BottomNavigationIndicator</item>
+        <item name="android:elevation">0dp</item>
+        <item name="materialThemeOverlay">@null</item>
+        <item name="backgroundTint">@null</item>
+        <item name="backgroundTintMode">src_over</item>
     </style>
-
 
     <style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="android:windowIsTranslucent">true</item>
@@ -77,10 +76,6 @@
         <item name="colorSecondary">@color/blue</item>
         <item name="colorControlActivated">@color/blue</item>
         <item name="colorOnSurface">@color/blue</item>
-    </style>
-
-    <style name="ImageTheme" >
-        <item name="android:background">@drawable/bg_circle</item>
     </style>
 
 </resources>

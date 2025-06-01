@@ -24,6 +24,7 @@ gson = "2.13.0"
 retrofit_version = "2.11.0"
 security-crypto-version = "1.1.0-alpha06"
 annotation-version = "1.7.0"
+room_version = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +49,9 @@ converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ve
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto-version" }
 annotation = { group = "androidx.annotation", name = "annotation", version.ref = "annotation-version" }
+room = { group = "androidx.room", name = "room-runtime", version.ref = "room_version" }
+room-ksp = { group = "androidx.room", name = "room-compiler", version.ref = "room_version" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room_version"}
 
 
 [bundles]
