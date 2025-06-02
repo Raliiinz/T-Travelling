@@ -117,4 +117,9 @@
     <string name="change_language_title">Select language</string>
     <string name="language_russian">Russian</string>
     <string name="language_english">English</string>
+
+    <!-- Transactions Screen -->
+    <string name="error_not_found_transactions">Transactions not found</string>
+    <string name="transaction_history">Transaction history</string>
+    <string name="adding_transaction">Adding a transaction</string>
 </resources>

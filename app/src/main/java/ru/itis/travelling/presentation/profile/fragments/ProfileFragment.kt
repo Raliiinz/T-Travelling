@@ -12,7 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.FragmentProfileBinding
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.presentation.MainActivity
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.common.state.ErrorEvent
@@ -64,7 +64,7 @@ class ProfileFragment : BaseFragment(R.layout.fragment_profile) {
         }
     }
 
-    private fun updateUi(participant: Participant) {
+    private fun updateUi(participant: ParticipantDto) {
         with(viewBinding) {
             tvUserFirstName.text = participant.firstName
             tvUserLastName.text = participant.lastName

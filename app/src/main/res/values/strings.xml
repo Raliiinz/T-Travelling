@@ -120,5 +120,8 @@
     <string name="change_language_title">Выберите язык</string>
     <string name="language_russian">Русский</string>
     <string name="language_english">Английский</string>
+    <string name="error_not_found_transactions">Tранзакции не найдены</string>
+    <string name="transaction_history">История транзакций</string>
+    <string name="adding_transaction">Добавление транзакции</string>
 
 </resources>

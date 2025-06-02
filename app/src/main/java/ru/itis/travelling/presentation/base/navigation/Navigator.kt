@@ -10,6 +10,8 @@ import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragme
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment.Companion.REGISTRATION_TAG
 import ru.itis.travelling.presentation.profile.fragments.ProfileFragment
 import ru.itis.travelling.presentation.profile.fragments.ProfileFragment.Companion.PROFILE_TAG
+import ru.itis.travelling.presentation.transactions.fragment.TransactionsFragment
+import ru.itis.travelling.presentation.transactions.fragment.TransactionsFragment.Companion.TRANSACTIONS_TAG
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment.Companion.TRIP_TAG
 import ru.itis.travelling.presentation.trips.fragments.overview.TripsFragment
@@ -144,6 +146,16 @@ class Navigator @Inject constructor() {
             destinationTag = PROFILE_TAG,
             action = NavigationAction.REPLACE,
             isAddToBackStack = false
+        )
+    }
+
+    fun navigateToTransactionsFragment(tripId: String, phone: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = TransactionsFragment.getInstance(tripId, phone),
+            destinationTag = TRANSACTIONS_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
         )
     }
 

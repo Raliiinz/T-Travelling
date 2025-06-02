@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ItemParticipantBinding
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 
-class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
+class ParticipantAdapter() : ListAdapter<ParticipantDto, ParticipantAdapter.ParticipantViewHolder>(ParticipantDiffItemCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ParticipantViewHolder {
         val binding = ItemParticipantBinding.inflate(
@@ -30,7 +30,7 @@ class ParticipantAdapter() : ListAdapter<Participant, ParticipantAdapter.Partici
         private val binding: ItemParticipantBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(participant: Participant, isFirstItem: Boolean) = with(binding) {
+        fun bind(participant: ParticipantDto, isFirstItem: Boolean) = with(binding) {
             tvPhone.text = participant.phone
 
             val cardView = root

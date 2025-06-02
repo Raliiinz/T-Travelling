@@ -1,12 +1,11 @@
 package ru.itis.travelling.data.profile.repository
 
-import android.net.ConnectivityManager
 import ru.itis.travelling.data.network.ApiHelper
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.data.profile.locale.database.dao.ParticipantDao
 import ru.itis.travelling.data.profile.mapper.ParticipantMapper
 import ru.itis.travelling.data.profile.remote.api.ProfileApi
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.domain.profile.repository.ProfileRepository
 import javax.inject.Inject
 
@@ -17,11 +16,11 @@ class ProfileRepositoryImpl @Inject constructor(
     private val participantDao: ParticipantDao
 ) : ProfileRepository {
 
-    override suspend fun getProfile(): ResultWrapper<Participant> {
+    override suspend fun getProfile(): ResultWrapper<ParticipantDto> {
         return when (val result = apiHelper.safeApiCall {
             val response = profileApi.getProfile()
             val body = apiHelper.handleResponse(response)
-            participantMapper.mapParticipant(body)
+            participantMapper.mapParticipantDto(body)
         }) {
             is ResultWrapper.Success -> {
                 val participant = result.value

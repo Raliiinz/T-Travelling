@@ -1,0 +1,65 @@
+<com.facebook.shimmer.ShimmerFrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:shimmer_duration="1500">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="12dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Shimmer для изображения -->
+            <View
+                android:id="@+id/shimmerImage"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:background="@drawable/shimmer_placeholder_circle"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <!-- Shimmer для заголовка -->
+            <View
+                android:id="@+id/shimmerTitle"
+                android:layout_width="120dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/shimmer_placeholder"
+                app:layout_constraintStart_toEndOf="@id/shimmerImage"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <!-- Shimmer для описания -->
+            <View
+                android:id="@+id/shimmerDescription"
+                android:layout_width="180dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/shimmer_placeholder"
+                app:layout_constraintStart_toEndOf="@id/shimmerImage"
+                app:layout_constraintTop_toBottomOf="@id/shimmerTitle"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <View
+                android:id="@+id/shimmerPrice"
+                android:layout_width="80dp"
+                android:layout_height="20dp"
+                android:background="@drawable/shimmer_placeholder"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</com.facebook.shimmer.ShimmerFrameLayout>

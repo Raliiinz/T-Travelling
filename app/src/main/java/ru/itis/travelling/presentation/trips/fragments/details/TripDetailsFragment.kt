@@ -109,6 +109,10 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         viewBinding.ivLeaveIcon.setOnClickListener {
             viewModel.onLeaveOrDeleteClicked(phoneNumber)
         }
+
+        viewBinding.btnTransactions.setOnClickListener {
+            viewModel.onTransactionsClicked(phoneNumber)
+        }
     }
 
     private fun updateUi(trip: TripDetails) {

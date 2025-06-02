@@ -76,7 +76,8 @@ class ContactsPickerDialog(
         }
 
         viewBinding.buttonDone.setOnClickListener {
-            onContactsSelected.invoke(viewModel.getSelectedContacts())
+            val selected = viewModel.contacts.value.filter { it.isSelected }
+            onContactsSelected.invoke(selected)
             dismiss()
         }
     }

@@ -13,7 +13,7 @@ import ru.itis.travelling.data.trips.remote.model.TripResponse
 import ru.itis.travelling.data.trips.remote.model.UpdateTripRequest
 
 interface TripApi {
-    @POST("/api/v1/travels/create")
+    @POST("/api/v1/travels")
     suspend fun createTravel(
         @Body request: TripDetailsRequest
     ): Response<TripDetailsResponse>

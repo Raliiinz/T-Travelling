@@ -1,11 +1,10 @@
 package ru.itis.travelling.presentation
 
-import android.content.Context
-import androidx.core.content.edit
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -13,11 +12,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl.Companion.LANGUAGE_KEY
-import ru.itis.travelling.data.base.repository.LocaleRepositoryImpl.Companion.PREFS_NAME
+import ru.itis.travelling.R
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
-import ru.itis.travelling.domain.base.usecase.GetCurrentLanguageUseCase
-import ru.itis.travelling.domain.base.usecase.SetLanguageUseCase
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import javax.inject.Inject
 
@@ -26,6 +22,18 @@ class MainViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val navigator: Navigator
 ) : ViewModel() {
+
+    private val _selectedNavItemId = MutableStateFlow(DEFAULT_NAV_ITEM_ID)
+    val selectedNavItemId: StateFlow<Int> = _selectedNavItemId
+
+    fun onNavItemSelected(itemId: Int) {
+        _selectedNavItemId.value = itemId
+        when (itemId) {
+            R.id.menu_trips_tab -> onTripsTabSelected()
+            R.id.menu_add_tab -> onAddTabSelected()
+            R.id.menu_profile_tab -> onProfileTabSelected()
+        }
+    }
 
     val authState: StateFlow<AuthState?> = userPreferencesRepository.authState
         .map { (isLoggedIn, phone) -> AuthState(isLoggedIn, phone) }
@@ -63,7 +71,7 @@ class MainViewModel @Inject constructor(
         )
     }
 
-    fun onTripsTabSelected() {
+    private fun onTripsTabSelected() {
         viewModelScope.launch {
             authState.first { it != null }?.userPhone?.let { phone ->
                 navigator.navigateToTripsFragment(phone)
@@ -71,7 +79,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onAddTabSelected() {
+    private fun onAddTabSelected() {
         viewModelScope.launch {
             authState.first { it != null }?.userPhone?.let { phone ->
                 navigator.showAddTripBottomSheet(phone)
@@ -79,7 +87,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onProfileTabSelected() {
+    private fun onProfileTabSelected() {
         viewModelScope.launch {
             navigator.navigateToProfileFragment()
         }
@@ -89,4 +97,8 @@ class MainViewModel @Inject constructor(
         val isLoggedIn: Boolean = false,
         val userPhone: String? = null
     )
+
+    companion object {
+        val DEFAULT_NAV_ITEM_ID = R.id.menu_trips_tab
+    }
 }

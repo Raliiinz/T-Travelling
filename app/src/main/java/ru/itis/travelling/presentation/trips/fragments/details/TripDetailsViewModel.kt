@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.DeleteTripUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
@@ -165,8 +165,19 @@ class TripDetailsViewModel @Inject constructor(
         }
     }
 
-    private fun prepareParticipantsList(trip: TripDetails): MutableList<Participant> {
-        val allParticipants = mutableListOf<Participant>()
+    fun onTransactionsClicked(phone: String) {
+        viewModelScope.launch {
+            when (val currentState = _tripState.value) {
+                is TripDetailsState.Success -> {
+                    navigator.navigateToTransactionsFragment(currentState.trip.id, phone)
+                }
+                else -> _events.emit(TripDetailsEvent.Error("Trip data not loaded"))
+            }
+        }
+    }
+
+    private fun prepareParticipantsList(trip: TripDetails): MutableList<ParticipantDto> {
+        val allParticipants = mutableListOf<ParticipantDto>()
 
         val formattedAdmin = trip.admin.copy(
             phone = PhoneNumberUtils.formatPhoneNumber(trip.admin.phone)

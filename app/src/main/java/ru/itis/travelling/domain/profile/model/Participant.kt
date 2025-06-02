@@ -3,5 +3,7 @@ package ru.itis.travelling.domain.profile.model
 data class Participant(
     val firstName: String? = null,
     val lastName: String? = null,
-    val phone: String
+    val phone: String,
+    val shareAmount: String? = null,
+    val isRepaid: Boolean? = null
 )

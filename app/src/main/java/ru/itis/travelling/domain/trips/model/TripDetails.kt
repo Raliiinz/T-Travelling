@@ -1,6 +1,6 @@
 package ru.itis.travelling.domain.trips.model
 
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 
 data class TripDetails(
     val id: String,
@@ -8,15 +8,6 @@ data class TripDetails(
     val startDate: String,
     val endDate: String,
     val price: String,
-    val admin: Participant,
-    val participants: MutableList<Participant>,
-//    val transactions: List<Transaction>
+    val admin: ParticipantDto,
+    val participants: MutableList<ParticipantDto>
 )
-
-
-//data class Transaction(
-//    val id: String,
-//    val title: String,
-//    val amount: String,
-//    val date: String
-//)
