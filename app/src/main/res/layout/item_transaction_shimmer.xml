@@ -11,14 +11,13 @@
         android:layout_height="wrap_content"
         android:background="@color/white"
         app:cardCornerRadius="20dp"
-        app:cardElevation="12dp">
+        app:cardElevation="8dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Shimmer для изображения -->
             <View
                 android:id="@+id/shimmerImage"
                 android:layout_width="46dp"
@@ -28,17 +27,17 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <!-- Shimmer для заголовка -->
             <View
                 android:id="@+id/shimmerTitle"
                 android:layout_width="120dp"
                 android:layout_height="24dp"
+                android:layout_marginTop="@dimen/margin_8dp"
                 android:layout_marginStart="16dp"
                 android:background="@drawable/shimmer_placeholder"
                 app:layout_constraintStart_toEndOf="@id/shimmerImage"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="@id/shimmerImage"
+                app:layout_constraintBottom_toTopOf="@id/shimmerDescription"/>
 
-            <!-- Shimmer для описания -->
             <View
                 android:id="@+id/shimmerDescription"
                 android:layout_width="180dp"
@@ -48,17 +47,16 @@
                 android:background="@drawable/shimmer_placeholder"
                 app:layout_constraintStart_toEndOf="@id/shimmerImage"
                 app:layout_constraintTop_toBottomOf="@id/shimmerTitle"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="@id/shimmerImage"/>
 
             <View
                 android:id="@+id/shimmerPrice"
                 android:layout_width="80dp"
-                android:layout_height="20dp"
+                android:layout_height="24dp"
                 android:background="@drawable/shimmer_placeholder"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
+                app:layout_constraintTop_toTopOf="@id/shimmerImage"
+                app:layout_constraintBottom_toBottomOf="@id/shimmerImage"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

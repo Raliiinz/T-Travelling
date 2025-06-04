@@ -28,6 +28,7 @@ android {
 
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
+            vectorDrawables.useSupportLibrary = true
         }
 
         buildFeatures{

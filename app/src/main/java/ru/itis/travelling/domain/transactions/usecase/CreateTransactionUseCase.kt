@@ -8,7 +8,7 @@ import ru.itis.travelling.domain.transactions.model.TransactionDetails
 import ru.itis.travelling.domain.transactions.repository.TransactionRepository
 import javax.inject.Inject
 
-class СreateTransactionUseCase @Inject constructor(
+class CreateTransactionUseCase @Inject constructor(
     private val repository: TransactionRepository,
     @IoDispatchers private val dispatcher: CoroutineDispatcher
 ) {

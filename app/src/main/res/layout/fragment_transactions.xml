@@ -34,11 +34,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/emptyStateView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/emptyStateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_transactions_message"
+            android:textSize="20sp"
+            android:textColor="@color/hint_color"/>
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_transactions"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="68dp"
+        android:layout_marginBottom="@dimen/margin_8dp"
         android:paddingHorizontal="@dimen/margin_8dp"
         android:paddingTop="@dimen/margin_8dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +70,7 @@
         android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="32dp"
         android:contentDescription="@string/adding_transaction"
         android:src="@drawable/ic_add_transaction"

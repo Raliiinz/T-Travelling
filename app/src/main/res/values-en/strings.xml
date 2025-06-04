@@ -122,4 +122,23 @@
     <string name="error_not_found_transactions">Transactions not found</string>
     <string name="transaction_history">Transaction history</string>
     <string name="adding_transaction">Adding a transaction</string>
+    <string name="no_transactions_message">Your transactions will be displayed here</string>
+    <string name="error_category_empty">Please select a category</string>
+    <string name="error_invalid_amount">Please enter an amount greater than zero</string>
+    <string name="error_description_empty">Description cannot be empty</string>
+    <string name="error_no_participants">Please add at least one participant</string>
+    <string name="error_participants_not_in_travel">Some participants are not in this travel</string>
+    <string name="error_shares_not_match_total">Sum of shares must equal total amount</string>
+
+    <string-array name="transaction_categories">
+        <item>Food</item>
+        <item>Transport</item>
+        <item>Accommodation</item>
+        <item>Entertainment</item>
+        <item>Shopping</item>
+        <item>Health</item>
+        <item>Communication and the Internet</item>
+        <item>Visa and documents</item>
+        <item>Other</item>
+    </string-array>
 </resources>

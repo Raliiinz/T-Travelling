@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.transactions.fragment
+package ru.itis.travelling.presentation.transactions.fragments.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,8 +17,6 @@ import ru.itis.travelling.domain.transactions.usecase.GetTransactionsUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.ErrorEvent
-import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsViewModel.TripDetailsState
-import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import javax.inject.Inject
 
@@ -75,6 +73,10 @@ class TransactionsViewModel @Inject constructor(
 
     fun navigateToTripDetail(tripId: String, phoneNumber: String) {
         navigator.navigateToTripDetailsFragment(tripId, phoneNumber)
+    }
+
+    fun navigateToAddTransaction(tripId: String, phoneNumber: String) {
+        navigator.navigateToAddTransactionFragment(tripId, phoneNumber)
     }
 
     sealed class TransactionsState {

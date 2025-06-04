@@ -78,4 +78,61 @@
         <item name="colorOnSurface">@color/blue</item>
     </style>
 
+<!--    <style name="SpinnerTextStyle" parent="Widget.AppCompat.DropDownItem.Spinner">-->
+<!--        <item name="android:textSize">16sp</item>-->
+<!--        <item name="android:textColor">@color/black</item>-->
+<!--        <item name="android:paddingStart">8dp</item>-->
+<!--        <item name="android:paddingEnd">32dp</item>-->
+<!--    </style>-->
+<!--    <style name="YellowSpinnerStyle" parent="Widget.AppCompat.Spinner">-->
+<!--        &lt;!&ndash; Увеличиваем размер текста &ndash;&gt;-->
+<!--        <item name="android:textSize">64sp</item>-->
+<!--        <item name="android:textColor">@color/black</item>-->
+
+<!--        &lt;!&ndash; Делаем стрелочку желтой &ndash;&gt;-->
+<!--        <item name="android:backgroundTint">@color/yellow</item>-->
+
+<!--        &lt;!&ndash; Или если нужно изменить саму иконку стрелочки &ndash;&gt;-->
+<!--        <item name="android:popupTheme">@style/PopupThemeYellow</item>-->
+<!--    </style>-->
+
+<!--    <style name="PopupThemeYellow" parent="ThemeOverlay.AppCompat.Light">-->
+<!--        <item name="android:colorControlNormal">@color/yellow</item>-->
+<!--    </style>-->
+
+    <style name="YellowSpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <!-- Размер текста в закрытом состоянии (на самом Spinner) -->
+        <item name="android:textSize">64sp</item>
+        <item name="android:textColor">@color/black</item>
+
+        <!-- Цвет стрелки -->
+        <item name="android:backgroundTint">@color/yellow</item>
+
+        <!-- Стиль для dropdown (выпадающего списка) -->
+        <item name="android:popupTheme">@style/PopupThemeYellow</item>
+        <item name="android:dropDownItemStyle">@style/SpinnerDropdownItemStyle</item>
+    </style>
+
+    <style name="PopupThemeYellow" parent="ThemeOverlay.AppCompat.Light">
+        <!-- Цвет стрелки в открытом состоянии -->
+        <item name="android:colorControlNormal">@color/yellow</item>
+    </style>
+
+    <style name="CustomSpinnerStyle" parent="Widget.AppCompat.Spinner.Underlined">
+        <item name="android:textSize">18sp</item> <!-- Размер текста -->
+        <item name="android:textColor">#000000</item> <!-- Цвет текста -->
+        <item name="android:background">@drawable/custom_spinner_background</item> <!-- Кастомный бэкграунд с желтой стрелкой -->
+    </style>
+
+    <!-- Стиль для элементов в выпадающем списке -->
+    <style name="SpinnerDropdownItemStyle" parent="Widget.AppCompat.DropDownItem.Spinner">
+        <item name="android:textSize">64sp</item> <!-- Размер текста в dropdown -->
+        <item name="android:textColor">@color/black</item>
+        <item name="android:padding">16dp</item> <!-- Отступы для читаемости -->
+    </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/spinner_background</item>
+    </style>
+
 </resources>

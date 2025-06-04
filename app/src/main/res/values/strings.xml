@@ -120,8 +120,29 @@
     <string name="change_language_title">Выберите язык</string>
     <string name="language_russian">Русский</string>
     <string name="language_english">Английский</string>
+
+    <!-- Transactions Screen -->
     <string name="error_not_found_transactions">Tранзакции не найдены</string>
     <string name="transaction_history">История транзакций</string>
     <string name="adding_transaction">Добавление транзакции</string>
+    <string name="no_transactions_message">Здесь будут ваши транзакции</string>
+    <string name="error_category_empty">Пожалуйста, выберите категорию</string>
+    <string name="error_invalid_amount">Пожалуйста, введите сумму больше нуля </string>
+    <string name="error_description_empty">Описание не может быть пустым</string>
+    <string name="error_no_participants">Пожалуйста, добавьте хотя бы одного участника</string>
+    <string name="error_participants_not_in_travel">Некоторые участники не участвуют в этом путешествии</string>
+    <string name="error_shares_not_match_total">Сумма задолженностей должна быть равна общей сумме</string>
+
+    <string-array name="transaction_categories">
+        <item>Питание</item>
+        <item>Транспорт</item>
+        <item>Проживание</item>
+        <item>Развлечения</item>
+        <item>Покупки</item>
+        <item>Здоровье</item>
+        <item>Связь и интернет</item>
+        <item>Виза и документы</item>
+        <item>Прочее</item>
+    </string-array>
 
 </resources>

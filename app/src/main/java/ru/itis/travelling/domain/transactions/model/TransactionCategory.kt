@@ -37,3 +37,17 @@ fun TransactionCategory.getIconResId(): Int = when (this) {
     TransactionCategory.VISA_DOCUMENTS -> R.drawable.ic_visa_documents
     TransactionCategory.OTHER -> R.drawable.ic_other
 }
+
+fun mapCategoryToApiValue(displayName: String): String {
+    return when (displayName) {
+        "Transport" -> "TRANSPORT"
+        "Accommodation" -> "ACCOMMODATION"
+        "Food" -> "FOOD"
+        "Entertainment" -> "ENTERTAINMENT"
+        "Shopping" -> "SHOPPING"
+        "Health" -> "HEALTH"
+        "Communication" -> "COMMUNICATION"
+        "Visa Documents" -> "VISA_DOCUMENTS"
+        else -> "OTHER"
+    }
+}

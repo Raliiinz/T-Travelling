@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class ParticipantRequest(
     @SerializedName("phoneNumber") val phoneNumber: String,
-    @SerializedName("shareAmount") val shareAmount: String
+    @SerializedName("shareAmount") val shareAmount: Double
 )

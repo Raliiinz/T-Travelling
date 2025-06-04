@@ -1,4 +1,4 @@
-package ru.itis.travelling.presentation.transactions.fragment
+package ru.itis.travelling.presentation.transactions.fragments.overview
 
 import android.os.Bundle
 import android.view.View
@@ -53,7 +53,7 @@ class TransactionsFragment : BaseFragment(R.layout.fragment_transactions) {
 
     private fun setupListeners() {
         viewBinding.fabAdd.setOnClickListener {
-            // TODO: Реализовать открытие экрана добавления транзакции
+            viewModel.navigateToAddTransaction(tripId, phone)
         }
 
         viewBinding.ivBackIcon.setOnClickListener {
@@ -68,7 +68,11 @@ class TransactionsFragment : BaseFragment(R.layout.fragment_transactions) {
                     is TransactionsViewModel.TransactionsState.Loading -> showLoading()
                     is TransactionsViewModel.TransactionsState.Success -> {
                         hideLoading()
-                        showTransactions(state.transactions)
+                        if (state.transactions.isEmpty()) {
+                            showEmptyState()
+                        } else {
+                            showTransactions(state.transactions)
+                        }
                     }
                     is TransactionsViewModel.TransactionsState.Idle -> hideLoading()
                 }
@@ -100,7 +104,15 @@ class TransactionsFragment : BaseFragment(R.layout.fragment_transactions) {
         viewBinding.rvTransactions.visibility = View.VISIBLE
     }
 
+    private fun showEmptyState() {
+        viewBinding.rvTransactions.visibility = View.GONE
+        viewBinding.emptyStateView.visibility = View.VISIBLE
+        viewBinding.emptyStateText.text = getString(R.string.no_transactions_message)
+    }
+
     private fun showTransactions(transactions: List<Transaction>) {
+        viewBinding.emptyStateView.visibility = View.GONE
+        viewBinding.rvTransactions.visibility = View.VISIBLE
         rvAdapter?.submitList(transactions)
     }
 

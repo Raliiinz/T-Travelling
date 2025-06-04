@@ -5,3 +5,11 @@ data class ParticipantDto(
     val lastName: String? = null,
     val phone: String
 )
+
+fun ParticipantDto.toParticipant() = Participant(
+    firstName = firstName,
+    lastName = lastName,
+    phone = phone,
+    shareAmount = "0.0",
+    isRepaid = false
+)

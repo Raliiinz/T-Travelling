@@ -6,6 +6,5 @@ data class Transaction(
     val id: String,
     val totalCost: String,
     val description: String,
-    val createdAt: Instant,
     val category: TransactionCategory
 )
