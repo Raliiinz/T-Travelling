@@ -129,6 +129,31 @@
     <string name="error_no_participants">Please add at least one participant</string>
     <string name="error_participants_not_in_travel">Some participants are not in this travel</string>
     <string name="error_shares_not_match_total">Sum of shares must equal total amount</string>
+    <string name="select_category">Select a category</string>
+    <string name="add_description_transaction">Add a description to the transaction</string>
+    <string name="enter_cost">Enter the cost</string>
+    <string name="pay_to">Pay</string>
+    <string name="rub">₽</string>
+    <string name="error_not_found_transaction">Тransaction not found</string>
+    <string name="message_delete_not_creator">Deletion is only available to the creator of this transaction</string>
+    <string name="delete_transaction">Delete a transaction</string>
+    <string name="message_delete_creator">Are you sure you want to delete the transaction from all participants?</string>
+    <string name="pay_debt">Pay the debt</string>
+    <string name="creator_transaction">The creator of the transaction</string>
+    <string name="photo_creator">Photo of the creator</string>
+    <string name="debt_data">Debt data</string>
+    <string name="category_transport">Transport</string>
+    <string name="category_accommodation">Accommodation</string>
+    <string name="category_food">Food</string>
+    <string name="category_entertainment">Entertainment</string>
+    <string name="category_shopping">Shopping</string>
+    <string name="category_health">Health</string>
+    <string name="category_communication">Communication</string>
+    <string name="category_visa_documents">Visa Documents</string>
+    <string name="category_other">Other</string>
+    <string name="remind">Remind</string>
+    <string name="pay_the_debt">Pay the debt</string>
+    <string name="message_edit_not_creator">Editing is available only to the creator of this transaction</string>
 
     <string-array name="transaction_categories">
         <item>Food</item>

@@ -38,7 +38,9 @@ class TransactionAdapter(
         }
 
         fun bind(transaction: Transaction) = with(binding) {
-            tvCategory.text = transaction.category.getDisplayName()
+            val context = binding.root.context
+
+            tvCategory.text = transaction.category.getDisplayName(context)
             tvDescription.text = transaction.description
             tvPrice.text = binding.root.context.getString(R.string.price, transaction.totalCost)
             ivImage.setImageResource(transaction.category.getIconResId())

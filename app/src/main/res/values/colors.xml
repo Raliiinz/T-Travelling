@@ -4,6 +4,10 @@
     <color name="blue">#428BF9</color>
     <color name="blue_back">#007AFF</color>
     <color name="red">#F52222</color>
+    <color name="green">#34C759</color>
+    <color name="image_back">#ECECED</color>
+    <color name="image_photo">#818185</color>
+
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -18,6 +22,7 @@
     <color name="bottom_nav_icon_active">#FFDD2D</color>
     <color name="bottom_nav_icon_inactive">#9299A2</color>
     <color name="bottom_nav_indicator">#FFFFFFFF</color>
+
 
     <color name="switch_thumb_off">#F5F5F5</color>
     <color name="switch_thumb_on">#FFFFFF</color>

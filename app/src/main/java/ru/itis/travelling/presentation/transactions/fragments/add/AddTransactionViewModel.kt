@@ -26,6 +26,7 @@ import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.transactions.util.SplitType
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
+import kotlin.math.abs
 
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
@@ -35,7 +36,6 @@ class AddTransactionViewModel @Inject constructor(
     private val navigator: Navigator,
 ) : ViewModel() {
 
-//    private val _events = MutableSharedFlow<TransactionEvent>(replay = 1)
     private val _events = MutableSharedFlow<TransactionEvent>()
     val events: SharedFlow<TransactionEvent> = _events
 
@@ -51,21 +51,30 @@ class AddTransactionViewModel @Inject constructor(
     private val _formState = MutableStateFlow<TransactionFormState>(TransactionFormState())
     val formState: StateFlow<TransactionFormState> = _formState.asStateFlow()
 
-    fun loadParticipants(tripId: String) {
+    fun loadParticipants(tripId: String, userPhone: String) {
         viewModelScope.launch {
             _uiState.value = AddTransactionUiState.Loading
             val result = getTripDetailsUseCase(tripId)
             when (result) {
                 is ResultWrapper.Success -> {
-                    val admin = result.value.admin.toParticipant().copy(
+                    val normalizedUserPhone = PhoneNumberUtils.formatPhoneNumber(userPhone)
+                    val adminParticipant = result.value.admin.toParticipant().copy(
                         phone = PhoneNumberUtils.formatPhoneNumber(result.value.admin.phone)
                     )
-                    val regularParticipants = result.value.participants.map { participant ->
+                    val allParticipants = result.value.participants.map { participant ->
                         participant.toParticipant().copy(
                             phone = PhoneNumberUtils.formatPhoneNumber(participant.phone)
                         )
                     }
-                    _participants.value = listOf(admin) + regularParticipants
+                    val combinedParticipants = listOf(adminParticipant) + allParticipants
+                    val uniqueParticipants = combinedParticipants.distinctBy { it.phone }
+                    val currentUser = uniqueParticipants.find {
+                        it.phone == normalizedUserPhone
+                    } ?: adminParticipant
+                    val otherParticipants = uniqueParticipants.filterNot {
+                        it.phone == normalizedUserPhone
+                    }
+                    _participants.value = listOf(currentUser) + otherParticipants
                 }
                 is ResultWrapper.GenericError -> handleTripError(result.code)
                 is ResultWrapper.NetworkError -> _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
@@ -77,7 +86,11 @@ class AddTransactionViewModel @Inject constructor(
     fun updateParticipantAmount(phone: String, amount: String) {
         _participants.update { currentList ->
             currentList.map { participant ->
-                if (participant.phone == phone) participant.copy(shareAmount = amount) else participant
+                if (participant.phone == phone) {
+                    participant.copy(shareAmount = amount.takeIf { it.isNotBlank() } ?: "0")
+                } else {
+                    participant
+                }
             }
         }
     }
@@ -119,8 +132,6 @@ class AddTransactionViewModel @Inject constructor(
                 totalAmount <= 0 -> add(ValidationFailure.InvalidAmount)
             }
 
-            println(totalAmount)
-
             if (request.description.isBlank()) add(ValidationFailure.EmptyDescription)
             if (request.participants.isEmpty()) add(ValidationFailure.NoParticipants)
 
@@ -129,7 +140,11 @@ class AddTransactionViewModel @Inject constructor(
                     println(participant.shareAmount)
                     participant.shareAmount?.toDoubleOrNull() ?: 0.0
                 }
-                if (totalAmount != totalShares) {
+
+                println(totalAmount)
+                println(totalShares)
+
+                if (abs(totalAmount - totalShares) > 0.1) {
                     add(ValidationFailure.SharesNotMatchTotal)
                 }
             }
@@ -140,7 +155,26 @@ class AddTransactionViewModel @Inject constructor(
     fun createTransaction(tripId: String, transactionDetails: TransactionDetails) {
         viewModelScope.launch {
             _uiState.update { AddTransactionUiState.Loading }
-            when (val result = createTransactionsUseCase(tripId, transactionDetails)) {
+            val normalizedParticipants = transactionDetails.participants.map { participant ->
+                participant.copy(
+                    phone = PhoneNumberUtils.normalizePhoneNumber(participant.phone)
+                )
+            }
+
+            val normalizedCreator = transactionDetails.creator?.let { creator ->
+                creator.copy(
+                    phone = PhoneNumberUtils.normalizePhoneNumber(creator.phone)
+                )
+            }
+
+            val normalizedDetails = transactionDetails.copy(
+                participants = normalizedParticipants,
+                creator = normalizedCreator
+            )
+
+            println("add" + transactionDetails.totalCost)
+
+            when (val result = createTransactionsUseCase(tripId, normalizedDetails)) {
                 is ResultWrapper.Success -> {
                     _uiState.update { AddTransactionUiState.Success }
                 }
@@ -180,24 +214,24 @@ class AddTransactionViewModel @Inject constructor(
         data object Loading : AddTransactionUiState()
         data object Success : AddTransactionUiState()
     }
-}
 
-data class TransactionFormState(
-    val category: TransactionCategory? = null,
-    val totalAmount: String = "",
-    val description: String = "",
-    val splitType: SplitType = SplitType.ONE_PERSON
-)
+    data class TransactionFormState(
+        val category: TransactionCategory? = null,
+        val totalAmount: String = "",
+        val description: String = "",
+        val splitType: SplitType = SplitType.ONE_PERSON
+    )
 
-sealed class TransactionEvent {
-    data class ValidationError(val errors: Set<ValidationFailure>) : TransactionEvent()
-}
+    sealed class TransactionEvent {
+        data class ValidationError(val errors: Set<ValidationFailure>) : TransactionEvent()
+    }
 
-sealed class ValidationFailure(@StringRes val messageRes: Int) {
-    object EmptyCategory : ValidationFailure(R.string.error_category_empty)
-    object InvalidAmount : ValidationFailure(R.string.error_invalid_amount)
-    object EmptyDescription : ValidationFailure(R.string.error_description_empty)
-    object NoParticipants : ValidationFailure(R.string.error_no_participants)
-    object SharesNotMatchTotal : ValidationFailure(R.string.error_shares_not_match_total)
+    sealed class ValidationFailure(@StringRes val messageRes: Int) {
+        object EmptyCategory : ValidationFailure(R.string.error_category_empty)
+        object InvalidAmount : ValidationFailure(R.string.error_invalid_amount)
+        object EmptyDescription : ValidationFailure(R.string.error_description_empty)
+        object NoParticipants : ValidationFailure(R.string.error_no_participants)
+        object SharesNotMatchTotal : ValidationFailure(R.string.error_shares_not_match_total)
+    }
 }
 

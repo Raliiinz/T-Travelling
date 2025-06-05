@@ -12,6 +12,8 @@ import ru.itis.travelling.presentation.profile.fragments.ProfileFragment
 import ru.itis.travelling.presentation.profile.fragments.ProfileFragment.Companion.PROFILE_TAG
 import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionFragment
 import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionFragment.Companion.ADD_TRANSACTION_TAG
+import ru.itis.travelling.presentation.transactions.fragments.details.TransactionDetailsFragment
+import ru.itis.travelling.presentation.transactions.fragments.details.TransactionDetailsFragment.Companion.TRANSACTION_DETAILS_TAG
 import ru.itis.travelling.presentation.transactions.fragments.overview.TransactionsFragment
 import ru.itis.travelling.presentation.transactions.fragments.overview.TransactionsFragment.Companion.TRANSACTIONS_TAG
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment
@@ -166,6 +168,16 @@ class Navigator @Inject constructor() {
         navigate(
             destination = AddTransactionFragment.getInstance(tripId, phone),
             destinationTag = ADD_TRANSACTION_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
+        )
+    }
+
+    fun navigateToTransactionDetailsFragment(tripId: String, transactionId: String, phone: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = TransactionDetailsFragment.getInstance(tripId, transactionId, phone),
+            destinationTag = TRANSACTION_DETAILS_TAG,
             action = NavigationAction.REPLACE,
             isAddToBackStack = true
         )

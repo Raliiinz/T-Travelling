@@ -58,7 +58,6 @@ class TransactionsViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun handleTripError(code: Int?) {
         val reason = errorCodeMapper.fromCode(code)
         val messageRes = when (reason) {
@@ -77,6 +76,10 @@ class TransactionsViewModel @Inject constructor(
 
     fun navigateToAddTransaction(tripId: String, phoneNumber: String) {
         navigator.navigateToAddTransactionFragment(tripId, phoneNumber)
+    }
+
+    fun onTripClicked(tripId: String, transactionId: String, phoneNumber: String) {
+        navigator.navigateToTransactionDetailsFragment(tripId, transactionId, phoneNumber)
     }
 
     sealed class TransactionsState {

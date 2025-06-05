@@ -42,7 +42,7 @@ class TransactionsFragment : BaseFragment(R.layout.fragment_transactions) {
 
     private fun setupRecyclerView() {
         rvAdapter = TransactionAdapter { transaction ->
-//            viewModel.onTripClicked(trip.id, phoneNumber)
+            viewModel.onTripClicked(tripId, transaction.id, phone)
         }
 
         viewBinding.rvTransactions.apply {

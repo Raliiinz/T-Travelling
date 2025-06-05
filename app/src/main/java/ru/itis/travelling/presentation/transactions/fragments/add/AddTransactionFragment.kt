@@ -27,6 +27,8 @@ import ru.itis.travelling.domain.transactions.model.mapCategoryToApiValue
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionViewModel.AddTransactionUiState
+import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionViewModel.TransactionEvent
+import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionViewModel.ValidationFailure
 import ru.itis.travelling.presentation.transactions.list.ParticipantTransactionAdapter
 import ru.itis.travelling.presentation.transactions.util.SplitType
 import ru.itis.travelling.presentation.transactions.util.addSimpleTextWatcher
@@ -52,7 +54,7 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.loadParticipants(tripId)
+        viewModel.loadParticipants(tripId, phone)
         setupUI()
         setupObservers()
         setupClickListeners()
@@ -85,19 +87,12 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
 
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { observeParticipants() }
                 launch { observeUiState() }
                 launch { observeErrors() }
                 launch { observeEvents() }
-                launch {
-                    viewModel.formState.collect { formState ->
-                        formState.splitType.let {
-                            selectedSplitType = it
-                            updateSplitTypeUI()
-                        }
-                    }
-//                }
+                launch { observeFormState() }
             }
         }
     }
@@ -132,6 +127,15 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
         }
     }
 
+    private suspend fun observeFormState() {
+        viewModel.formState.collect { formState ->
+            formState.splitType.let {
+                selectedSplitType = it
+                updateSplitTypeUI()
+            }
+        }
+    }
+
     private fun handleValidationErrors(errors: Set<ValidationFailure>) {
         errors.forEach { error ->
             showToast(error.messageRes)
@@ -146,19 +150,25 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
             } ?: emptyList()
 
             SplitType.EQUALLY -> {
-                val equalAmount =
-                    if (participants.isNotEmpty()) totalAmount.toDouble() / participants.size else 0.0
-                participants.map { it.copy(shareAmount = equalAmount.toString()) }
+                val amount = try {
+                    totalAmount.toDouble()
+                } catch (e: NumberFormatException) {
+                    0.0
+                }
+                val equalAmount = if (participants.isNotEmpty()) {
+                    amount / participants.size
+                } else
+                    0.0
+                participants.map { participant ->
+                    val newAmount = "%.2f".format(equalAmount)
+                    viewModel.updateParticipantAmount(participant.phone, newAmount)
+                    participant.copy(shareAmount = newAmount)
+                }
             }
 
             SplitType.MANUALLY -> {
-                val currentList = participantsAdapter.currentList
-                if (currentList.size != participants.size) {
-                    participants.map { it.copy(shareAmount = it.shareAmount ?: "0") }
-                } else {
-                    participants.mapIndexed { index, p ->
-                        p.copy(shareAmount = currentList.getOrNull(index)?.shareAmount ?: "0")
-                    }
+                participants.map { participant ->
+                    participant.copy(shareAmount = participant.shareAmount ?: "0")
                 }
             }
         })
@@ -192,38 +202,20 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
 
     private fun updateSplitTypeUI() {
         val selectedColor = ContextCompat.getColor(requireContext(), R.color.yellow)
-        val defaultColor = ContextCompat.getColor(requireContext(), R.color.hint_color)
+        val defaultColor = ContextCompat.getColor(requireContext(), R.color.image_back)
+        val selectedIconColor = ContextCompat.getColor(requireContext(), R.color.black)
+        val defaultIconColor = ContextCompat.getColor(requireContext(), R.color.image_photo)
 
         viewBinding.apply {
             btnOnePerson.backgroundTintList = colorStateList(selectedSplitType == SplitType.ONE_PERSON, selectedColor, defaultColor)
             btnSplitEqually.backgroundTintList = colorStateList(selectedSplitType == SplitType.EQUALLY, selectedColor, defaultColor)
             btnAddParticipant.backgroundTintList = colorStateList(selectedSplitType == SplitType.MANUALLY, selectedColor, defaultColor)
+
+            btnOnePerson.iconTint = colorStateList(selectedSplitType == SplitType.ONE_PERSON, selectedIconColor, defaultIconColor)
+            btnSplitEqually.iconTint = colorStateList(selectedSplitType == SplitType.EQUALLY, selectedIconColor, defaultIconColor)
+            btnAddParticipant.iconTint = colorStateList(selectedSplitType == SplitType.MANUALLY, selectedIconColor, defaultIconColor)
         }
     }
-
-//    private fun updateSplitTypeUI() {
-//        val selectedColor = ContextCompat.getColor(requireContext(), R.color.yellow)
-//        val defaultColor = ContextCompat.getColor(requireContext(), R.color.hint_color)
-//        val selectedIconTint = ContextCompat.getColor(requireContext(), R.color.black)
-//        val defaultIconTint = ContextCompat.getColor(requireContext(), R.color.black)
-//
-//        viewBinding.apply {
-//            btnOnePerson.apply {
-//                backgroundTintList = colorStateList(selectedSplitType == SplitType.ONE_PERSON, selectedColor, defaultColor)
-//                iconTint = ColorStateList.valueOf(if (selectedSplitType == SplitType.ONE_PERSON) selectedIconTint else defaultIconTint)
-//            }
-//
-//            btnSplitEqually.apply {
-//                backgroundTintList = colorStateList(selectedSplitType == SplitType.EQUALLY, selectedColor, defaultColor)
-//                iconTint = ColorStateList.valueOf(if (selectedSplitType == SplitType.EQUALLY) selectedIconTint else defaultIconTint)
-//            }
-//
-//            btnAddParticipant.apply {
-//                backgroundTintList = colorStateList(selectedSplitType == SplitType.MANUALLY, selectedColor, defaultColor)
-//                iconTint = ColorStateList.valueOf(if (selectedSplitType == SplitType.MANUALLY) selectedIconTint else defaultIconTint)
-//            }
-//        }
-//    }
 
     private fun colorStateList(condition: Boolean, trueColor: Int, falseColor: Int) =
         ColorStateList.valueOf(if (condition) trueColor else falseColor)
@@ -238,8 +230,8 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
         }
         val categoryDisplayName = viewBinding.spinnerCategory.selectedItem?.toString().orEmpty()
 
-        val category = TransactionCategory.entries.find { it.getDisplayName() == categoryDisplayName }
-        val apiCategory = mapCategoryToApiValue(categoryDisplayName)
+        val category = TransactionCategory.entries.find { it.getDisplayName(requireContext()) == categoryDisplayName }
+        val apiCategory = mapCategoryToApiValue(categoryDisplayName, requireContext())
 
         viewModel.updateFormState(
             description = description,
@@ -252,13 +244,11 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
             category = apiCategory,
             totalCost = totalAmount,
             description = description,
-            participants = when (selectedSplitType) {
-                SplitType.ONE_PERSON -> viewModel.participants.value.take(1).map {
-                    it.copy(shareAmount = it.shareAmount?.toString())
-                }
-                else -> viewModel.participants.value.map {
-                    Participant(phone = it.phone, shareAmount = it.shareAmount?.toString())
-                }
+            participants = viewModel.participants.value.map {
+                Participant(
+                    phone = it.phone,
+                    shareAmount = it.shareAmount ?: "0"
+                )
             }
         )
         viewModel.validateAndCreateTransaction(tripId, request)

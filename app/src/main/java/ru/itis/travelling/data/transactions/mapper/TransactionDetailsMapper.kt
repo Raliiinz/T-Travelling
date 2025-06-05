@@ -16,7 +16,6 @@ class TransactionDetailsMapper @Inject constructor(
 ) {
     private val apiDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
 
-
     fun mapToResponse(response: TransactionDetailsResponse): TransactionDetails {
         return TransactionDetails(
             id = response.id.toString(),
