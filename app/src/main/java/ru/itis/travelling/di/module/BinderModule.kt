@@ -57,5 +57,4 @@ interface BinderModule {
     @Binds
     @Singleton
     fun bindTransactionsRepositoryToImpl(impl: TransactionRepositoryImpl): TransactionRepository
-
 }

@@ -2,7 +2,6 @@ package ru.itis.travelling.domain.transactions.model
 
 import ru.itis.travelling.domain.profile.model.Participant
 import ru.itis.travelling.domain.profile.model.ParticipantDto
-import java.time.Instant
 
 data class TransactionDetails (
     val id: String? = "",

@@ -19,6 +19,8 @@ import ru.itis.travelling.domain.profile.model.toParticipant
 import ru.itis.travelling.domain.transactions.model.TransactionCategory
 import ru.itis.travelling.domain.transactions.model.TransactionDetails
 import ru.itis.travelling.domain.transactions.usecase.CreateTransactionUseCase
+import ru.itis.travelling.domain.transactions.usecase.GetTransactionDetailsUseCase
+import ru.itis.travelling.domain.transactions.usecase.UpdateTransactionUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
@@ -26,15 +28,21 @@ import ru.itis.travelling.presentation.common.state.ErrorEvent
 import ru.itis.travelling.presentation.transactions.util.SplitType
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
+import kotlin.String
 import kotlin.math.abs
 
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
     private val createTransactionsUseCase: CreateTransactionUseCase,
     private val getTripDetailsUseCase: GetTripDetailsUseCase,
+    private val getTransactionDetailsUseCase: GetTransactionDetailsUseCase,
+    private val updateTransactionUseCase: UpdateTransactionUseCase,
     private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator,
 ) : ViewModel() {
+
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode: StateFlow<Boolean> = _isEditMode
 
     private val _events = MutableSharedFlow<TransactionEvent>()
     val events: SharedFlow<TransactionEvent> = _events
@@ -50,6 +58,65 @@ class AddTransactionViewModel @Inject constructor(
 
     private val _formState = MutableStateFlow<TransactionFormState>(TransactionFormState())
     val formState: StateFlow<TransactionFormState> = _formState.asStateFlow()
+
+    fun loadTransactionForEditing(tripId: String, transactionId: String) {
+        viewModelScope.launch {
+            _uiState.value = AddTransactionUiState.Loading
+            _isEditMode.value = true
+
+            val transactionResult = getTransactionDetailsUseCase(transactionId)
+            val tripResult = getTripDetailsUseCase(tripId)
+
+            when {
+                transactionResult is ResultWrapper.Success && tripResult is ResultWrapper.Success -> {
+                    val transaction = transactionResult.value
+
+                    val splitType = when {
+                        transaction.participants.size == 1 -> SplitType.ONE_PERSON
+                        transaction.participants.all { it.shareAmount == transaction.participants.first().shareAmount } ->
+                            SplitType.EQUALLY
+                        else -> SplitType.MANUALLY
+                    }
+
+                    _formState.update {
+                        it.copy(
+                            description = transaction.description,
+                            totalAmount = transaction.totalCost,
+                            category = TransactionCategory.valueOf(transaction.category.uppercase()),
+                            splitType = splitType
+                        )
+                    }
+
+                    val creatorParticipant = transaction.creator?.toParticipant()?.copy(
+                        phone = PhoneNumberUtils.formatPhoneNumber(transaction.creator.phone)
+                    )
+                    val allParticipants = transaction.participants.map { participant ->
+                        participant.copy(
+                            phone = PhoneNumberUtils.formatPhoneNumber(participant.phone)
+                        )
+                    }
+
+                    val combinedParticipants = listOf(creatorParticipant) + allParticipants
+                    val uniqueParticipants = combinedParticipants.distinctBy { it?.phone }
+
+                    val updatedParticipants = uniqueParticipants.map { participant ->
+                        val share = transaction.participants.find {
+                            PhoneNumberUtils.normalizePhoneNumber(it.phone) ==
+                                    participant?.phone?.let { it1 -> PhoneNumberUtils.normalizePhoneNumber(it1) }
+                        }?.shareAmount ?: "0"
+                        participant?.copy(shareAmount = share)
+                    }
+
+                    _participants.value = updatedParticipants as List<Participant>
+                }
+                transactionResult is ResultWrapper.GenericError -> handleTripError(transactionResult.code)
+                tripResult is ResultWrapper.GenericError -> handleTripError(tripResult.code)
+                transactionResult is ResultWrapper.NetworkError || tripResult is ResultWrapper.NetworkError ->
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+            }
+            _uiState.value = AddTransactionUiState.Idle
+        }
+    }
 
     fun loadParticipants(tripId: String, userPhone: String) {
         viewModelScope.launch {
@@ -111,13 +178,17 @@ class AddTransactionViewModel @Inject constructor(
         }
     }
 
-    fun validateAndCreateTransaction(tripId: String, request: TransactionDetails) {
+    fun validateAndCreateTransaction(tripId: String, transactionId: String, request: TransactionDetails) {
         viewModelScope.launch {
             validateTransaction(request).takeIf { it.isNotEmpty() }?.let { errors ->
                 _events.emit(TransactionEvent.ValidationError(errors))
                 return@launch
             }
-            createTransaction(tripId, request)
+            if (_isEditMode.value) {
+                updateTransaction(transactionId, request)
+            } else {
+                createTransaction(tripId, request)
+            }
         }
     }
 
@@ -134,14 +205,13 @@ class AddTransactionViewModel @Inject constructor(
 
             if (request.description.isBlank()) add(ValidationFailure.EmptyDescription)
             if (request.participants.isEmpty()) add(ValidationFailure.NoParticipants)
+            println(totalAmount)
 
             if (totalAmount != null) {
                 val totalShares = request.participants.sumOf { participant ->
                     println(participant.shareAmount)
                     participant.shareAmount?.toDoubleOrNull() ?: 0.0
                 }
-
-                println(totalAmount)
                 println(totalShares)
 
                 if (abs(totalAmount - totalShares) > 0.1) {
@@ -150,6 +220,42 @@ class AddTransactionViewModel @Inject constructor(
             }
         }
         return errors
+    }
+
+    private fun updateTransaction(transactionId: String, transactionDetails: TransactionDetails) {
+        viewModelScope.launch {
+            _uiState.update { AddTransactionUiState.Loading }
+
+            val normalizedDetails = normalizeTransactionDetails(transactionDetails)
+
+            when (val result = updateTransactionUseCase(normalizedDetails, transactionId)) {
+                is ResultWrapper.Success -> {
+                    _uiState.update { AddTransactionUiState.Success }
+                }
+                is ResultWrapper.GenericError -> {
+                    handleTripError(result.code)
+                }
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                }
+            }
+            _uiState.update { AddTransactionUiState.Idle }
+        }
+    }
+
+    private fun normalizeTransactionDetails(details: TransactionDetails): TransactionDetails {
+        return details.copy(
+            participants = details.participants.map { participant ->
+                participant.copy(
+                    phone = PhoneNumberUtils.normalizePhoneNumber(participant.phone)
+                )
+            },
+            creator = details.creator?.let { creator ->
+                creator.copy(
+                    phone = PhoneNumberUtils.normalizePhoneNumber(creator.phone)
+                )
+            }
+        )
     }
 
     fun createTransaction(tripId: String, transactionDetails: TransactionDetails) {
@@ -171,8 +277,6 @@ class AddTransactionViewModel @Inject constructor(
                 participants = normalizedParticipants,
                 creator = normalizedCreator
             )
-
-            println("add" + transactionDetails.totalCost)
 
             when (val result = createTransactionsUseCase(tripId, normalizedDetails)) {
                 is ResultWrapper.Success -> {
@@ -234,4 +338,3 @@ class AddTransactionViewModel @Inject constructor(
         object SharesNotMatchTotal : ValidationFailure(R.string.error_shares_not_match_total)
     }
 }
-

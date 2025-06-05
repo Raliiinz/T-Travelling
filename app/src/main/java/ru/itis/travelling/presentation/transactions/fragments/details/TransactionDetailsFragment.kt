@@ -115,7 +115,7 @@ class TransactionDetailsFragment: BaseFragment(R.layout.fragment_transaction_det
         }
 
         viewBinding.ivEditIcon.setOnClickListener {
-            viewModel.onEditClicked(phone, tripId)
+            viewModel.onEditClicked(phone, tripId, transactionId)
         }
 
         viewBinding.ivDeleteIcon.setOnClickListener {

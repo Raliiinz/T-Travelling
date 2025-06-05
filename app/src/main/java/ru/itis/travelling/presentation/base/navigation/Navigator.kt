@@ -173,6 +173,16 @@ class Navigator @Inject constructor() {
         )
     }
 
+    fun navigateToEditTransactionFragment(tripId: String, phone: String, transactionId: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = AddTransactionFragment.getInstanceForEditing(tripId, phone, transactionId),
+            destinationTag = ADD_TRANSACTION_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
+        )
+    }
+
     fun navigateToTransactionDetailsFragment(tripId: String, transactionId: String, phone: String) {
         updateNavigationState(NavigationState.BottomNavigationHidden)
         navigate(

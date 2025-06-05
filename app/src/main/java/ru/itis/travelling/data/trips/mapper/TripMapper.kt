@@ -14,14 +14,4 @@ class TripMapper @Inject constructor() {
             price = response.totalBudget.toString()
         )
     }
-
-    fun mapToResponse(domain: Trip): TripResponse {
-        return TripResponse(
-            id = domain.id.toLong(),
-            name = domain.destination,
-            totalBudget = domain.price.toDouble(),
-            dateOfBegin = domain.startDate,
-            dateOfEnd = domain.endDate
-        )
-    }
 }

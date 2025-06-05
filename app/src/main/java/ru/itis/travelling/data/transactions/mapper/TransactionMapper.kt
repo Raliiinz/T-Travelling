@@ -7,7 +7,6 @@ import javax.inject.Inject
 
 class TransactionMapper @Inject constructor() {
     fun mapToDomain(response: TransactionResponse): Transaction {
-
         return Transaction(
             id = response.id.toString(),
             totalCost = response.totalCost.toString(),

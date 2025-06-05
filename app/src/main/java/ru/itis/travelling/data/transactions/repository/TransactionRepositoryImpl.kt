@@ -32,13 +32,9 @@ class TransactionRepositoryImpl @Inject constructor(
         transactionDetails: TransactionDetails
     ): ResultWrapper<TransactionDetails> {
         return apiHelper.safeApiCall {
-
             val request = transactionDetailsMapper.mapToRequest(transactionDetails)
-
             val response = transactionApi.createTransaction(travelId.toLong(), request)
-
             val body = apiHelper.handleResponse(response)
-
             transactionDetailsMapper.mapToResponse(body)
         }
     }

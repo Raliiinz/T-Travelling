@@ -27,18 +27,6 @@ fun TransactionCategory.getDisplayName(context: Context): String = when (this) {
     TransactionCategory.OTHER -> context.getString(R.string.category_other)
 }
 
-//fun TransactionCategory.getDisplayName(): String = when (this) {
-//    TransactionCategory.FOOD -> "Питание"
-//    TransactionCategory.TRANSPORT -> "Транспорт"
-//    TransactionCategory.ACCOMMODATION -> "Проживание"
-//    TransactionCategory.ENTERTAINMENT -> "Развлечения"
-//    TransactionCategory.SHOPPING -> "Покупки"
-//    TransactionCategory.HEALTH -> "Здоровье"
-//    TransactionCategory.COMMUNICATION -> "Связь и интернет"
-//    TransactionCategory.VISA_DOCUMENTS -> "Виза и документы"
-//    TransactionCategory.OTHER -> "Прочее"
-//}
-
 fun TransactionCategory.getIconResId(): Int = when (this) {
     TransactionCategory.TRANSPORT -> R.drawable.ic_transport
     TransactionCategory.ACCOMMODATION -> R.drawable.ic_accommodation
@@ -51,19 +39,6 @@ fun TransactionCategory.getIconResId(): Int = when (this) {
     TransactionCategory.OTHER -> R.drawable.ic_other
 }
 
-//fun mapCategoryToApiValue(displayName: String): String {
-//    return when (displayName) {
-//        "Transport"-> "TRANSPORT"
-//        "Accommodation" -> "ACCOMMODATION"
-//        "Food" -> "FOOD"
-//        "Entertainment" -> "ENTERTAINMENT"
-//        "Shopping" -> "SHOPPING"
-//        "Health" -> "HEALTH"
-//        "Communication" -> "COMMUNICATION"
-//        "Visa Documents" -> "VISA_DOCUMENTS"
-//        else -> "OTHER"
-//    }
-//}
 fun mapCategoryToApiValue(displayName: String, context: Context): String {
     return when (displayName) {
         context.getString(R.string.category_transport) -> "TRANSPORT"

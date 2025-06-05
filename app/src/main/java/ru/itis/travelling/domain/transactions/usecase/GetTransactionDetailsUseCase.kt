@@ -12,9 +12,9 @@ class GetTransactionDetailsUseCase @Inject constructor(
     private val repository: TransactionRepository,
     @IoDispatchers private val dispatcher: CoroutineDispatcher
 ) {
-    suspend operator fun invoke(travelId: String): ResultWrapper<TransactionDetails> {
+    suspend operator fun invoke(transactionId: String): ResultWrapper<TransactionDetails> {
         return withContext(dispatcher) {
-            repository.getTransactionDetails(travelId)
+            repository.getTransactionDetails(transactionId)
         }
     }
 }

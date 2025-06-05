@@ -12,8 +12,6 @@ import ru.itis.travelling.data.transactions.remote.model.TransactionDetailsReque
 import ru.itis.travelling.data.transactions.remote.model.TransactionDetailsResponse
 import ru.itis.travelling.data.transactions.remote.model.TransactionResponse
 import ru.itis.travelling.data.transactions.remote.model.UpdateTransactionRequest
-import ru.itis.travelling.data.trips.remote.model.TripDetailsResponse
-import ru.itis.travelling.data.trips.remote.model.UpdateTripRequest
 
 interface TransactionApi {
     @GET("/api/v1/transactions")

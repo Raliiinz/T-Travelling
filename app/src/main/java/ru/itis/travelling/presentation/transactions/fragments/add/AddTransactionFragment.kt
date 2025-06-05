@@ -47,6 +47,9 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
     private val phone: String by lazy {
         arguments?.getString(PHONE_TEXT) ?: ""
     }
+    private val transactionId: String by lazy {
+        arguments?.getString(TRANSACTION_ID) ?: ""
+    }
 
     private var selectedSplitType: SplitType = SplitType.ONE_PERSON
     private var totalAmount: String = "0.0"
@@ -54,7 +57,12 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.loadParticipants(tripId, phone)
+        if (transactionId.isNotEmpty()) {
+            viewModel.loadTransactionForEditing(tripId, transactionId)
+        } else {
+            viewModel.loadParticipants(tripId, phone)
+        }
+
         setupUI()
         setupObservers()
         setupClickListeners()
@@ -88,6 +96,7 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch { isEditMode() }
                 launch { observeParticipants() }
                 launch { observeUiState() }
                 launch { observeErrors() }
@@ -129,9 +138,34 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
 
     private suspend fun observeFormState() {
         viewModel.formState.collect { formState ->
-            formState.splitType.let {
-                selectedSplitType = it
-                updateSplitTypeUI()
+            selectedSplitType = formState.splitType
+            updateSplitTypeUI()
+
+            if (viewBinding.etTotalAmount.text?.toString() != formState.totalAmount) {
+                viewBinding.etTotalAmount.setText(formState.totalAmount)
+                totalAmount = formState.totalAmount
+            }
+
+            viewBinding.descriptionInputLayout.editText?.setText(formState.description)
+
+            formState.category?.let { category ->
+                val categoryDisplayName = category.getDisplayName(requireContext())
+                val adapter = viewBinding.spinnerCategory.adapter as ArrayAdapter<String>
+                val position = adapter.getPosition(categoryDisplayName)
+                if (position >= 0) {
+                    viewBinding.spinnerCategory.setSelection(position)
+                }
+            }
+            updateParticipantsList()
+        }
+    }
+
+    private suspend fun isEditMode() {
+        viewModel.isEditMode.collect { isEditMode ->
+            viewBinding.btnCreate.text = if (isEditMode) {
+                getString(R.string.save_changes)
+            } else {
+                getString(R.string.create)
             }
         }
     }
@@ -160,15 +194,14 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
                 } else
                     0.0
                 participants.map { participant ->
-                    val newAmount = "%.2f".format(equalAmount)
-                    viewModel.updateParticipantAmount(participant.phone, newAmount)
-                    participant.copy(shareAmount = newAmount)
+                    viewModel.updateParticipantAmount(participant.phone, equalAmount.toString())
+                    participant.copy(shareAmount = equalAmount.toString())
                 }
             }
 
             SplitType.MANUALLY -> {
                 participants.map { participant ->
-                    participant.copy(shareAmount = participant.shareAmount ?: "0")
+                    participant.copy(shareAmount = participant.shareAmount)
                 }
             }
         })
@@ -241,6 +274,7 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
         )
 
         val request = TransactionDetails(
+            id = transactionId,
             category = apiCategory,
             totalCost = totalAmount,
             description = description,
@@ -251,7 +285,7 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
                 )
             }
         )
-        viewModel.validateAndCreateTransaction(tripId, request)
+        viewModel.validateAndCreateTransaction(tripId, transactionId, request)
     }
 
     private fun showToast(@StringRes messageRes: Int) {
@@ -266,10 +300,23 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
         const val ADD_TRANSACTION_TAG = "ADD_TRANSACTION_TAG"
         private const val TRIP_ID = "TRIP_ID"
         private const val PHONE_TEXT = "PHONE_TEXT"
+        private const val TRANSACTION_ID = "TRANSACTION_ID"
 
         fun getInstance(tripId: String, phone: String): AddTransactionFragment {
+            return getInstance(tripId, phone, "")
+        }
+
+        fun getInstanceForEditing(tripId: String, phone: String, transactionId: String): AddTransactionFragment {
+            return getInstance(tripId, phone, transactionId)
+        }
+
+        private fun getInstance(tripId: String, phone: String, transactionId: String): AddTransactionFragment {
             return AddTransactionFragment().apply {
-                arguments = bundleOf(TRIP_ID to tripId, PHONE_TEXT to phone)
+                arguments = bundleOf(
+                    TRIP_ID to tripId,
+                    PHONE_TEXT to phone,
+                    TRANSACTION_ID to transactionId
+                )
             }
         }
     }

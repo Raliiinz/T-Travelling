@@ -128,14 +128,15 @@ class TransactionDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onEditClicked(currentUserPhone: String, tripId: String) {
+    fun onEditClicked(currentUserPhone: String, tripId: String, transactionId: String) {
         viewModelScope.launch {
             when (val currentState = _transactionState.value) {
                 is TransactionDetailsState.Success -> {
                     val isAdmin = checkAdminStatus(currentUserPhone, currentState.transaction)
                     if (isAdmin) {
-                        navigator.navigateToAddTransactionFragment(
+                        navigator.navigateToEditTransactionFragment(
                             tripId = tripId,
+                            transactionId = transactionId,
                             phone = currentUserPhone
                         )
                     } else {
