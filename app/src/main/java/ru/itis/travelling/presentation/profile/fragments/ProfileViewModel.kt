@@ -11,11 +11,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
-import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LogoutUseCase
 import ru.itis.travelling.domain.base.usecase.GetCurrentLanguageUseCase
 import ru.itis.travelling.domain.base.usecase.SetLanguageUseCase
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.domain.profile.usecase.GetProfileUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
@@ -70,7 +69,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun formatProfile(participant: Participant): Participant {
+    private fun formatProfile(participant: ParticipantDto): ParticipantDto {
         return participant.copy(
             phone = formatPhoneNumber(participant.phone)
         )
@@ -104,7 +103,7 @@ class ProfileViewModel @Inject constructor(
 
     sealed class ProfileState {
         object Loading : ProfileState()
-        data class Success(val participant: Participant) : ProfileState()
+        data class Success(val participant: ParticipantDto) : ProfileState()
     }
 }
 

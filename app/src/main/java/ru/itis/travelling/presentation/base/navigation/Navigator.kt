@@ -10,6 +10,12 @@ import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragme
 import ru.itis.travelling.presentation.authregister.fragments.RegistrationFragment.Companion.REGISTRATION_TAG
 import ru.itis.travelling.presentation.profile.fragments.ProfileFragment
 import ru.itis.travelling.presentation.profile.fragments.ProfileFragment.Companion.PROFILE_TAG
+import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionFragment
+import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionFragment.Companion.ADD_TRANSACTION_TAG
+import ru.itis.travelling.presentation.transactions.fragments.details.TransactionDetailsFragment
+import ru.itis.travelling.presentation.transactions.fragments.details.TransactionDetailsFragment.Companion.TRANSACTION_DETAILS_TAG
+import ru.itis.travelling.presentation.transactions.fragments.overview.TransactionsFragment
+import ru.itis.travelling.presentation.transactions.fragments.overview.TransactionsFragment.Companion.TRANSACTIONS_TAG
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment
 import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment.Companion.TRIP_TAG
 import ru.itis.travelling.presentation.trips.fragments.overview.TripsFragment
@@ -144,6 +150,46 @@ class Navigator @Inject constructor() {
             destinationTag = PROFILE_TAG,
             action = NavigationAction.REPLACE,
             isAddToBackStack = false
+        )
+    }
+
+    fun navigateToTransactionsFragment(tripId: String, phone: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = TransactionsFragment.getInstance(tripId, phone),
+            destinationTag = TRANSACTIONS_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
+        )
+    }
+
+    fun navigateToAddTransactionFragment(tripId: String, phone: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = AddTransactionFragment.getInstance(tripId, phone),
+            destinationTag = ADD_TRANSACTION_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
+        )
+    }
+
+    fun navigateToEditTransactionFragment(tripId: String, phone: String, transactionId: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = AddTransactionFragment.getInstanceForEditing(tripId, phone, transactionId),
+            destinationTag = ADD_TRANSACTION_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
+        )
+    }
+
+    fun navigateToTransactionDetailsFragment(tripId: String, transactionId: String, phone: String) {
+        updateNavigationState(NavigationState.BottomNavigationHidden)
+        navigate(
+            destination = TransactionDetailsFragment.getInstance(tripId, transactionId, phone),
+            destinationTag = TRANSACTION_DETAILS_TAG,
+            action = NavigationAction.REPLACE,
+            isAddToBackStack = true
         )
     }
 

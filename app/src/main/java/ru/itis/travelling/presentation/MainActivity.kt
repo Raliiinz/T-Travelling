@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import ru.itis.travelling.R
@@ -40,16 +41,20 @@ class MainActivity : AppCompatActivity() {
             viewBinding.mainBottomNavigation.setBackgroundColor(getColor(R.color.white))
         }
 
-        selectedNavItemId = savedInstanceState?.getInt(SELECTED_NAV_ITEM_KEY) ?: selectedNavItemId
-
         initNavigation()
         setupBottomNavigation()
+        observeNavigationSelection()
         viewModel.navigateBasedOnAuthState()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putInt(SELECTED_NAV_ITEM_KEY, viewBinding.mainBottomNavigation.selectedItemId)
+    private fun observeNavigationSelection() {
+        lifecycleScope.launchWhenStarted {
+            viewModel.selectedNavItemId.collect { itemId ->
+                if (viewBinding.mainBottomNavigation.selectedItemId != itemId) {
+                    viewBinding.mainBottomNavigation.selectedItemId = itemId
+                }
+            }
+        }
     }
 
     private fun createLocalizedContext(context: Context, language: String): Context {
@@ -64,7 +69,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun changeLanguage() {
-        selectedNavItemId = viewBinding.mainBottomNavigation.selectedItemId
         recreate()
     }
 
@@ -88,31 +92,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         viewBinding.mainBottomNavigation.apply {
-            selectedItemId = selectedNavItemId
-
             setOnItemSelectedListener { item ->
-                selectedNavItemId = item.itemId
-                when (item.itemId) {
-                    R.id.menu_trips_tab -> {
-                        viewModel.onTripsTabSelected()
-                        menu.findItem(R.id.menu_trips_tab).isChecked = true
-                        true
-                    }
-                    R.id.menu_add_tab -> {
-                        viewModel.onAddTabSelected()
-                        menu.findItem(R.id.menu_add_tab).isChecked = true
-                        true
-                    }
-                    R.id.menu_profile_tab -> {
-                        viewModel.onProfileTabSelected()
-                        menu.findItem(R.id.menu_profile_tab).isChecked = true
-                        true
-                    }
-                    else -> false
-                }
-                post {
-                    selectedItemId = selectedNavItemId
-                }
+                viewModel.onNavItemSelected(item.itemId)
+                true
             }
             setOnItemReselectedListener {}
         }
@@ -124,10 +106,5 @@ class MainActivity : AppCompatActivity() {
 
     fun hideBottomNavigation() {
         viewBinding.mainBottomNavigation.visibility = View.GONE
-    }
-
-    companion object {
-        private const val SELECTED_NAV_ITEM_KEY = "SELECTED_NAV_ITEM"
-        private var selectedNavItemId: Int = R.id.menu_trips_tab
     }
 }

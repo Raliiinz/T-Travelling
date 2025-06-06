@@ -27,8 +27,8 @@ class TripDetailsMapper @Inject constructor(
             startDate = response.dateOfBegin,
             endDate = response.dateOfEnd,
             price = response.totalBudget.toString(),
-            admin = participantMapper.mapParticipant(response.creator),
-            participants = response.participants.map { participantMapper.mapParticipant(it) }.toMutableList()
+            admin = participantMapper.mapParticipantDto(response.creator),
+            participants = response.participants.map { participantMapper.mapParticipantDto(it) }.toMutableList()
         )
     }
 }

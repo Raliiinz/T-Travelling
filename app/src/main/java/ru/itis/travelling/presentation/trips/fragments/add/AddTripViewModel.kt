@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.contacts.model.Contact
-import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.CreateTripUseCase
 import ru.itis.travelling.domain.contacts.usecase.GetContactsUseCase
@@ -62,11 +62,11 @@ class AddTripViewModel @Inject constructor(
                 (it?.endDate?.toLocalDate() ?: LocalDate.now().plusDays(1))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LocalDate.now() to LocalDate.now().plusDays(1))
 
-    val admin: StateFlow<Participant?> = tripState.map {
+    val admin: StateFlow<ParticipantDto?> = tripState.map {
         it?.admin?.copy(phone = formatPhoneNumber(it.admin.phone))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    val fullParticipants: StateFlow<List<Participant>> = tripState.map {
+    val fullParticipants: StateFlow<List<ParticipantDto>> = tripState.map {
         it?.participants?.map { p -> p.copy(phone = formatPhoneNumber(p.phone)) } ?: emptyList()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -142,7 +142,7 @@ class AddTripViewModel @Inject constructor(
             startDate = LocalDate.now().toString(),
             endDate = LocalDate.now().plusDays(1).toString(),
             price = "",
-            admin = Participant(phone = formattedPhone),
+            admin = ParticipantDto(phone = formattedPhone),
             participants = mutableListOf()
         )
     }
@@ -171,19 +171,26 @@ class AddTripViewModel @Inject constructor(
     fun addParticipants(newParticipants: List<Contact>) {
         _tripState.update { current ->
             current?.let {
-                val existingPhones = it.participants.map { p ->
-                    PhoneNumberUtils.normalizePhoneNumber(p.phone)
+                val newPhones = newParticipants.map {
+                    PhoneNumberUtils.normalizePhoneNumber(it.phoneNumber)
                 }.toSet()
-
-                val newFormatted = newParticipants
-                    .map { contact ->
-                        Participant(phone = formatPhoneNumber(contact.phoneNumber))
+                val currentParticipants = it.participants.map {
+                    it.copy(phone = PhoneNumberUtils.normalizePhoneNumber(it.phone))
+                }
+                val updatedParticipants = currentParticipants
+                    .filter { participant ->
+                        newPhones.contains(PhoneNumberUtils.normalizePhoneNumber(participant.phone))
                     }
-                    .filterNot { participant ->
-                        existingPhones.contains(PhoneNumberUtils.normalizePhoneNumber(participant.phone))
+                    .toMutableList()
+                newParticipants.forEach { contact ->
+                    val normalizedPhone = PhoneNumberUtils.normalizePhoneNumber(contact.phoneNumber)
+                    if (!updatedParticipants.any {
+                            PhoneNumberUtils.normalizePhoneNumber(it.phone) == normalizedPhone
+                        }) {
+                        updatedParticipants.add(ParticipantDto(phone = contact.phoneNumber))
                     }
-
-                it.copy(participants = (it.participants + newFormatted).toMutableList())
+                }
+                it.copy(participants = updatedParticipants)
             }
         }
     }
@@ -235,7 +242,7 @@ class AddTripViewModel @Inject constructor(
                 startDate = currentTrip.startDate,
                 endDate = currentTrip.endDate,
                 price = (cost.toDoubleOrNull() ?: 0.0).toString(),
-                admin = Participant(phone = normalizedPhone),
+                admin = ParticipantDto(phone = normalizedPhone),
                 participants = currentTrip.participants
                     .filterNot { it.phone == normalizedPhone }
                     .map { it.copy(phone = PhoneNumberUtils.normalizePhoneNumber(it.phone)) }
@@ -297,7 +304,7 @@ class AddTripViewModel @Inject constructor(
         }
     }
 
-    fun observeCombinedParticipants(): Flow<List<Participant>> {
+    fun observeCombinedParticipants(): Flow<List<ParticipantDto>> {
         return combine(admin, fullParticipants) { admin, participants ->
             if (admin != null) {
                 listOf(admin) + participants

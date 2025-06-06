@@ -121,4 +121,53 @@
     <string name="language_russian">Русский</string>
     <string name="language_english">Английский</string>
 
+    <!-- Transactions Screen -->
+    <string name="error_not_found_transactions">Tранзакции не найдены</string>
+    <string name="transaction_history">История транзакций</string>
+    <string name="adding_transaction">Добавление транзакции</string>
+    <string name="no_transactions_message">Здесь будут ваши транзакции</string>
+    <string name="error_category_empty">Пожалуйста, выберите категорию</string>
+    <string name="error_invalid_amount">Пожалуйста, введите сумму больше нуля </string>
+    <string name="error_description_empty">Описание не может быть пустым</string>
+    <string name="error_no_participants">Пожалуйста, добавьте хотя бы одного участника</string>
+    <string name="error_participants_not_in_travel">Некоторые участники не участвуют в этом путешествии</string>
+    <string name="error_shares_not_match_total">Сумма задолженностей должна быть равна общей сумме</string>
+    <string name="select_category">Выберите категорию</string>
+    <string name="add_description_transaction">Добавьте описание к транзакции</string>
+    <string name="enter_cost">Введите стоимость</string>
+    <string name="pay_to">Заплатить</string>
+    <string name="rub">₽</string>
+    <string name="error_not_found_transaction">Транзакция не найдена</string>
+    <string name="message_delete_not_creator">Удаление доступно только создателю этой транзакции</string>
+    <string name="delete_transaction">Удалить транзакцию</string>
+    <string name="message_delete_creator">Вы уверены, что хотите удалить транзакцию у всех участников?</string>
+    <string name="pay_debt">Оплатить долг</string>
+    <string name="creator_transaction">Создатель транзакции</string>
+    <string name="photo_creator">Фото создателя</string>
+    <string name="debt_data">Данные о долгах</string>
+    <string name="category_transport">Транспорт</string>
+    <string name="category_accommodation">Проживание</string>
+    <string name="category_food">Питание</string>
+    <string name="category_entertainment">Развлечения</string>
+    <string name="category_shopping">Покупки</string>
+    <string name="category_health">Здоровье</string>
+    <string name="category_communication">Связь и интернет</string>
+    <string name="category_visa_documents">Виза и документы</string>
+    <string name="category_other">Прочее</string>
+    <string name="remind">Напомнить</string>
+    <string name="pay_the_debt">Оплатить долг</string>
+    <string name="message_edit_not_creator">Редактирование доступно только создателю этой транзакции</string>
+
+    <string-array name="transaction_categories">
+        <item>Питание</item>
+        <item>Транспорт</item>
+        <item>Проживание</item>
+        <item>Развлечения</item>
+        <item>Покупки</item>
+        <item>Здоровье</item>
+        <item>Связь и интернет</item>
+        <item>Виза и документы</item>
+        <item>Прочее</item>
+    </string-array>
+
 </resources>

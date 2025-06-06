@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_back_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:layout_marginTop="64dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/spinner_category"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <Spinner
+        android:id="@+id/spinner_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/transaction_categories"
+        android:minHeight="48dp"
+        android:textSize="20sp"
+        android:layout_marginTop="@dimen/margin_8dp"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        style="@style/SpinnerStyle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_icon" />
+
+    <TextView
+        android:id="@+id/tv_choose_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_category"
+        android:textColor="@color/hint_color"
+        android:textSize="18sp"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/spinner_category"
+        android:layout_marginTop="4dp"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/descriptionInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/MyTextInputLayoutStyle"
+        app:layout_constraintTop_toBottomOf="@id/tv_choose_category"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_description"
+            style="@style/TextInputEditTextStyle"
+            android:hint="@string/add_description_transaction"
+            android:inputType="textCapSentences"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/totalAmountInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/MyTextInputLayoutStyle"
+        android:layout_marginTop="@dimen/margin_8dp"
+        app:layout_constraintTop_toBottomOf="@id/descriptionInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etTotalAmount"
+            style="@style/TextInputEditTextStyle"
+            android:hint="@string/enter_cost"
+            android:inputType="numberDecimal"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/tvPaymentTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pay_to"
+        android:textColor="@color/black"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/totalAmountInputLayout"
+        android:layout_marginTop="24dp"/>
+
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/buttonGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:layout_constraintTop_toBottomOf="@id/tvPaymentTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOnePerson"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/image_back"
+            app:icon="@drawable/ic_user"
+            app:iconTint="@color/image_photo"
+            app:iconGravity="textTop"
+            app:iconSize="40dp"
+            app:strokeColor="@android:color/transparent"
+            app:checkedIconTint="@android:color/black"
+            app:backgroundTint="@color/hint_color" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSplitEqually"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/image_back"
+            android:layout_gravity="center"
+            app:icon="@drawable/ic_group"
+            app:iconTint="@color/image_photo"
+            app:iconSize="62dp"
+            app:iconGravity="textTop"
+            app:strokeColor="@android:color/transparent"
+            app:checkedIconTint="@android:color/black"
+            app:backgroundTint="@color/hint_color" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddParticipant"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            app:iconGravity="textTop"
+            android:backgroundTint="@color/image_back"
+            app:icon="@drawable/ic_add_user_sum"
+            app:iconTint="@color/image_photo"
+            app:iconSize="40dp"
+            app:strokeColor="@android:color/transparent"
+            app:checkedIconTint="@android:color/black"
+            app:backgroundTint="@color/hint_color" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_participants"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonGroup"
+        app:layout_constraintBottom_toTopOf="@id/btn_create"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        tools:listitem="@layout/item_participant"/>
+
+    <Button
+        android:id="@+id/btn_create"
+        style="@style/PrimaryButtonStyle"
+        android:layout_marginTop="128dp"
+        android:text="@string/create"
+        app:backgroundTint="@color/yellow"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

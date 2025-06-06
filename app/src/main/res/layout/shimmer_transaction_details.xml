@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <View
+        android:id="@+id/shimmerCategory"
+        android:layout_width="160dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:background="@drawable/shimmer_placeholder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/shimmerDescription"
+        android:layout_width="120dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/shimmer_placeholder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/shimmerCategory" />
+
+    <View
+        android:id="@+id/shimmerAmount"
+        android:layout_width="100dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="@dimen/margin_16dp"
+        android:background="@drawable/shimmer_placeholder"
+        app:layout_constraintBottom_toBottomOf="@id/shimmerCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/shimmerCategory" />
+
+    <View
+        android:id="@+id/shimmerCreatorCard"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="@dimen/margin_8dp"
+        android:background="@drawable/shimmer_placeholder"
+        app:layout_constraintTop_toBottomOf="@id/shimmerDescription" />
+
+    <View
+        android:id="@+id/shimmerDebtsTitle"
+        android:layout_width="120dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        android:background="@drawable/shimmer_placeholder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/shimmerCreatorCard" />
+
+    <LinearLayout
+        android:id="@+id/shimmerParticipantsList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/shimmerDebtsTitle">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/shimmer_placeholder" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/shimmer_placeholder" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:background="@drawable/shimmer_placeholder" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/shimmerPayButton"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginHorizontal="@dimen/margin_16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/shimmer_placeholder"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,6 +16,7 @@ import ru.itis.travelling.data.authregister.remote.interceptor.BearerTokenInterc
 import ru.itis.travelling.data.authregister.remote.interceptor.UnlockingInterceptor
 import ru.itis.travelling.data.authregister.remote.interceptor.UuidInterceptor
 import ru.itis.travelling.data.profile.remote.api.ProfileApi
+import ru.itis.travelling.data.transactions.remote.api.TransactionApi
 import ru.itis.travelling.data.trips.remote.api.TripApi
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
@@ -141,5 +142,11 @@ object NetworkModule {
     @Singleton
     fun provideProfileApi(@Named("authRetrofit") retrofit: Retrofit): ProfileApi {
         return retrofit.create(ProfileApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideTransactionApi(@Named("authRetrofit") retrofit: Retrofit): TransactionApi {
+        return retrofit.create(TransactionApi::class.java)
     }
 }

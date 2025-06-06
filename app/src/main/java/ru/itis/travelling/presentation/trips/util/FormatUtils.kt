@@ -14,4 +14,13 @@ object FormatUtils {
             ""
         }
     }
+
+    fun formatPriceWithoutSeparators(price: String?): String {
+        return try {
+            // Удаляем все разделители тысяч и заменяем запятую на точку для десятичных
+            price?.replace(".", "")?.replace(",", ".") ?: ""
+        } catch (e: Exception) {
+            ""
+        }
+    }
 }
