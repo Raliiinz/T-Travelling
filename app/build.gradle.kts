@@ -7,6 +7,7 @@ plugins {
     id("kotlin-parcelize")
     id("kotlin-kapt")
     alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -97,6 +98,12 @@ dependencies {
     implementation(libs.room)
     implementation(libs.room.ktx)
     ksp(libs.room.ksp)
+
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
+    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
 }
 

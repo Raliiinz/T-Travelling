@@ -26,6 +26,11 @@ security-crypto-version = "1.1.0-alpha06"
 annotation-version = "1.7.0"
 room_version = "2.6.1"
 
+google-services = "4.4.2"
+firebase-messaging = "24.1.1"
+firebase-analytics = "22.4.0"
+
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -52,6 +57,8 @@ annotation = { group = "androidx.annotation", name = "annotation", version.ref =
 room = { group = "androidx.room", name = "room-runtime", version.ref = "room_version" }
 room-ksp = { group = "androidx.room", name = "room-compiler", version.ref = "room_version" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room_version"}
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebase-messaging" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebase-analytics" }
 
 
 [bundles]
@@ -64,3 +71,4 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+google-services = {id = "com.google.gms.google-services", version.ref = "google-services"}

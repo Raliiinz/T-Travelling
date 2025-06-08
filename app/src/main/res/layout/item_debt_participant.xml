@@ -25,6 +25,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
                 tools:text="Иван"
+                android:fontFamily="@font/tinkoffsans_medium"
                 android:textSize="20sp"/>
 
             <TextView
@@ -34,6 +35,7 @@
                 android:layout_marginStart="4dp"
                 android:textColor="@color/black"
                 tools:text="Иванов"
+                android:fontFamily="@font/tinkoffsans_medium"
                 android:textSize="20sp"/>
         </LinearLayout>
 
@@ -43,6 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             tools:text="+7 917 398 19 63"
+            android:fontFamily="@font/tinkoffsans_regular"
             android:textSize="18sp"
             android:textColor="@android:color/darker_gray"/>
     </LinearLayout>
@@ -67,7 +70,7 @@
             android:layout_height="wrap_content"
             tools:text="2,5 ₽"
             android:textSize="18sp"
-            android:textStyle="bold"
+            android:fontFamily="@font/tinkoffsans_bold"
             android:textColor="@color/black"/>
     </LinearLayout>
 

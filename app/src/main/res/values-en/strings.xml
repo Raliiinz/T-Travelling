@@ -154,6 +154,10 @@
     <string name="remind">Remind</string>
     <string name="pay_the_debt">Pay the debt</string>
     <string name="message_edit_not_creator">Editing is available only to the creator of this transaction</string>
+    <string name="reminder_sent_successfully">Reminders sent successfully</string>
+
+
+    <string name="default_notification_channel_id"> default channel </string>
 
     <string-array name="transaction_categories">
         <item>Food</item>

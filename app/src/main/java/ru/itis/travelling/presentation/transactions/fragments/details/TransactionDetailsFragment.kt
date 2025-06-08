@@ -95,6 +95,10 @@ class TransactionDetailsFragment: BaseFragment(R.layout.fragment_transaction_det
                         hideProgress()
                         showAdminEditAlert()
                     }
+
+                    TransactionDetailsViewModel.TransactionDetailsEvent.ReminderSent -> {
+                        showToast(R.string.reminder_sent_successfully)
+                    }
                 }
             }
         }
@@ -123,7 +127,7 @@ class TransactionDetailsFragment: BaseFragment(R.layout.fragment_transaction_det
         }
 
         viewBinding.btnPay.setOnClickListener {
-            viewModel.payDebt(phone, transactionId)
+            viewModel.doAction(phone, transactionId)
         }
     }
 

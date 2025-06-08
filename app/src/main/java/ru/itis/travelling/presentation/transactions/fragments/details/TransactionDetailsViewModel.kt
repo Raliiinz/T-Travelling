@@ -15,6 +15,7 @@ import ru.itis.travelling.domain.profile.model.Participant
 import ru.itis.travelling.domain.transactions.model.TransactionDetails
 import ru.itis.travelling.domain.transactions.usecase.DeleteTransactionUseCase
 import ru.itis.travelling.domain.transactions.usecase.GetTransactionDetailsUseCase
+import ru.itis.travelling.domain.transactions.usecase.RemindTransactionUseCase
 import ru.itis.travelling.domain.transactions.usecase.UpdateTransactionUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
@@ -30,6 +31,7 @@ class TransactionDetailsViewModel @Inject constructor(
     private val getTransactionDetailsUseCase: GetTransactionDetailsUseCase,
     private val deleteTransactionUseCase: DeleteTransactionUseCase,
     private val updateTransactionUseCase: UpdateTransactionUseCase,
+    private val remindTransactionUseCase: RemindTransactionUseCase,
     private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
@@ -93,7 +95,22 @@ class TransactionDetailsViewModel @Inject constructor(
         }
     }
 
-    fun payDebt(participantPhone: String, transactionId: String) {
+    fun doAction(participantPhone: String, transactionId: String) {
+        when (val currentState = _transactionState.value) {
+            TransactionDetailsState.Loading -> {}
+            is TransactionDetailsState.Success -> {
+                val isAdmin = checkAdminStatus(participantPhone, currentState.transaction)
+                if (isAdmin) {
+                    remindDebtors(transactionId)
+                } else {
+                    payDebt(participantPhone, transactionId)
+                }
+            }
+        }
+
+    }
+
+    private fun payDebt(participantPhone: String, transactionId: String) {
         viewModelScope.launch {
             val currentState = _transactionState.value as? TransactionDetailsState.Success ?: return@launch
             val currentTransaction = currentState.transaction
@@ -124,6 +141,20 @@ class TransactionDetailsViewModel @Inject constructor(
                 }
                 is ResultWrapper.GenericError -> handleTransactionError(result.code)
                 is ResultWrapper.NetworkError -> _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+            }
+        }
+    }
+
+    private fun remindDebtors(transactionId: String) {
+        viewModelScope.launch {
+            when (val result = remindTransactionUseCase(transactionId)) {
+                is ResultWrapper.Success -> {
+                    _events.emit(TransactionDetailsEvent.ReminderSent)
+                }
+                is ResultWrapper.GenericError -> handleTransactionError(result.code)
+                is ResultWrapper.NetworkError -> {
+                    _errorEvent.emit(ErrorEvent.MessageOnly(R.string.error_network))
+                }
             }
         }
     }
@@ -234,5 +265,6 @@ class TransactionDetailsViewModel @Inject constructor(
         object ShowEditNotAllowed : TransactionDetailsEvent()
         object ShowDeleteNotAllowed : TransactionDetailsEvent()
         object ShowDeleteConfirmation : TransactionDetailsEvent()
+        object ReminderSent : TransactionDetailsEvent()
     }
 }

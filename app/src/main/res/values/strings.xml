@@ -157,6 +157,10 @@
     <string name="remind">Напомнить</string>
     <string name="pay_the_debt">Оплатить долг</string>
     <string name="message_edit_not_creator">Редактирование доступно только создателю этой транзакции</string>
+    <string name="reminder_sent_successfully">Напоминания отправлены успешно</string>
+
+    <string name="default_notification_channel_id"> default channel </string>
+
 
     <string-array name="transaction_categories">
         <item>Питание</item>

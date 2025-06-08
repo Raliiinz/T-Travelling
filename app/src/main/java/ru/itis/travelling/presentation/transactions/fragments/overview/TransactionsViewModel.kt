@@ -36,7 +36,6 @@ class TransactionsViewModel @Inject constructor(
     fun loadTransactions(travelId: String) {
         viewModelScope.launch {
             _transactionsState.update { TransactionsState.Loading }
-            delay(2000)
             when (val result = getTransactionsUseCase(travelId)) {
                 is ResultWrapper.Success -> {
                     val transactions = result.value.map{ transaction ->

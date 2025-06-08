@@ -1,5 +1,6 @@
 package ru.itis.travelling.data.authregister.local.repository
 
+import com.google.gson.Gson
 import ru.itis.travelling.data.authregister.remote.api.AuthApi
 import ru.itis.travelling.data.authregister.remote.api.RegisterApi
 import ru.itis.travelling.data.authregister.remote.model.LoginRequest
@@ -8,6 +9,7 @@ import ru.itis.travelling.data.authregister.remote.model.TokensResponse
 import ru.itis.travelling.data.network.ApiHelper
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.data.profile.locale.database.dao.ParticipantDao
+import ru.itis.travelling.data.profile.remote.model.DeviceTokenRequest
 import ru.itis.travelling.domain.authregister.repository.UserRepository
 import ru.itis.travelling.domain.authregister.storage.TokenStorage
 import javax.inject.Inject

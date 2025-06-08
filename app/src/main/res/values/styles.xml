@@ -15,6 +15,7 @@
     <style name="MyTextInputLayoutStyle" parent="BaseTextInputLayoutStyle">
         <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:layout_marginTop">16dp</item>
+        <item name="android:font">@font/tinkoffsans_regular</item>
     </style>
 
     <style name="PasswordTextInputLayoutStyle" parent="BaseTextInputLayoutStyle">
@@ -29,6 +30,7 @@
     <style name="PrimaryButtonStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:font">@font/tinkoffsans_medium</item>
         <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:paddingHorizontal">32dp</item>
         <item name="android:paddingVertical">16dp</item>
@@ -101,5 +103,29 @@
         <item name="android:paddingBottom">0dp</item>
         <item name="hintEnabled">false</item>
     </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/yellow</item>
+        <item name="postSplashScreenTheme">@style/Theme.TTravelling</item>
+    </style>
+
+<!--    <style name="TextAppearance.Regular">-->
+<!--        <item name="android:fontFamily">@font/tinkoffsans</item>-->
+<!--        <item name="android:textStyle">normal</item>-->
+<!--        <item name="fontFamily">@font/tinkoffsans</item>-->
+<!--    </style>-->
+
+<!--    <style name="TextAppearance.Medium">-->
+<!--        <item name="android:fontFamily">@font/tinkoffsans</item>-->
+<!--        <item name="android:textStyle">normal</item>-->
+<!--        <item name="fontFamily">@font/tinkoffsans</item>-->
+<!--        <item name="fontWeight">500</item>-->
+<!--    </style>-->
+
+<!--    <style name="TextAppearance.Bold">-->
+<!--        <item name="android:fontFamily">@font/tinkoffsans</item>-->
+<!--        <item name="android:textStyle">bold</item>-->
+<!--        <item name="fontFamily">@font/tinkoffsans</item>-->
+<!--    </style>-->
 
 </resources>

@@ -113,7 +113,6 @@ class AddTripViewModel @Inject constructor(
         _isEditMode.value = true
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
-            delay(2000)
             when (val result = getTripDetailsUseCase(tripId)) {
                 is ResultWrapper.Success -> {
                     _tripState.value = result.value
@@ -150,7 +149,6 @@ class AddTripViewModel @Inject constructor(
     fun loadContacts() {
         viewModelScope.launch {
             _uiState.update { AddTripUiState.Loading }
-            delay(2000)
             try {
                 val contacts = getContactsUseCase().map { contact ->
                     contact.copy(phoneNumber = formatPhoneNumber(contact.phoneNumber))

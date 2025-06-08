@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "808760804823",
+    "project_id": "t-travel-3e9f4",
+    "storage_bucket": "t-travel-3e9f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808760804823:android:ef3b5ad5343a5a2e06b792",
+        "android_client_info": {
+          "package_name": "ru.itis.travelling"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQNz_eEpSMl0FmhfoK_3_SVhVDHOCC4DY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

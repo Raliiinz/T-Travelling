@@ -5,4 +5,5 @@ import ru.itis.travelling.domain.profile.model.ParticipantDto
 
 interface ProfileRepository {
     suspend fun getProfile(): ResultWrapper<ParticipantDto>
+    suspend fun updateDeviceToken(token: String): ResultWrapper<Unit>
 }

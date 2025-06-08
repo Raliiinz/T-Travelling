@@ -46,7 +46,6 @@ class TripDetailsViewModel @Inject constructor(
     fun loadTripDetails(tripId: String) {
         viewModelScope.launch {
             _tripState.update { TripDetailsState.Loading }
-            delay(2000)
             when (val result = getTripDetailsUseCase(tripId)) {
                 is ResultWrapper.Success -> {
                     result.value.let { trip ->
