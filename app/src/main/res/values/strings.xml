@@ -89,6 +89,7 @@
     <string name="enter_the_cost">Введите стоимость</string>
     <string name="name">Имя</string>
     <string name="surname">Фамилия</string>
+    <string name="invitation_accepted">Приглашение принято </string>
 
     <!--Errors-->
     <string name="error_title_validation_registration">Ошибка регистрации</string>
@@ -160,7 +161,8 @@
     <string name="reminder_sent_successfully">Напоминания отправлены успешно</string>
 
     <string name="default_notification_channel_id"> default channel </string>
-
+    <string name="accept_invitation">Принять приглашение</string>
+    <string name="refuse">Отказаться</string>
 
     <string-array name="transaction_categories">
         <item>Питание</item>

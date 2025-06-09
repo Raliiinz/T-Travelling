@@ -3,7 +3,6 @@ package ru.itis.travelling.presentation.trips.fragments.details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,12 +13,17 @@ import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.domain.trips.model.TripDetails
+import ru.itis.travelling.domain.trips.usecase.ConfirmParticipationUseCase
 import ru.itis.travelling.domain.trips.usecase.DeleteTripUseCase
+import ru.itis.travelling.domain.trips.usecase.DenyParticipationUseCase
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.trips.usecase.LeaveTripUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.trips.fragments.details.state.InvitationUiState
+import ru.itis.travelling.presentation.trips.fragments.details.state.TripDetailsEvent
+import ru.itis.travelling.presentation.trips.fragments.details.state.TripDetailsState
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import ru.itis.travelling.presentation.trips.util.FormatUtils
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
@@ -30,6 +34,8 @@ class TripDetailsViewModel @Inject constructor(
     private val getTripDetailsUseCase: GetTripDetailsUseCase,
     private val leaveTripUseCase: LeaveTripUseCase,
     private val deleteTripUseCase: DeleteTripUseCase,
+    private val confirmParticipationUseCase: ConfirmParticipationUseCase,
+    private val denyParticipationUseCase: DenyParticipationUseCase,
     private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
@@ -42,6 +48,56 @@ class TripDetailsViewModel @Inject constructor(
 
     private val _errorEvent = MutableSharedFlow<ErrorEvent>()
     val errorEvent: SharedFlow<ErrorEvent> = _errorEvent
+
+    private val _uiState = MutableStateFlow<InvitationUiState>(InvitationUiState.Idle)
+    val uiState: StateFlow<InvitationUiState> = _uiState
+
+    fun acceptInvitation(tripId: String) {
+        viewModelScope.launch {
+            _uiState.value = InvitationUiState.Loading
+            when (val result = confirmParticipationUseCase(tripId)) {
+                is ResultWrapper.Success -> {
+                    _uiState.value = InvitationUiState.Success(
+                        message = R.string.invitation_accepted,
+                        shouldHideActions = true
+                    )
+                }
+                is ResultWrapper.GenericError -> {
+                    _uiState.value = InvitationUiState.Error(
+                        message = result.error ?: "Unknown error",
+                        errorCode = result.code
+                    )
+                }
+                ResultWrapper.NetworkError -> {
+                    _uiState.value = InvitationUiState.Error(
+                        message = R.string.error_network
+                    )
+                }
+            }
+        }
+    }
+
+    fun declineInvitation(tripId: String, phone: String) {
+        viewModelScope.launch {
+            _uiState.value = InvitationUiState.Loading
+            when (val result = denyParticipationUseCase(tripId)) {
+                is ResultWrapper.Success -> {
+                    navigator.navigateToTripsFragment(phone)
+                }
+                is ResultWrapper.GenericError -> {
+                    _uiState.value = InvitationUiState.Error(
+                        message = result.error ?: "Unknown error",
+                        errorCode = result.code
+                    )
+                }
+                ResultWrapper.NetworkError -> {
+                    _uiState.value = InvitationUiState.Error(
+                        message = R.string.error_network
+                    )
+                }
+            }
+        }
+    }
 
     fun loadTripDetails(tripId: String) {
         viewModelScope.launch {
@@ -205,18 +261,5 @@ class TripDetailsViewModel @Inject constructor(
             else -> R.string.error_unknown
         }
         _errorEvent.emit(ErrorEvent.MessageOnly(messageRes))
-    }
-
-    sealed class TripDetailsState {
-        object Loading : TripDetailsState()
-        data class Success(val trip: TripDetails) : TripDetailsState()
-    }
-
-    sealed class TripDetailsEvent {
-        data class Error(val message: String) : TripDetailsEvent()
-        object ShowAdminAlert : TripDetailsEvent()
-        object ShowLeaveConfirmation : TripDetailsEvent()
-        object ShowDeleteConfirmation : TripDetailsEvent()
-        object NavigateToTrips : TripDetailsEvent()
     }
 }

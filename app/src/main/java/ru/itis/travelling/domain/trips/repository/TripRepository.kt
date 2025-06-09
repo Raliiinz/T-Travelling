@@ -11,4 +11,6 @@ interface TripRepository {
     suspend fun deleteTrip(tripId: String): ResultWrapper<Unit>
     suspend fun createTrip(trip: TripDetails): ResultWrapper<TripDetails>
     suspend fun updateTrip(trip: TripDetails): ResultWrapper<TripDetails>
+    suspend fun confirmParticipation(travelId: String): ResultWrapper<Unit>
+    suspend fun denyParticipation(travelId: String): ResultWrapper<Unit>
 }

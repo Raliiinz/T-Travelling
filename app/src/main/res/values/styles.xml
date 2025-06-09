@@ -109,23 +109,19 @@
         <item name="postSplashScreenTheme">@style/Theme.TTravelling</item>
     </style>
 
-<!--    <style name="TextAppearance.Regular">-->
-<!--        <item name="android:fontFamily">@font/tinkoffsans</item>-->
-<!--        <item name="android:textStyle">normal</item>-->
-<!--        <item name="fontFamily">@font/tinkoffsans</item>-->
-<!--    </style>-->
+    <style name="Widget.Travelling.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/tinkoffsans_medium</item>
+    </style>
 
-<!--    <style name="TextAppearance.Medium">-->
-<!--        <item name="android:fontFamily">@font/tinkoffsans</item>-->
-<!--        <item name="android:textStyle">normal</item>-->
-<!--        <item name="fontFamily">@font/tinkoffsans</item>-->
-<!--        <item name="fontWeight">500</item>-->
-<!--    </style>-->
-
-<!--    <style name="TextAppearance.Bold">-->
-<!--        <item name="android:fontFamily">@font/tinkoffsans</item>-->
-<!--        <item name="android:textStyle">bold</item>-->
-<!--        <item name="fontFamily">@font/tinkoffsans</item>-->
-<!--    </style>-->
+    <style name="Widget.Travelling.Button.Secondary" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/tinkoffsans_medium</item>
+        <item name="strokeColor">@color/hint_color</item>
+    </style>
 
 </resources>

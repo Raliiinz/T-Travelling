@@ -6,9 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,28 +65,12 @@ class NotificationsRepositoryImpl @Inject constructor(
             priority = NotificationCompat.PRIORITY_MAX
         )
 
-//        val intent = Intent(context, MainActivity::class.java).apply {
-//            putExtra("NAVIGATE_TO", "transactions")
-//            putExtra("TRAVEL_ID", data.travelId)
-//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-//        }
-//
-//        val pendingIntent = PendingIntent.getActivity(
-//            context,
-//            0,
-//            intent,
-//            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//        )
-
-//        createNotificationChannel(highPriorityChannelConfig)
-
         val notification = NotificationCompat.Builder(context, notificationConfig.channelId)
             .setSmallIcon(notificationConfig.smallIcon)
             .setContentTitle(notificationConfig.title)
             .setContentText(notificationConfig.message)
             .setPriority(notificationConfig.priority)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-//            .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setStyle(NotificationCompat.BigTextStyle().bigText(notificationConfig.message))
             .build()
@@ -123,12 +105,11 @@ class NotificationsRepositoryImpl @Inject constructor(
                 priority = NotificationCompat.PRIORITY_HIGH
             )
 
-            // Создаем Intent для открытия деталей поездки
             val intent = Intent(context, MainActivity::class.java).apply {
                 putExtra("NAVIGATE_TO", "trip_details")
                 putExtra("TRIP_ID", data.travelId)
                 putExtra("PHONE_TEXT", phone)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
 
             val pendingIntent = PendingIntent.getActivity(

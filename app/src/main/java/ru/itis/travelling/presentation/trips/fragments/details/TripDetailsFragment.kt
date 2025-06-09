@@ -1,6 +1,9 @@
 package ru.itis.travelling.presentation.trips.fragments.details
 
 import android.app.AlertDialog
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -16,6 +19,9 @@ import ru.itis.travelling.databinding.FragmentTripDetailsBinding
 import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.trips.fragments.details.state.InvitationUiState
+import ru.itis.travelling.presentation.trips.fragments.details.state.TripDetailsEvent
+import ru.itis.travelling.presentation.trips.fragments.details.state.TripDetailsState
 import ru.itis.travelling.presentation.trips.list.ParticipantAdapter
 import ru.itis.travelling.presentation.trips.util.DateUtils
 import kotlin.getValue
@@ -32,11 +38,15 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         arguments?.getString(TRIP_ID) ?: ""
     }
 
+    private var isInvitation: Boolean = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupAdapter()
         observeViewModel()
         setupListeners()
+
+        isInvitation = arguments?.getBoolean("IS_INVITATION", false) ?: false
 
         tripId.let {
             viewModel.loadTripDetails(it)
@@ -52,8 +62,8 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.tripState.collect { state ->
                 when (state) {
-                    is TripDetailsViewModel.TripDetailsState.Loading -> showProgress()
-                    is TripDetailsViewModel.TripDetailsState.Success -> {
+                    is TripDetailsState.Loading -> showProgress()
+                    is TripDetailsState.Success -> {
                         hideProgress()
                         updateUi(state.trip)
                     }
@@ -64,24 +74,53 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.events.collect { event ->
                 when (event) {
-                    is TripDetailsViewModel.TripDetailsEvent.Error -> {
+                    is TripDetailsEvent.Error -> {
                         hideProgress()
                         showError(event.message)
                     }
-                    is TripDetailsViewModel.TripDetailsEvent.ShowAdminAlert -> {
+                    is TripDetailsEvent.ShowAdminAlert -> {
                         hideProgress()
                         showAdminAlert()
                     }
-                    is TripDetailsViewModel.TripDetailsEvent.ShowLeaveConfirmation -> {
+                    is TripDetailsEvent.ShowLeaveConfirmation -> {
                         hideProgress()
                         showLeaveConfirmationDialog()
                     }
-                    is TripDetailsViewModel.TripDetailsEvent.ShowDeleteConfirmation -> {
+                    is TripDetailsEvent.ShowDeleteConfirmation -> {
                         hideProgress()
                         showDeleteConfirmationDialog()
                     }
-                    is TripDetailsViewModel.TripDetailsEvent.NavigateToTrips -> {
+                    is TripDetailsEvent.NavigateToTrips -> {
                         viewModel.navigateToTrips(phoneNumber)
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is InvitationUiState.Idle -> {}
+                    is InvitationUiState.Loading -> {
+                        showProgress()
+                    }
+
+                    is InvitationUiState.Success -> {
+                        hideProgress()
+                        showToast(state.message)
+                        if (state.shouldHideActions) {
+                            viewBinding.llInvitationActions.visibility = View.GONE
+                        }
+                    }
+
+                    is InvitationUiState.Error -> {
+                        hideProgress()
+                        val message = if (state.message is Int) {
+                            getString(state.message)
+                        } else {
+                            state.message as String
+                        }
+                        showError(message)
                     }
                 }
             }
@@ -113,6 +152,18 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         viewBinding.btnTransactions.setOnClickListener {
             viewModel.onTransactionsClicked(phoneNumber)
         }
+
+        viewBinding.btnAcceptInvitation.setOnClickListener {
+            viewModel.acceptInvitation(tripId)
+
+            viewBinding.llInvitationActions.visibility = View.GONE
+            viewBinding.dimView.visibility = View.GONE
+            removeBlurEffect(viewBinding.contentLayout)
+        }
+
+        viewBinding.btnDeclineInvitation.setOnClickListener {
+            viewModel.declineInvitation(tripId, phoneNumber)
+        }
     }
 
     private fun updateUi(trip: TripDetails) {
@@ -123,6 +174,32 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
             tvDates.text = getString(R.string.trip_dates, startDate, endDate)
             tvPrice.text = getString(R.string.price, trip.price)
             participantAdapter.submitList(trip.participants)
+
+            if (isInvitation) {
+                llInvitationActions.visibility = View.VISIBLE
+                dimView.visibility = View.VISIBLE
+                applyBlurEffect(contentLayout)
+            } else {
+                llInvitationActions.visibility = View.GONE
+                dimView.visibility = View.GONE
+                removeBlurEffect(contentLayout)
+            }
+            llInvitationActions.visibility = if (isInvitation) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun applyBlurEffect(view: View) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val renderEffect = RenderEffect.createBlurEffect(
+                20f, 20f, Shader.TileMode.CLAMP
+            )
+            view.setRenderEffect(renderEffect)
+        }
+    }
+
+    private fun removeBlurEffect(view: View) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            view.setRenderEffect(null)
         }
     }
 
@@ -196,9 +273,9 @@ class TripDetailsFragment: BaseFragment(R.layout.fragment_trip_details) {
         private const val TRIP_ID = "TRIP_ID"
         private const val PHONE_TEXT = "PHONE_TEXT"
 
-        fun getInstance(tripId: String, phone: String): TripDetailsFragment {
+        fun getInstance(tripId: String, phone: String, isInvitation: Boolean = false): TripDetailsFragment {
             return TripDetailsFragment().apply {
-                arguments = bundleOf(TRIP_ID to tripId, PHONE_TEXT to phone)
+                arguments = bundleOf(TRIP_ID to tripId, PHONE_TEXT to phone, "IS_INVITATION" to isInvitation)
             }
         }
     }

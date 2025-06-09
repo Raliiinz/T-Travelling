@@ -66,4 +66,18 @@ class TripRepositoryImpl @Inject constructor(
             tripDetailsMapper.mapFromResponse(body)
         }
     }
+
+    override suspend fun confirmParticipation(travelId: String): ResultWrapper<Unit> {
+        return apiHelper.safeApiCall {
+            val response = tripApi.confirmParticipation(travelId.toLong())
+            apiHelper.handleResponse(response)
+        }
+    }
+
+    override suspend fun denyParticipation(travelId: String): ResultWrapper<Unit> {
+        return apiHelper.safeApiCall {
+            val response = tripApi.denyParticipation(travelId.toLong())
+            apiHelper.handleResponse(response)
+        }
+    }
 }

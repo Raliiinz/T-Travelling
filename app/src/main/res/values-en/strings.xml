@@ -86,6 +86,7 @@
     <string name="enter_the_cost">Enter cost</string>
     <string name="name">Name</string>
     <string name="surname">Surname</string>
+    <string name="invitation_accepted"> Invitation accepted </string>
 
     <!--Errors-->
     <string name="error_title_validation_registration">Registration error</string>
@@ -158,6 +159,8 @@
 
 
     <string name="default_notification_channel_id"> default channel </string>
+    <string name="accept_invitation">Accept the invitation</string>
+    <string name="refuse">Refuse</string>
 
     <string-array name="transaction_categories">
         <item>Food</item>

@@ -113,10 +113,10 @@ class Navigator @Inject constructor() {
         }
     }
 
-    fun navigateToTripDetailsFragment(tripId: String, phoneNumber: String) {
+    fun navigateToTripDetailsFragment(tripId: String, phoneNumber: String, isInvitation: Boolean = false) {
         updateNavigationState(NavigationState.BottomNavigationHidden)
         navigate(
-            destination = TripDetailsFragment.getInstance(tripId, phoneNumber),
+            destination = TripDetailsFragment.getInstance(tripId, phoneNumber, isInvitation),
             destinationTag = TRIP_TAG,
             action = NavigationAction.REPLACE,
             isAddToBackStack = true
