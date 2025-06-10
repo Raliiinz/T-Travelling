@@ -1,6 +1,5 @@
 package ru.itis.travelling.presentation.transactions.fragments.add
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,16 +14,22 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.ParticipantDto
 import ru.itis.travelling.domain.profile.model.toParticipant
 import ru.itis.travelling.domain.transactions.model.TransactionCategory
 import ru.itis.travelling.domain.transactions.model.TransactionDetails
 import ru.itis.travelling.domain.transactions.usecase.CreateTransactionUseCase
 import ru.itis.travelling.domain.transactions.usecase.GetTransactionDetailsUseCase
 import ru.itis.travelling.domain.transactions.usecase.UpdateTransactionUseCase
+import ru.itis.travelling.domain.trips.model.TripDetails
 import ru.itis.travelling.domain.trips.usecase.GetTripDetailsUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.base.navigation.Navigator
 import ru.itis.travelling.presentation.common.state.ErrorEvent
+import ru.itis.travelling.presentation.transactions.fragments.add.state.AddTransactionUiState
+import ru.itis.travelling.presentation.transactions.fragments.add.state.TransactionEvent
+import ru.itis.travelling.presentation.transactions.fragments.add.state.TransactionFormState
+import ru.itis.travelling.presentation.transactions.fragments.add.state.ValidationFailure
 import ru.itis.travelling.presentation.transactions.util.SplitType
 import ru.itis.travelling.presentation.utils.PhoneNumberUtils
 import javax.inject.Inject
@@ -58,6 +63,42 @@ class AddTransactionViewModel @Inject constructor(
 
     private val _formState = MutableStateFlow<TransactionFormState>(TransactionFormState())
     val formState: StateFlow<TransactionFormState> = _formState.asStateFlow()
+
+
+    fun getParticipantsForSplitType(
+        splitType: SplitType,
+        totalAmount: String,
+        participants: List<Participant>
+    ): List<Participant> {
+        return when (splitType) {
+            SplitType.ONE_PERSON -> participants.firstOrNull()?.let {
+                listOf(it.copy(shareAmount = totalAmount))
+            } ?: emptyList()
+
+            SplitType.EQUALLY -> {
+                val amount = try {
+                    totalAmount.toDouble()
+                } catch (e: NumberFormatException) {
+                    0.0
+                }
+                val equalAmount = if (participants.isNotEmpty()) {
+                    amount / participants.size
+                } else {
+                    0.0
+                }
+                participants.map { participant ->
+                    updateParticipantAmount(participant.phone, equalAmount.toString())
+                    participant.copy(shareAmount = equalAmount.toString())
+                }
+            }
+
+            SplitType.MANUALLY -> {
+                participants.map { participant ->
+                    participant.copy(shareAmount = participant.shareAmount)
+                }
+            }
+        }
+    }
 
     fun loadTransactionForEditing(tripId: String, transactionId: String) {
         viewModelScope.launch {
@@ -103,7 +144,7 @@ class AddTransactionViewModel @Inject constructor(
                         val share = transaction.participants.find {
                             PhoneNumberUtils.normalizePhoneNumber(it.phone) ==
                                     participant?.phone?.let { it1 -> PhoneNumberUtils.normalizePhoneNumber(it1) }
-                        }?.shareAmount ?: "0"
+                        }?.shareAmount ?: DEFAULT_SHARE_AMOUNT
                         participant?.copy(shareAmount = share)
                     }
 
@@ -154,7 +195,7 @@ class AddTransactionViewModel @Inject constructor(
         _participants.update { currentList ->
             currentList.map { participant ->
                 if (participant.phone == phone) {
-                    participant.copy(shareAmount = amount.takeIf { it.isNotBlank() } ?: "0")
+                    participant.copy(shareAmount = amount.takeIf { it.isNotBlank() } ?: DEFAULT_SHARE_AMOUNT)
                 } else {
                     participant
                 }
@@ -205,14 +246,12 @@ class AddTransactionViewModel @Inject constructor(
 
             if (request.description.isBlank()) add(ValidationFailure.EmptyDescription)
             if (request.participants.isEmpty()) add(ValidationFailure.NoParticipants)
-            println(totalAmount)
 
             if (totalAmount != null) {
                 val totalShares = request.participants.sumOf { participant ->
                     println(participant.shareAmount)
                     participant.shareAmount?.toDoubleOrNull() ?: 0.0
                 }
-                println(totalShares)
 
                 if (abs(totalAmount - totalShares) > 0.1) {
                     add(ValidationFailure.SharesNotMatchTotal)
@@ -313,28 +352,8 @@ class AddTransactionViewModel @Inject constructor(
         _errorEvent.emit(ErrorEvent.MessageOnly(messageRes))
     }
 
-    sealed class AddTransactionUiState {
-        data object Idle : AddTransactionUiState()
-        data object Loading : AddTransactionUiState()
-        data object Success : AddTransactionUiState()
-    }
-
-    data class TransactionFormState(
-        val category: TransactionCategory? = null,
-        val totalAmount: String = "",
-        val description: String = "",
-        val splitType: SplitType = SplitType.ONE_PERSON
-    )
-
-    sealed class TransactionEvent {
-        data class ValidationError(val errors: Set<ValidationFailure>) : TransactionEvent()
-    }
-
-    sealed class ValidationFailure(@StringRes val messageRes: Int) {
-        object EmptyCategory : ValidationFailure(R.string.error_category_empty)
-        object InvalidAmount : ValidationFailure(R.string.error_invalid_amount)
-        object EmptyDescription : ValidationFailure(R.string.error_description_empty)
-        object NoParticipants : ValidationFailure(R.string.error_no_participants)
-        object SharesNotMatchTotal : ValidationFailure(R.string.error_shares_not_match_total)
+    companion object {
+        const val ZERO_AMOUNT = "0.0"
+        const val DEFAULT_SHARE_AMOUNT = "0"
     }
 }

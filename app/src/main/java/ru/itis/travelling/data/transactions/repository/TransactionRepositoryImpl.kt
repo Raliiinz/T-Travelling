@@ -62,4 +62,11 @@ class TransactionRepositoryImpl @Inject constructor(
             transactionDetailsMapper.mapToResponse(body)
         }
     }
+
+    override suspend fun remindTransaction(transactionId: String): ResultWrapper<Unit> {
+        return apiHelper.safeApiCall {
+            val response = transactionApi.remindTransaction(transactionId.toLong())
+            apiHelper.handleResponse(response)
+        }
+    }
 }

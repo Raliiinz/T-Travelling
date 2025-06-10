@@ -9,5 +9,5 @@ data class TripDetails(
     val endDate: String,
     val price: String,
     val admin: ParticipantDto,
-    val participants: MutableList<ParticipantDto>
+    val participants: List<ParticipantDto>
 )

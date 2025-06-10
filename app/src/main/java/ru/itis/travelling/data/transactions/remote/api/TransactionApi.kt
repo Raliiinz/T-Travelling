@@ -40,4 +40,9 @@ interface TransactionApi {
         @Path("transactionId") transactionId: Long,
         @Body request: UpdateTransactionRequest
     ): Response<TransactionDetailsResponse>
+
+    @GET("/api/v1/transactions/remind/{transactionId}")
+    suspend fun remindTransaction(
+        @Path("transactionId") transactionId: Long
+    ): Response<Unit>
 }

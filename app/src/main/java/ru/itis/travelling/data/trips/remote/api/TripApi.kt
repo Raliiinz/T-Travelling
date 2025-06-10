@@ -40,4 +40,14 @@ interface TripApi {
     suspend fun updateTrip(
         @Body request: UpdateTripRequest
     ): Response<TripDetailsResponse>
+
+    @GET("/api/v1/travels/confirm/{travelId}")
+    suspend fun confirmParticipation(
+        @Path("travelId") travelId: Long
+    ): Response<Unit>
+
+    @DELETE("/api/v1/travels/deny/{travelId}")
+    suspend fun denyParticipation(
+        @Path("travelId") travelId: Long
+    ): Response<Unit>
 }

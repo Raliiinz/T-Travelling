@@ -9,6 +9,7 @@ import ru.itis.travelling.data.authregister.remote.model.LoginRequest
 import ru.itis.travelling.data.authregister.remote.model.LoginResponse
 import ru.itis.travelling.data.authregister.remote.model.RefreshTokenRequest
 import ru.itis.travelling.data.authregister.remote.model.TokensResponse
+import ru.itis.travelling.data.profile.remote.model.DeviceTokenRequest
 
 interface AuthApi {
     @POST("/api/v1/login")

@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.presentation.base.navigation.Navigator
+import ru.itis.travelling.presentation.trips.fragments.details.TripDetailsFragment
 import javax.inject.Inject
 
 @HiltViewModel
@@ -91,6 +92,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             navigator.navigateToProfileFragment()
         }
+    }
+
+    fun navigateToTripDetails(tripId: String, phone: String, isInvitation: Boolean) {
+        navigator.navigateToTripDetailsFragment(tripId, phone, isInvitation)
     }
 
     data class AuthState(

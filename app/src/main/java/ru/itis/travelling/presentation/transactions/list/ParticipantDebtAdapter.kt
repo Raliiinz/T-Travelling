@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.itis.travelling.R
 import ru.itis.travelling.databinding.ItemDebtParticipantBinding
 import ru.itis.travelling.domain.profile.model.Participant
+import ru.itis.travelling.domain.profile.model.isPaid
 
 
 class ParticipantDebtAdapter() : ListAdapter<Participant, ParticipantDebtAdapter.ParticipantDebtViewHolder>(ParticipantDebtDiffItemCallback()) {
@@ -36,12 +37,12 @@ class ParticipantDebtAdapter() : ListAdapter<Participant, ParticipantDebtAdapter
                 tvPhone.text = participant.phone
                 tvAmount.text = binding.root.context.getString(R.string.price, participant.shareAmount)
 
-                val dotColor = if (participant.shareAmount == "0.0") {
+                val dotColorRes = if (participant.isPaid()) {
                     R.drawable.green_dot_circle
                 } else {
                     R.drawable.red_dot_circle
                 }
-                dotView.background = ContextCompat.getDrawable(binding.root.context, dotColor)
+                dotView.background = ContextCompat.getDrawable(binding.root.context, dotColorRes)
             }
         }
     }

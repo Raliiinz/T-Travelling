@@ -1,11 +1,18 @@
 package ru.itis.travelling.presentation
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +33,16 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
     @Inject lateinit var navigator: Navigator
 
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            Log.d("Permissions", "Разрешение на уведомления получено")
+        } else {
+            Log.w("Permissions", "Разрешение на уведомления отклонено")
+        }
+    }
+
     override fun attachBaseContext(newBase: Context) {
         val prefs = newBase.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         val language = prefs.getString(LANGUAGE_KEY, Locale.getDefault().language) ?: DEFAULT_LANGUAGE
@@ -35,7 +52,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeUtils.applyTheme(this)
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         setContentView(R.layout.activity_main)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        handleNotificationIntent(intent)
 
         if (!ThemeUtils.isDarkTheme(this)) {
             viewBinding.mainBottomNavigation.setBackgroundColor(getColor(R.color.white))
@@ -45,6 +70,24 @@ class MainActivity : AppCompatActivity() {
         setupBottomNavigation()
         observeNavigationSelection()
         viewModel.navigateBasedOnAuthState()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        intent?.extras?.let { extras ->
+            when (extras.getString("NAVIGATE_TO")) {
+                "trip_details" -> {
+                    val tripId = extras.getString("TRIP_ID") ?: return
+                    val phone = extras.getString("PHONE_TEXT") ?: return
+                    val isInvitation = extras.getBoolean("IS_INVITATION", true)
+                    viewModel.navigateToTripDetails(tripId, phone, isInvitation)
+                }
+            }
+        }
     }
 
     private fun observeNavigationSelection() {

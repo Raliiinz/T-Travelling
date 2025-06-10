@@ -18,6 +18,7 @@ class UserPreferencesDataSource @Inject constructor(
     private val Context.authDataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_prefs")
     private val isLoggedIn = booleanPreferencesKey("is_logged_in")
     private val userPhone = stringPreferencesKey("user_phone")
+    private val firebaseToken = stringPreferencesKey("firebase_token")
 
     suspend fun saveLoginState(isLoggedInState: Boolean, phone: String?) {
         context.authDataStore.edit { prefs ->
@@ -34,10 +35,20 @@ class UserPreferencesDataSource @Inject constructor(
             )
         }
 
+    suspend fun saveFirebaseToken(token: String) {
+        context.authDataStore.edit { prefs ->
+            prefs[firebaseToken] = token
+        }
+    }
+
+    fun getFirebaseToken(): Flow<String?> = context.authDataStore.data
+        .map { prefs -> prefs[firebaseToken] }
+
     suspend fun clearAuthData() {
         context.authDataStore.edit { prefs ->
             prefs.remove(isLoggedIn)
             prefs.remove(userPhone)
+//            prefs.remove(firebaseToken)
         }
     }
 }

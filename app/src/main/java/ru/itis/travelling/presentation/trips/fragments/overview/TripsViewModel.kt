@@ -37,7 +37,6 @@ class TripsViewModel @Inject constructor(
     fun loadTrips() {
         viewModelScope.launch {
             _tripsState.update { TripsState.Loading }
-            delay(2000)
             when (val result = getActiveTripsUseCase()) {
                 is ResultWrapper.Success -> {
                     val trips = result.value.map { trip ->

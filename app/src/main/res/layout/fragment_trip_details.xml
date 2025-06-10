@@ -21,6 +21,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <ImageView
             android:id="@+id/iv_back_icon"
             android:layout_width="24dp"
@@ -70,10 +75,10 @@
             android:id="@+id/tv_destination"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/tinkoffsans_bold"
             tools:text="Сочи"
             android:textSize="32sp"
             android:textColor="@color/black"
-            android:textStyle="bold"
             android:layout_marginTop="32dp"
             android:layout_marginStart="@dimen/margin_16dp"
             app:layout_constraintHorizontal_bias="0.0"
@@ -86,6 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="23.04.25 - 12.05.25"
+            android:fontFamily="@font/tinkoffsans_regular"
             android:textSize="16sp"
             android:textColor="@color/hint_color"
             android:layout_marginTop="8dp"
@@ -100,6 +106,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/blue"
+            android:fontFamily="@font/tinkoffsans_medium"
             android:textSize="20sp"
             android:layout_marginEnd="@dimen/margin_16dp"
             app:layout_constraintBottom_toTopOf="@+id/tvParticipantsTitle"
@@ -113,8 +120,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:text="@string/participants"
+            android:fontFamily="@font/tinkoffsans_bold"
             android:textSize="24sp"
-            android:textStyle="bold"
             android:textColor="@color/black"
             android:layout_marginStart="@dimen/margin_16dp"
             app:layout_constraintHorizontal_bias="0.0"
@@ -160,6 +167,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="tv_destination,tv_dates,tv_price,tvParticipantsTitle,rv_participants,btn_transactions" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/dimView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <LinearLayout
+            android:id="@+id/ll_invitation_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:gravity="center"
+            android:padding="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.6">
+
+            <Button
+                android:id="@+id/btn_accept_invitation"
+                style="@style/Widget.Travelling.Button.Primary"
+                android:layout_width="0dp"
+                android:layout_height="68dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/yellow"
+                android:text="@string/accept_invitation"
+                android:textColor="@color/black"/>
+
+            <Button
+                android:id="@+id/btn_decline_invitation"
+                style="@style/Widget.Travelling.Button.Secondary"
+                android:layout_width="0dp"
+                android:layout_height="68dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/hint_color"
+                android:text="@string/refuse"
+                android:textColor="@color/black"/>
+        </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

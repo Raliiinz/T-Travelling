@@ -1,14 +1,17 @@
 package ru.itis.travelling.presentation.authregister.fragments
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.itis.travelling.R
 import ru.itis.travelling.data.network.model.ResultWrapper
 import ru.itis.travelling.domain.authregister.repository.UserPreferencesRepository
 import ru.itis.travelling.domain.authregister.usecase.LoginUseCase
+import ru.itis.travelling.domain.profile.usecase.UpdateDeviceTokenUseCase
 import ru.itis.travelling.domain.util.ErrorCodeMapper
 import ru.itis.travelling.presentation.authregister.state.AuthorizationUiState
 import ru.itis.travelling.presentation.base.navigation.Navigator
@@ -21,6 +24,7 @@ import javax.inject.Inject
 class AuthorizationViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val loginUseCase: LoginUseCase,
+    private val updateDeviceTokenUseCase: UpdateDeviceTokenUseCase,
     private val errorCodeMapper: ErrorCodeMapper,
     private val navigator: Navigator
 ) : ViewModel() {
@@ -104,6 +108,7 @@ class AuthorizationViewModel @Inject constructor(
             when (result) {
                 is ResultWrapper.Success -> {
                     userPreferencesRepository.saveLoginState(true, normalizedPhone)
+                    sendDeviceTokenIfAvailable().join()
                     navigator.navigateToTripsFragment(normalizedPhone)
                 }
                 is ResultWrapper.GenericError -> {
@@ -117,6 +122,39 @@ class AuthorizationViewModel @Inject constructor(
             _uiState.update { AuthorizationUiState.Idle }
         }
     }
+
+    private fun sendDeviceTokenIfAvailable(): Job = viewModelScope.launch {
+        try {
+            userPreferencesRepository.getFirebaseToken()?.let { token ->
+                println("Sending token: $token") // Добавьте логирование
+                when (updateDeviceTokenUseCase(token)) {
+                    is ResultWrapper.Success -> Log.d("AuthVM", "Token updated")
+                    else -> Log.e("AuthVM", "Error updating token")
+                }
+            } ?: run {
+                Log.e("AuthVM", "Firebase token is null") // Важно для диагностики
+            }
+        } catch (e: Exception) {
+            Log.e("AuthVM", "Error sending device token", e)
+        }
+    }
+
+//    private fun sendDeviceTokenIfAvailable() {
+//        viewModelScope.launch {
+//            try {
+//                userPreferencesRepository.getFirebaseToken()?.let { token ->
+//                    println(userPreferencesRepository.getFirebaseToken())
+//                    when (updateDeviceTokenUseCase(token)) {
+//                        is ResultWrapper.Success -> Log.d("AuthVM", "Token updated")
+//                        is ResultWrapper.NetworkError -> Log.e("AuthVM", "Network error updating token")
+//                        is ResultWrapper.GenericError -> Log.e("AuthVM", "Server error updating token")
+//                    }
+//                }
+//            } catch (e: Exception) {
+//                Log.e("AuthVM", "Error sending device token", e)
+//            }
+//        }
+//    }
 
     private suspend fun handleRegistrationError(code: Int?) {
         val reason = errorCodeMapper.fromCode(code)

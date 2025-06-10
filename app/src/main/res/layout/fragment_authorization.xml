@@ -16,9 +16,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/authorization"
+            android:fontFamily="@font/tinkoffsans_bold"
             android:textSize="24sp"
             android:textColor="@color/black"
-            android:textStyle="bold"
             android:layout_marginTop="56dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -26,14 +26,15 @@
 
         <ImageView
             android:id="@+id/iv_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="56dp"
+            android:layout_width="120dp"
+            android:layout_height="64dp"
             android:contentDescription="@string/logo"
-            android:src="@drawable/bank_logo"
+            android:src="@drawable/image_auth"
+            android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_authorization_title"
-            android:layout_marginTop="64dp"/>
+            android:layout_marginTop="32dp"/>
 
         <ImageView
             android:id="@+id/imageViewPicture"
@@ -75,6 +76,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_password"
                 style="@style/TextInputEditTextStyle"
+                android:fontFamily="@font/tinkoffsans_regular"
                 android:hint="@string/password"
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -82,6 +84,7 @@
         <Button
             android:id="@+id/btn_login"
             style="@style/PrimaryButtonStyle"
+            android:fontFamily="@font/tinkoffsans_medium"
             android:layout_marginTop="128dp"
             android:text="@string/enter"
             app:backgroundTint="@color/yellow"
@@ -96,6 +99,7 @@
             android:id="@+id/tv_register_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/tinkoffsans_regular"
             android:text="@string/registration"
             android:textColor="@color/blue"
             android:textSize="16sp"

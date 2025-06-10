@@ -26,9 +26,9 @@ import ru.itis.travelling.domain.transactions.model.getDisplayName
 import ru.itis.travelling.domain.transactions.model.mapCategoryToApiValue
 import ru.itis.travelling.presentation.base.BaseFragment
 import ru.itis.travelling.presentation.common.state.ErrorEvent
-import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionViewModel.AddTransactionUiState
-import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionViewModel.TransactionEvent
-import ru.itis.travelling.presentation.transactions.fragments.add.AddTransactionViewModel.ValidationFailure
+import ru.itis.travelling.presentation.transactions.fragments.add.state.AddTransactionUiState
+import ru.itis.travelling.presentation.transactions.fragments.add.state.TransactionEvent
+import ru.itis.travelling.presentation.transactions.fragments.add.state.ValidationFailure
 import ru.itis.travelling.presentation.transactions.list.ParticipantTransactionAdapter
 import ru.itis.travelling.presentation.transactions.util.SplitType
 import ru.itis.travelling.presentation.transactions.util.addSimpleTextWatcher
@@ -178,33 +178,12 @@ class AddTransactionFragment : BaseFragment(R.layout.fragment_add_transaction) {
 
     private fun updateParticipantsList() {
         val participants = viewModel.participants.value
-        participantsAdapter.submitList(when (selectedSplitType) {
-            SplitType.ONE_PERSON -> participants.firstOrNull()?.let {
-                listOf(it.copy(shareAmount = totalAmount))
-            } ?: emptyList()
-
-            SplitType.EQUALLY -> {
-                val amount = try {
-                    totalAmount.toDouble()
-                } catch (e: NumberFormatException) {
-                    0.0
-                }
-                val equalAmount = if (participants.isNotEmpty()) {
-                    amount / participants.size
-                } else
-                    0.0
-                participants.map { participant ->
-                    viewModel.updateParticipantAmount(participant.phone, equalAmount.toString())
-                    participant.copy(shareAmount = equalAmount.toString())
-                }
-            }
-
-            SplitType.MANUALLY -> {
-                participants.map { participant ->
-                    participant.copy(shareAmount = participant.shareAmount)
-                }
-            }
-        })
+        val updatedList = viewModel.getParticipantsForSplitType(
+            selectedSplitType,
+            totalAmount,
+            participants
+        )
+        participantsAdapter.submitList(updatedList)
     }
 
     private fun setupClickListeners() {

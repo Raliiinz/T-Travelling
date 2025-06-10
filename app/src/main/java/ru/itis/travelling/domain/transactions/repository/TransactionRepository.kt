@@ -17,4 +17,6 @@ interface TransactionRepository {
     suspend fun deleteTransaction(transactionId: String): ResultWrapper<Unit>
 
     suspend fun updateTransaction(transactionDetails: TransactionDetails, transactionId: String): ResultWrapper<TransactionDetails>
+
+    suspend fun remindTransaction(transactionId: String): ResultWrapper<Unit>
 }
